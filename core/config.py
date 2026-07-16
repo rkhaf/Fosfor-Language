@@ -1,1 +1,1 @@
-formatFile = "rkh"
+SYS_FILE_FORMAT : str = "fos"

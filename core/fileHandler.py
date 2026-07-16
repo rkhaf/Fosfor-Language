@@ -8,7 +8,7 @@ def readPath(p_path : str) -> None:
         
     try:
         with open(p_path, "r") as fileOriginal:
-            if(config.formatFile in p_path):
+            if(config.SYS_FILE_FORMAT in p_path):
                 run(fileOriginal.read())
                 
             else:

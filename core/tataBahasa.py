@@ -1,3 +1,5 @@
+SYS_ERR : str = "ERROR"
+
 TIPEDATA_INT : str = "int"
 TIPEDATA_FLOAT : str = "float"
 TIPEDATA_BOOL : str = "bool"

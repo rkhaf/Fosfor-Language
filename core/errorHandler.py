@@ -10,10 +10,10 @@ class errorHandlerClass:
             },
         }
     
-    def kirimError(self, baris:int, kolom:int, kelas:str, kodeError:int) -> str:
+    def kirimError(self, baris:int, kolom:int, kelas:str, token:str, kodeError:int) -> str:
         baris+=1
         kolom+=1
-        pesanTemplate : str = "ada error dibaris: "+str(baris)+" kolom: "+str(kolom)+". isinya:"
+        pesanTemplate : str = "ada error dibaris: "+str(baris)+", kolom: "+str(kolom)+", dibagian: -> "+token+" <-'. erornya krna:"
         pesanError : str = ""
 
         getKelasError : dict[int, str] = self.errorTerdaftar.get(kelas, {})
