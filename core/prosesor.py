@@ -1,4 +1,5 @@
-from lekser import lekserClass
+# from lekser import lekserClass
+from modul_baca.lekser import lekserClass
 # from tokenizer import tokenizerClass
 
 def run(fileOriginal : str) -> None:

@@ -1,4 +1,4 @@
-import tataBahasa
+import data_language.tataBahasa as tataBahasa
 
 keywordList : dict[str, str] = {
     tataBahasa.KEYWORD_BKIN : "T_BKIN",

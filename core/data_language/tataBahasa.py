@@ -15,3 +15,6 @@ KEYWORD_SYS_GTWW : str = "UNIDENTIFIED"
 KEYWORD_SYS_LTRL : str = "T_LITERAL"
 KEYWORD_SYS_DLMR : str = ";"
 KEYWORD_SYS_KYWR : str = "T_KEYWORD"
+
+MODUL_PATH_LEXR : str = "modul_baca.lekser"
+MODUL_PATH_TOKN : str = "modul_baca.tokenizer"

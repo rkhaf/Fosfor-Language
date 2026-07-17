@@ -1,8 +1,8 @@
-from keywords import keywordList
-from keywords import primitiveList
-from dataFormat import Token
+from data_language.keywords import keywordList
+from data_language.keywords import primitiveList
+from data_language.dataFormat import Token
 # from keywords import primitiveList
-import tataBahasa
+import data_language.tataBahasa as tataBahasa
 
 class tokenizerClass:
     def __init__(self):

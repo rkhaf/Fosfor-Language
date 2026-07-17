@@ -2,11 +2,10 @@
 
 from enum import Enum
 from errorHandler import errorHandlerClass
-from tokenizer import tokenizerClass
-# from keywords import primitiveList
-from dataFormat import Token
+from modul_baca.tokenizer import tokenizerClass
+from data_language.dataFormat import Token
 
-import tataBahasa
+import data_language.tataBahasa as tataBahasa
 
 class states(Enum):
     default = 1,
@@ -15,7 +14,6 @@ class states(Enum):
             
 class lekserClass:
     def __init__(self):
-        # self.fileMentahan : str = ""
         self.errorhandlerObjek = errorHandlerClass()
         self.tokenizerObjek = tokenizerClass()
         self.state : states = states.default
@@ -116,6 +114,5 @@ class lekserClass:
             pass
         else:
             self.konversiDanPushKeToken()
-        # print(self.tokens)
         for token in self.tokens:
-            print(token.tipe," : ", token.nilai)
+            print("[",token.tipe,":", token.nilai,"]")
