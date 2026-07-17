@@ -12,5 +12,6 @@ KEYWORD_TPNY : str = "tipenya"
 KEYWORD_NLNY : str = "nilainya"
 
 KEYWORD_SYS_GTWW : str = "UNIDENTIFIED"
-KEYWORD_SYS_LTRL : str = "LITERAL"
+KEYWORD_SYS_LTRL : str = "T_LITERAL"
 KEYWORD_SYS_DLMR : str = ";"
+KEYWORD_SYS_KYWR : str = "T_KEYWORD"
