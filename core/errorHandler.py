@@ -25,7 +25,7 @@ class errorHandlerClass:
         print("*"*self.panjangGarisHeader)
         print(msg)
         print("*"*self.panjangGarisHeader)
-        print("\n\n")
+        # print("\n")
     
     def kirimError(self, baris:int, kolom:int, kelas:str, token:str, kodeError:int) -> str:
         self.errorHeader()

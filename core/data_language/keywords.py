@@ -11,8 +11,25 @@ keywordList : dict[str, str] = {
 }
 
 primitiveList : dict[str, str] = {
-    tataBahasa.TIPEDATA_INT : "PRIM_INT",
-    tataBahasa.TIPEDATA_FLOAT : "PRIM_FLT",
-    tataBahasa.TIPEDATA_STR : "PRIM_STR",
-    tataBahasa.TIPEDATA_BOOL : "PRIM_BOOL",
+    tataBahasa.TIPEDATA_INT : "T_INT",
+    tataBahasa.TIPEDATA_FLOAT : "T_FLT",
+    tataBahasa.TIPEDATA_STR : "T_STR",
+    tataBahasa.TIPEDATA_BOOL : "T_BOOL",
+}
+
+operatorList : dict[str, str] = {
+    tataBahasa.OPERATOR_DIVE : "T_DIVE",
+    tataBahasa.OPERATOR_MDLO : "T_MDLO",
+    tataBahasa.OPERATOR_MINS : "T_MINS",
+    tataBahasa.OPERATOR_MULT : "T_MULT",
+    tataBahasa.OPERATOR_PLUS : "T_PLUS",
+}
+
+simbolList : set[str] = {
+    tataBahasa.OPERATOR_PLUS,
+    tataBahasa.OPERATOR_MINS,
+    tataBahasa.OPERATOR_DIVE,
+    tataBahasa.OPERATOR_MULT,
+    tataBahasa.OPERATOR_MDLO,
+    tataBahasa.KEYWORD_SYS_DLMR
 }

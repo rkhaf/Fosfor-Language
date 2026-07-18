@@ -8,7 +8,7 @@ def run(fileOriginal : str) -> None:
     
     lekserProsesing : str | None = lekserObjek.proses(fileOriginal)
     if(lekserProsesing is None):
-        print("yea")
+        # print("yea")
         pass
         # leksems : list[str] = lekserObjek.getLeksem()
         # tokenizerProsesing : str|None = tokenizerObjek.proses(leksems)

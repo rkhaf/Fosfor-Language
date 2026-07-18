@@ -4,13 +4,15 @@ from enum import Enum
 from errorHandler import errorHandlerClass
 from modul_baca.tokenizer import tokenizerClass
 from data_language.dataFormat import Token
+from data_language.keywords import simbolList
 
 import data_language.tataBahasa as tataBahasa
 
 class states(Enum):
     default = 1,
     numerik = 2,
-    string = 3
+    string = 3,
+    simbol = 4
             
 class lekserClass:
     def __init__(self):
@@ -39,41 +41,64 @@ class lekserClass:
     def konversiDanPushKeToken(self, p_tipedata : str = "")->None:
         if(len(p_tipedata)!=0):
             self.tokens.append(self.tokenizerObjek.getToken(self.temp,p_tipedata))
-
+            
         else:
             self.tokens.append(self.tokenizerObjek.getToken(self.temp))
+            
 
+        self.temp=""
+    
+    def clearTemp(self)->None:
         self.temp=""
     
     def gantiBaris(self)->None:
         self.barisIterator+=1
         self.kolomIterator=0
     
+    def konversiTempJikaBerisi(self)->None:
+        if(len(self.temp)>0):
+            self.konversiDanPushKeToken()
+    
     def proses(self, p_fileMentahan : str) -> str | None:
         while self.pointerIterator < len(p_fileMentahan):
             self.fileOriginal = p_fileMentahan
             self.currentChar = p_fileMentahan[self.pointerIterator]
             if(self.state==states.default):
+                self.dotCount=0
+                
                 if(self.currentChar.isdigit()):
+                    # if(len(self.temp)>0):
+                    #     self.konversiDanPushKeToken()
+                    self.konversiTempJikaBerisi()
                     self.gantiState(states.numerik)
+                    # print("digit")
                     
                 elif(self.currentChar=='"'):
                     self.gantiState(states.string)
                     self.maju()
+                    # print("petik")
                     
+                elif(self.currentChar in simbolList):
+                    self.gantiState(states.simbol)
+                
                 elif(self.currentChar==";"):
-                    self.konversiDanPushKeToken()
+                    # self.konversiDanPushKeToken()
                     self.simpenCharKeTemp()
                     self.maju()
+                    # print("delimiter")
                     
                 elif(self.currentChar==" "):
-                    if(len(self.temp)!=0):
-                        self.konversiDanPushKeToken()
+                    # if(len(self.temp)!=0):
+                    #     self.konversiDanPushKeToken()
+                    self.konversiTempJikaBerisi()
                     self.maju()
                     
                 elif(self.currentChar=="\n"):
-                    self.konversiDanPushKeToken()
+                    # if(len(self.temp)>0):
+                    #     self.konversiDanPushKeToken()
+                    self.konversiTempJikaBerisi()
                     self.gantiBaris()
+                    self.clearTemp()
                     self.maju()
 
                     
@@ -111,8 +136,28 @@ class lekserClass:
                     self.maju()
                 if(self.pointerIterator>=7):
                     pass
+            
+            elif(self.state==states.simbol):
+                if(self.currentChar in simbolList):
+                    self.konversiTempJikaBerisi()
+                    # if(len(self.temp)>0):
+                    #     self.konversiDanPushKeToken()
+                    self.simpenCharKeTemp()
+                    self.konversiDanPushKeToken()
+                    self.maju()
+                else:
+                    self.state=states.default
             pass
+            # if(tataBahasa.KEYWORD_NLNY in self.tokens):
+            #     pass
         else:
-            self.konversiDanPushKeToken()
+            self.konversiTempJikaBerisi()
+            # if(len(self.temp)>0):
+            #     self.konversiDanPushKeToken()
+            # self.konversiDanPushKeToken()
+            
+        print("\n")
         for token in self.tokens:
             print("[",token.tipe,":", token.nilai,"]")
+            if("T_DLMR" == token.nilai):
+                print("\n")

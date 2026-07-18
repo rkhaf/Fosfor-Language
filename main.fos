@@ -1,2 +1,1 @@
-nilainya "1.2.3 meter" tipenya float;
-bikin variabel namanya test nilainya 5.1.3 tipenya float;
+nilainya 1.1 * 2 tipenya float; 

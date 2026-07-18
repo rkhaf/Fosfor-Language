@@ -1,6 +1,9 @@
+bikin variabel namanya test nilainya 5.1+ 12 tipenya float;
+
 bikin variabel namanya umur tipenya int nilainya 10.
 bikin variabel pointer namanya umurptr tipenya int nilainya umur.
 bikin variabel namanya cek tipenya bool nilainya umur>18.
+
 
 
 bikin fungsi namanya penjumlahan tipednya int parameternya int a, int b isinya 

@@ -1,13 +1,11 @@
 from data_language.keywords import keywordList
 from data_language.keywords import primitiveList
+from data_language.keywords import operatorList
 from data_language.dataFormat import Token
-# from keywords import primitiveList
 import data_language.tataBahasa as tataBahasa
 
 class tokenizerClass:
     def __init__(self):
-        # self.leksem : list[str] = []
-        # self.tokens : list[str] = []
         pass
     
     def getToken(self, p_leksem : str, p_datatype : str = "")->Token:
@@ -17,6 +15,9 @@ class tokenizerClass:
             
             elif(p_leksem in primitiveList.keys()):
                 return Token(tataBahasa.KEYWORD_SYS_KYWR,primitiveList.get(p_leksem, "ERR"))
+            
+            elif(p_leksem in operatorList.keys()):
+                return Token(tataBahasa.KEYWORD_SYS_OPRT,operatorList.get(p_leksem,"ERR"))
             
             else:
                 return Token(tataBahasa.KEYWORD_SYS_LTRL, p_leksem)
