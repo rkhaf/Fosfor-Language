@@ -44,8 +44,10 @@ class lekserClass:
             
         else:
             self.tokens.append(self.tokenizerObjek.getToken(self.temp))
-            
-
+        self.temp=""
+    
+    def pushTempKeToken(self, p_tipeToken : str)->None:
+        self.tokens.append(Token(p_tipeToken, self.temp))
         self.temp=""
     
     def clearTemp(self)->None:
@@ -120,10 +122,12 @@ class lekserClass:
                         return self.errorhandlerObjek.kirimError(self.barisIterator, self.kolomIterator, __name__, self.temp, 1)
                 else:
                     if(self.dotCount<1):
-                        self.konversiDanPushKeToken(tataBahasa.TIPEDATA_INT)
+                        # self.konversiDanPushKeToken(tataBahasa.T_LITERAL_INT)
+                        self.pushTempKeToken(tataBahasa.T_LITERAL_INT)
                         
                     else:
-                        self.konversiDanPushKeToken(tataBahasa.TIPEDATA_FLOAT)
+                        # self.konversiDanPushKeToken(tataBahasa.T_LITERAL_FLOAT)
+                        self.pushTempKeToken(tataBahasa.T_LITERAL_FLOAT)
                         
                     self.gantiState(states.default)
             
@@ -159,5 +163,5 @@ class lekserClass:
         print("\n")
         for token in self.tokens:
             print("[",token.tipe,":", token.nilai,"]")
-            if("T_DLMR" == token.nilai):
+            if("T_DLMR" == token.tipe):
                 print("\n")
