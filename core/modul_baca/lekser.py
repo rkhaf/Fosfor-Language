@@ -61,6 +61,9 @@ class lekserClass:
         if(len(self.temp)>0):
             self.konversiDanPushKeToken()
     
+    def ambilTokens(self)->list[Token]:
+        return self.tokens
+    
     def proses(self, p_fileMentahan : str) -> str | None:
         while self.pointerIterator < len(p_fileMentahan):
             self.fileOriginal = p_fileMentahan
@@ -160,8 +163,8 @@ class lekserClass:
             #     self.konversiDanPushKeToken()
             # self.konversiDanPushKeToken()
             
-        print("\n")
-        for token in self.tokens:
-            print("[",token.tipe,":", token.nilai,"]")
-            if("T_DLMR" == token.tipe):
-                print("\n")
+        # print("\n")
+        # for token in self.tokens:
+        #     print("[",token.tipe,":", token.nilai,"]")
+        #     if("T_DLMR" == token.tipe):
+        #         print("\n")
