@@ -1,4 +1,7 @@
-from llvmFolder.library import LLVM_PRIMITIVE_TYPES
+# from llvmFolder.library import LLVM_PRIMITIVE_TYPES
+from data_language.dataFormat import Token
+from data_language import tataBahasa as tb
+from typing import Any
 
 class nodeClass:
     """
@@ -7,8 +10,15 @@ class nodeClass:
     def __init__(self, p_baris : int, p_kolom : int)->None:
         self.baris : int = p_baris
         self.kolom : int = p_kolom
-        pass
+    
+    def getDatas(self)->dict[str, Any]:
+        return {}
 
+class nodeError(nodeClass):
+    """
+    buat bahan return-an klo semisal ada node yg gk valid
+    """
+    
 class nodeEkspresi(nodeClass):
     """
     nodeParent buat node yg bisa ngereturn di kodenya
@@ -33,17 +43,55 @@ class nodeBlock(nodeStatement):
         super().__init__(p_baris, p_kolom)
         self.isiBlock : list[nodeClass] = []
 
+class nodeNomor(nodeEkspresi):
+    """
+    node buat ngecontain numerik
+    """
+    def __init__(self, p_token : Token)->None:
+        assert p_token.tipe==tb.T_LITERAL_FLOAT or p_token.tipe==tb.T_LITERAL_INT, "ERRORDEV: nodeNomor hrusnya cmn nerima token numerik"
+
+        super().__init__(p_token.baris, p_token.kolom)
+        self.tipe : str = p_token.tipe
+        self.nilai : str = p_token.nilai
+    
+    def getDatas(self) -> dict[str, Any]:
+        return {"tipe numerik" : self.tipe, "nilai numerik" : self.nilai}
+
+class nodeString(nodeEkspresi):
+    """
+    node buat ngecontain string
+    """
+    def __init__(self, p_token : Token)->None:
+        assert p_token.tipe==tb.T_LITERAL_STR, "ERRORDEV: nodeString hrusnya cmn nerima token string"
+        
+        super().__init__(p_token.baris, p_token.kolom)
+        self.tipe : str = p_token.tipe
+        self.nilai : str = p_token.nilai
+        
+class nodeBoolean(nodeEkspresi):
+    """
+    node buat ngecontain boolean
+    """
+    def __init__(self, p_token : Token)->None:
+        assert p_token.tipe==tb.T_LITERAL_BOOL, "ERRORDEV: nodeBoolean hrusnya cmn nerima token string"
+        
+        super().__init__(p_token.baris, p_token.kolom)
+        self.tipe : str = p_token.tipe
+        self.nilai : str = p_token.nilai
+
 class nodeBikinVariabel(nodeStatement):
     """
     node representasi utk bikin variabel
     """
-    def __init__(self, p_baris : int, p_kolom : int, p_namaVariabel : str, p_tipedataVariabel : str)->None:
+    def __init__(self, p_baris : int, p_kolom : int)->None:
         super().__init__(p_baris, p_kolom)
         
         self.namaVariabel : str = ""
         self.tipedataVariabel : str = ""
         self.nilaiVariabel : nodeEkspresi
-        
+    
+    def getDatas(self) ->dict[str, Any]:
+        return {"nama variabel" : self.namaVariabel, "tipedata variabel" : self.tipedataVariabel, "nilai variabel" : self.nilaiVariabel.getDatas(),}
 
 class nodeBikinFungsi(nodeStatement):
     """

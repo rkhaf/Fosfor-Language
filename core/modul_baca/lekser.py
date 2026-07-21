@@ -20,8 +20,8 @@ class lekserClass:
         self.tokenizerObjek = tokenizerClass()
         self.state : states = states.default
         self.pointerIterator : int = 0
-        self.barisIterator : int = 0
-        self.kolomIterator : int = 0
+        self.barisIterator : int = 1
+        self.kolomIterator : int = 1
         self.temp : str = ""
         self.currentChar : str = ""
         self.dotCount : int = 0
@@ -40,14 +40,14 @@ class lekserClass:
 
     def konversiDanPushKeToken(self, p_tipedata : str = "")->None:
         if(len(p_tipedata)!=0):
-            self.tokens.append(self.tokenizerObjek.getToken(self.temp,p_tipedata))
+            self.tokens.append(self.tokenizerObjek.getToken(self.barisIterator, self.kolomIterator, self.temp,p_tipedata))
             
         else:
-            self.tokens.append(self.tokenizerObjek.getToken(self.temp))
+            self.tokens.append(self.tokenizerObjek.getToken(self.barisIterator, self.kolomIterator, self.temp))
         self.temp=""
     
     def pushTempKeToken(self, p_tipeToken : str)->None:
-        self.tokens.append(Token(p_tipeToken, self.temp))
+        self.tokens.append(Token(self.barisIterator, self.kolomIterator, p_tipeToken, self.temp))
         self.temp=""
     
     def clearTemp(self)->None:
@@ -125,12 +125,12 @@ class lekserClass:
                         return self.errorhandlerObjek.kirimError(self.barisIterator, self.kolomIterator, __name__, self.temp, 1)
                 else:
                     if(self.dotCount<1):
-                        # self.konversiDanPushKeToken(tataBahasa.T_LITERAL_INT)
-                        self.pushTempKeToken(tataBahasa.T_LITERAL_INT)
+                        self.konversiDanPushKeToken(tataBahasa.T_LITERAL_INT)
+                        # self.pushTempKeToken(tataBahasa.T_LITERAL_INT)
                         
                     else:
-                        # self.konversiDanPushKeToken(tataBahasa.T_LITERAL_FLOAT)
-                        self.pushTempKeToken(tataBahasa.T_LITERAL_FLOAT)
+                        self.konversiDanPushKeToken(tataBahasa.T_LITERAL_FLOAT)
+                        # self.pushTempKeToken(tataBahasa.T_LITERAL_FLOAT)
                         
                     self.gantiState(states.default)
             

@@ -39,5 +39,12 @@ T_LITERAL_FLOAT : str = "T_LTRL_FLOAT"
 T_LITERAL_BOOL : str = "T_LTRL_BOOL"
 T_LITERAL_STR : str = "T_LTRL_STR"
 
+T_BKIN : str = "T_BKIN"
+T_VRBL : str = "T_VRBL"
+T_NMNY : str = "T_NMNY"
+T_TPNY : str = "T_TPNY"
+T_NLNY : str = "T_NLNY"
+T_DLMR : str = "T_DLMR"
+
 MODUL_PATH_LEXR : str = "modul_baca.lekser"
 MODUL_PATH_TOKN : str = "modul_baca.tokenizer"

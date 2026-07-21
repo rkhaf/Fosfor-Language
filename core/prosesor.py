@@ -1,20 +1,25 @@
 # from lekser import lekserClass
 from modul_baca.lekser import lekserClass
-from modul_parsing.AST import ASTClass
+from modul_parsing.parser import parserClass
 
 from data_language.dataFormat import Token
 # from tokenizer import tokenizerClass
 
 def run(fileOriginal : str) -> None:
     lekserObjek = lekserClass()
+    parserObjek = parserClass()
     # tokenizerObjek = tokenizerClass()
     
     lekserProsesing : str | None = lekserObjek.proses(fileOriginal)
     if(lekserProsesing is None):
-        # print("yea")
-        pass
-        # leksems : list[str] = lekserObjek.getLeksem()
         tokens : list[Token] = lekserObjek.ambilTokens()
+        parserProsesing : str | None = parserObjek.proses(tokens)
+
+        if(parserProsesing is None):
+            pass
+        
+        else:
+            pass
         
         # print("\n")
         # for token in tokens:

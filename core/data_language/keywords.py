@@ -1,20 +1,20 @@
 import data_language.tataBahasa as tataBahasa
 
 keywordList : dict[str, str] = {
-    tataBahasa.KEYWORD_BKIN : "T_BKIN",
-    tataBahasa.KEYWORD_VRBL : "T_VRBL",
-    tataBahasa.KEYWORD_NMNY : "T_NMNY",
-    tataBahasa.KEYWORD_TPNY : "T_TPNY",
-    tataBahasa.KEYWORD_NLNY : "T_NLNY",
-    tataBahasa.KEYWORD_DLMR : "T_DLMR",
+    tataBahasa.KEYWORD_BKIN : tataBahasa.T_BKIN,
+    tataBahasa.KEYWORD_VRBL : tataBahasa.T_VRBL,
+    tataBahasa.KEYWORD_NMNY : tataBahasa.T_NMNY,
+    tataBahasa.KEYWORD_TPNY : tataBahasa.T_TPNY,    
+    tataBahasa.KEYWORD_NLNY : tataBahasa.T_NLNY,
+    tataBahasa.KEYWORD_DLMR : tataBahasa.T_DLMR,
 }
 
 literalList : dict[str, str] = {
     tataBahasa.KEYWORD_BOOL_TRUE : tataBahasa.T_LITERAL_BOOL,
     tataBahasa.KEYWORD_BOOL_FALSE : tataBahasa.T_LITERAL_BOOL,
-    # tataBahasa.T_LITERAL_FLOAT : tataBahasa.T_LITERAL_FLOAT,
-    # tataBahasa.T_LITERAL_INT : tataBahasa.T_LITERAL_INT,
-    # tataBahasa.T_LITERAL_STR : tataBahasa.T_LITERAL_STR,
+    tataBahasa.T_LITERAL_FLOAT : tataBahasa.T_LITERAL_FLOAT,
+    tataBahasa.T_LITERAL_INT : tataBahasa.T_LITERAL_INT,
+    tataBahasa.T_LITERAL_STR : tataBahasa.T_LITERAL_STR,
 }
 
 primitiveList : dict[str, str] = {

@@ -1,3 +1,4 @@
+# from llvmlite import ir
 from llvmlite import ir
 
 LLVM_PRIMITIVE_TYPES : dict[str, ir.Type] = {
