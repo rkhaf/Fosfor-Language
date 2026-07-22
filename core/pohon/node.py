@@ -79,6 +79,18 @@ class nodeBoolean(nodeEkspresi):
         self.tipe : str = p_token.tipe
         self.nilai : str = p_token.nilai
 
+class nodeBiner(nodeEkspresi):
+    """
+    node buat ngecontain operasi biner
+    """
+    def __init__(self, p_operand1 : nodeEkspresi, p_operatorToken : Token, p_operand2 : nodeEkspresi)->None:
+        self.operand1 : nodeEkspresi = p_operand1
+        self.operator : str = p_operatorToken.nilai
+        self.operand2 : nodeEkspresi = p_operand2
+    
+    def getDatas(self) -> dict[str, Any]:
+        return {"operand1" : self.operand1.getDatas(),"operator" : self.operator,"operand2" : self.operand2.getDatas()}
+
 class nodeBikinVariabel(nodeStatement):
     """
     node representasi utk bikin variabel

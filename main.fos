@@ -1,2 +1,3 @@
-bikin variabel nilainya 1.2 tipenya float selesai       
-bikin variabel namanya test nilainya 5 tipenya integer selesai
+bikin variabel namanya umur_user tipenya integer nilainya 18 + (2 * 5) selesai
+bikin variabel nilainya (100.5 - 50.0) / 2.0 namanya diskon_persen tipenya float selesai
+bikin variabel tipenya float nilainya 3.14 * (5 * 5) namanya luas_lingkaran selesai

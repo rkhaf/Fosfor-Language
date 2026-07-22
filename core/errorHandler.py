@@ -1,16 +1,25 @@
+from __future__ import annotations
 import data_language.tataBahasa
 
 class errorFormat:
-    def __init__(self, p_baris:int, p_kolom:int, p_kelas:str, p_token:str, p_kodeError:int):
+    def __init__(self, p_baris:int=-1, p_kolom:int=-1, p_kelas:str="", p_token:str="", p_kodeError:int=-1):
         self.baris : int = p_baris
         self.kolom : int = p_kolom
         self.kelas : str = p_kelas
-        self.token : str = p_token
+        self.bagian : str = p_token
         self.kodeError : int = p_kodeError
+    
+    def __eq__(self, p_baru : object)->bool:
+        if isinstance(p_baru, errorFormat):
+            return (self.baris, self.kolom, self.kelas, self.bagian, self.kodeError) == (p_baru.baris, p_baru.kolom, p_baru.kelas, p_baru.bagian, p_baru.kodeError)
+        return False
+    
+    def __hash__(self) -> int:
+        return hash((self.baris, self.kolom, self.kelas, self.bagian, self.kodeError))
 
 class errorHandlerClass:
     def __init__(self) -> None:
-        self.errors : list[errorFormat] = []
+        self.errors : set[errorFormat] = set()
         self.panjangGarisHeader : int = 100
         
         self.errorTerdaftar : dict[str, dict[int, str]] = {
@@ -18,10 +27,10 @@ class errorHandlerClass:
                 1 : ""
             },
             data_language.tataBahasa.MODUL_PATH_LEXR : {
-                1 : "input invalid, masa iya float ngisinya gitu"
+                1 : "   input invalid, masa iya float ngisinya gitu"
             },
             data_language.tataBahasa.MODUL_PATH_PRSR : {
-                1 : "nama variabelnya isiin dulu njr, kalo kosong gabisa dipanggil ntar"
+                1 : "   nama variabelnya isiin dulu njr, kalo kosong gabisa dipanggil ntar"
             },
         }
     
@@ -58,17 +67,30 @@ class errorHandlerClass:
             # raise Exception("[ErrorHandlerClass] : errorcodenya gak sesuai, harap cek lagi pls "+str(baris)+str(kolom)+str(kelas))
             return "[ErrorHandlerClass] : errorcodenya gak sesuai, harap cek lagi pls "+str(baris)+", "+str(kolom)+", "+str(kelas)+", "+str(kodeError)
 
-    def tambahinError(self, p_baris:int, p_kolom:int, p_kelas:str, p_token:str, p_kodeError:int)->None:
-        self.errors.append(errorFormat(p_baris, p_kolom, p_kelas, p_token, p_kodeError))
+    def tambahinError(self, p_kelas:str, p_kodeError:int, p_baris:int=-1, p_kolom:int=-1, p_bagian:str="")->None:
+        # self.errors.append(errorFormat(p_baris, p_kolom, p_kelas, p_bagian, p_kodeError))
+        self.errors.add(errorFormat(p_baris, p_kolom, p_kelas, p_bagian, p_kodeError))
         
     def displayError(self)->None:
         self.errorHeader()
         
         if(len(self.errors)>0):
             for eror in self.errors:
-                pesanTemplate : str = "ada error dibaris: "+str(eror.baris)+", kolom: "+str(eror.kolom)+", dibagian: -> "+eror.token+" <-'. erornya krna:"
+                pesanTemplate : str = ""
                 pesanError : str = ""
                 getKelasError : dict[int, str] = self.errorTerdaftar.get(eror.kelas, {})
+                
+                if(eror.baris!=-1):
+                    pesanTemplate+= "ada error dibaris: "+str(eror.baris)+" "
+                    
+                if(eror.kolom!=-1):
+                    pesanTemplate+= "kolom: "+str(eror.kolom)+" "
+                
+                if(len(eror.bagian)>0):
+                    pesanTemplate+= "dibagian: -> "+eror.bagian+" <-'"
+                    
+                pesanTemplate+= "erornya krna:"
+                
                 if(len(getKelasError)!=0):
                     getPesanError : str = getKelasError.get(eror.kodeError, "ERROR")
                     
@@ -76,6 +98,11 @@ class errorHandlerClass:
                     pesanError+=getPesanError
                     
                     # return pesanTemplate+"\n"+pesanError
-                    raise Exception(pesanTemplate+"\n"+pesanError)
+                    print(pesanTemplate+"\n"+pesanError)
+                    # raise Exception(pesanTemplate+"\n"+pesanError)
                 else:
                     raise Exception("[ErrorHandlerClass] : errorcodenya gak sesuai, harap cek lagi pls "+str(eror.baris)+str(eror.kolom)+str(eror.kelas))
+                print("\n")
+        pass
+    def adaError(self)->bool:
+        return len(self.errors)>0

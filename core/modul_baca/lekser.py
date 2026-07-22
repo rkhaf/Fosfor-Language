@@ -121,8 +121,11 @@ class lekserClass:
                         self.dotCount+=1
                         self.simpenCharKeTemp()
                         self.maju()
-                    else:
-                        return self.errorhandlerObjek.kirimError(self.barisIterator, self.kolomIterator, __name__, self.temp, 1)
+                    else:   
+                        # self.errorhandlerObjek.tambahinError(self.barisIterator, self.kolomIterator, __name__, self.temp, 1)
+                        self.errorhandlerObjek.tambahinError(__name__, 1, self.barisIterator, self.kolomIterator, self.temp)
+                        self.maju()
+                        # return self.errorhandlerObjek.kirimError(self.barisIterator, self.kolomIterator, __name__, self.temp, 1)
                 else:
                     if(self.dotCount<1):
                         self.konversiDanPushKeToken(tataBahasa.T_LITERAL_INT)

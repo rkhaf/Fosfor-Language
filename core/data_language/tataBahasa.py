@@ -12,6 +12,9 @@ OPERATOR_DIVE : str = "/"
 OPERATOR_MULT : str = "*"
 OPERATOR_MDLO : str = "%"
 
+SYMBOL_PRTS_KIRI : str = "("
+SYMBOL_PRTS_KNAN : str = ")"
+
 KEYWORD_BOOL_TRUE : str = "benar"
 KEYWORD_BOOL_FALSE : str = "salah"
 
@@ -38,6 +41,15 @@ T_LITERAL_INT : str = "T_LTRL_INT"
 T_LITERAL_FLOAT : str = "T_LTRL_FLOAT"
 T_LITERAL_BOOL : str = "T_LTRL_BOOL"
 T_LITERAL_STR : str = "T_LTRL_STR"
+
+T_PRTS_KIRI : str = "T_PARANTESIS_KIRI"
+T_PRTS_KNAN : str = "T_PARANTESIS_KANAN"
+
+T_DIVE : str = "T_DIVE"
+T_MDLO : str = "T_MDLO"
+T_MINS : str = "T_MINS"
+T_MULT : str = "T_MULT"
+T_PLUS : str = "T_PLUS"
 
 T_BKIN : str = "T_BKIN"
 T_VRBL : str = "T_VRBL"

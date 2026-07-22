@@ -5,6 +5,7 @@ from pohon import node
 # from data_language import keywords
 from errorHandler import errorHandlerClass
 from data_language import pola
+from data_language import keywords as kyrwd
 from enum import Enum
 
 class states(Enum):
@@ -50,26 +51,55 @@ class parserClass:
         else:
             raise AssertionError("eror ngeparse")
 
+    def parseFaktor(self)->node.nodeEkspresi:
+        # print("PARSE FAKTOR")
+        if(self.tokenSkrg.tipe==tb.T_LITERAL_FLOAT or self.tokenSkrg.tipe==tb.T_LITERAL_INT):
+            tempToken = self.tokenSkrg
+            if(self.tokenDepan.tipe in kyrwd.operatorList.values() or self.tokenDepan.tipe in kyrwd.literalList.keys() or self.tokenDepan.tipe in [tb.T_PRTS_KIRI, tb.T_PRTS_KNAN]):
+            # if(self.tokenDepan.tipe in kyrwd.keywordList or self.tokenDepan.tipe==tb.T_IDTF):
+                self.maju()
+            return node.nodeNomor(tempToken)
+        
+        else:
+            if(self.tokenSkrg.tipe==tb.T_PRTS_KIRI):
+                self.maju()
+                nodee = self.parseEkspresi()
+                if(self.tokenSkrg.tipe==tb.T_PRTS_KNAN):
+                    if(self.tokenDepan.tipe in kyrwd.operatorList.values() or self.tokenDepan.tipe in kyrwd.literalList.keys() or self.tokenDepan.tipe in [tb.T_PRTS_KIRI, tb.T_PRTS_KNAN]):
+                        self.maju()
+                    return nodee
+                else:
+                    print(self.tokenSkrg.tipe)
+                    raise Exception("ada yg aneh")
+                    
+            else:
+                raise Exception("ada yg aneh")
+        
+    def parseTerm(self)->node.nodeEkspresi:
+        # print("PARSE TERM")
+        nodeKiri = self.parseFaktor()
+        
+        while self.tokenSkrg.tipe == tb.T_MULT or self.tokenSkrg.tipe == tb.T_DIVE:
+            operator = self.tokenSkrg
+            self.maju()
+            nodeKanan=self.parseFaktor()
+            nodeKiri = node.nodeBiner(nodeKiri, operator, nodeKanan)
+        return nodeKiri
+    
     def parseEkspresi(self)->node.nodeEkspresi:
-        self.maju()
-        # tempNode : node.nodeEkspresi = node.nodeEkspresi(self.tokenSkrg.baris, self.tokenSkrg.kolom)
-        operandKiri : node.nodeEkspresi = self.parseLiteral()
-        return operandKiri
-        # operandKiri : node.nodeEkspresi | None = None
-        # while self.idxIterator<len(self.fullToken)-1:
-        #     print(self.tokenSkrg)
-            # if(self.tokenSkrg.tipe in keywords.literalList.keys()):
-                # operandKiri = self.parseLiteral()
-                # if(type(temp) is node.nodeNomor):
-                #     return node.nodeNomor(self.tokenSkrg)
-                
-                # return "idk"
-                # pass
-            # self.maju()
-        # return "RRR"
+        # print("PARSE EKSPRESI")
+        nodeKiri = self.parseTerm()
+        
+        while self.tokenSkrg.tipe==tb.T_PLUS or self.tokenSkrg.tipe==tb.T_MINS:
+            operator = self.tokenSkrg
+            self.maju()
+            nodeKanan = self.parseTerm()
+            nodeKiri = node.nodeBiner(nodeKiri, operator, nodeKanan)
+        return nodeKiri
+    
 
-    def parseBikinVariabel(self)->str | None:
-        self.maju()
+    def parseBikinVariabel(self)->None:
+        self.maju(2)
         tempNode : node.nodeBikinVariabel = node.nodeBikinVariabel(self.tokenSkrg.baris, self.tokenSkrg.kolom)
         # self.maju()
         while self.idxIterator<len(self.fullToken):
@@ -85,30 +115,32 @@ class parserClass:
                     self.maju()
                     
                 elif(self.tokenSkrg.tipe==tb.T_NLNY):
+                    self.maju()
                     tempNode.nilaiVariabel = self.parseEkspresi()
                     # print("nilai varnya : ",tempNode)
                     # self.maju()
                 self.maju()
             else:
                 if(len(tempNode.namaVariabel)<=0):
-                    # return "variabel harus ada namanya"
-                    return self.errorHandlerObjek.kirimError(self.tokenSkrg.baris, self.tokenSkrg.kolom, __name__, self.tokenSkrg.nilai, 1)
+                    # self.errorHandlerObjek.tambahinError(__name__, 1, self.tokenSkrg.baris, self.tokenSkrg.kolom, self.tokenSkrg.nilai)
+                    self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=1, p_baris=self.tokenSkrg.baris)
+                    # return self.errorHandlerObjek.kirimError(self.tokenSkrg.baris, self.tokenSkrg.kolom, __name__, self.tokenSkrg.nilai, 1)
                 self.ASTObjek.addNode(tempNode)
                 # print("DETAIL")
                 # print(tempNode.baris,tempNode.kolom,tempNode.namaVariabel,tempNode.nilaiVariabel,tempNode.tipedataVariabel)
                 break
             pass
         
-    def proses(self, p_tokens : list[Token])->str | None:
+    def proses(self, p_tokens : list[Token])->None:
         # tokenDepan : Token = p_tokens[idxIterator+1]
         self.fullToken = p_tokens
         while self.idxIterator<len(self.fullToken)-1:
             self.refresh()
             match [self.tokenSkrg.tipe, self.tokenDepan.tipe]:
                 case pola.POLA_BIKIN_VARIABEL:
-                    parsingBikinVariabel : str | None = self.parseBikinVariabel()
-                    if(type(parsingBikinVariabel) is str):
-                        return parsingBikinVariabel
+                    parsingBikinVariabel : None = self.parseBikinVariabel()
+                    # if(type(parsingBikinVariabel) is str):
+                    #     return parsingBikinVariabel
                     pass
                 
                 case _:

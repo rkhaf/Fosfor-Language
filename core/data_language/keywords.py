@@ -7,6 +7,8 @@ keywordList : dict[str, str] = {
     tataBahasa.KEYWORD_TPNY : tataBahasa.T_TPNY,    
     tataBahasa.KEYWORD_NLNY : tataBahasa.T_NLNY,
     tataBahasa.KEYWORD_DLMR : tataBahasa.T_DLMR,
+    tataBahasa.SYMBOL_PRTS_KIRI : tataBahasa.T_PRTS_KIRI,
+    tataBahasa.SYMBOL_PRTS_KNAN : tataBahasa.T_PRTS_KNAN,
 }
 
 literalList : dict[str, str] = {
@@ -25,11 +27,11 @@ primitiveList : dict[str, str] = {
 }
 
 operatorList : dict[str, str] = {
-    tataBahasa.OPERATOR_DIVE : "T_DIVE",
-    tataBahasa.OPERATOR_MDLO : "T_MDLO",
-    tataBahasa.OPERATOR_MINS : "T_MINS",
-    tataBahasa.OPERATOR_MULT : "T_MULT",
-    tataBahasa.OPERATOR_PLUS : "T_PLUS",
+    tataBahasa.OPERATOR_DIVE : tataBahasa.T_DIVE,
+    tataBahasa.OPERATOR_MDLO : tataBahasa.T_MDLO,
+    tataBahasa.OPERATOR_MINS : tataBahasa.T_MINS,
+    tataBahasa.OPERATOR_MULT : tataBahasa.T_MULT,
+    tataBahasa.OPERATOR_PLUS : tataBahasa.T_PLUS,
 }
 
 simbolList : set[str] = {
@@ -38,5 +40,7 @@ simbolList : set[str] = {
     tataBahasa.OPERATOR_DIVE,
     tataBahasa.OPERATOR_MULT,
     tataBahasa.OPERATOR_MDLO,
-    tataBahasa.KEYWORD_DLMR
+    tataBahasa.KEYWORD_DLMR,
+    tataBahasa.SYMBOL_PRTS_KIRI,
+    tataBahasa.SYMBOL_PRTS_KNAN
 }
