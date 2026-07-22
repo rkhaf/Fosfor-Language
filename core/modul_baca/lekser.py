@@ -15,8 +15,8 @@ class states(Enum):
     simbol = 4
             
 class lekserClass:
-    def __init__(self):
-        self.errorhandlerObjek = errorHandlerClass()
+    def __init__(self, p_errorHandlerReference : errorHandlerClass):
+        self.errorhandlerObjek : errorHandlerClass = p_errorHandlerReference
         self.tokenizerObjek = tokenizerClass()
         self.state : states = states.default
         self.pointerIterator : int = 0

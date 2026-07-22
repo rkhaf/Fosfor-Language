@@ -3,11 +3,13 @@ from modul_baca.lekser import lekserClass
 from modul_parsing.parser import parserClass
 
 from data_language.dataFormat import Token
+from errorHandler import errorHandlerClass
 # from tokenizer import tokenizerClass
 
 def run(fileOriginal : str) -> None:
-    lekserObjek = lekserClass()
-    parserObjek = parserClass()
+    errorHandlerObjek = errorHandlerClass()
+    lekserObjek = lekserClass(errorHandlerObjek)
+    parserObjek = parserClass(errorHandlerObjek)
     # tokenizerObjek = tokenizerClass()
     
     lekserProsesing : str | None = lekserObjek.proses(fileOriginal)
@@ -19,6 +21,7 @@ def run(fileOriginal : str) -> None:
             pass
         
         else:
+            print(parserProsesing)
             pass
         
         # print("\n")

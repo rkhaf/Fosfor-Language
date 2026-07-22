@@ -48,3 +48,4 @@ T_DLMR : str = "T_DLMR"
 
 MODUL_PATH_LEXR : str = "modul_baca.lekser"
 MODUL_PATH_TOKN : str = "modul_baca.tokenizer"
+MODUL_PATH_PRSR : str = "modul_parsing.parser"

@@ -3,6 +3,7 @@ from modul_parsing.AST import ASTClass
 from data_language import tataBahasa as tb
 from pohon import node
 # from data_language import keywords
+from errorHandler import errorHandlerClass
 from data_language import pola
 from enum import Enum
 
@@ -11,7 +12,8 @@ class states(Enum):
     variabel = 1
 
 class parserClass:
-    def __init__(self)->None:
+    def __init__(self, p_errorHandlerReference : errorHandlerClass)->None:
+        self.errorHandlerObjek : errorHandlerClass = p_errorHandlerReference
         self.ASTObjek : ASTClass = ASTClass()
         self.fullToken : list[Token]
         self.tokenSkrg : Token
@@ -66,7 +68,7 @@ class parserClass:
             # self.maju()
         # return "RRR"
 
-    def parseBikinVariabel(self)->None:
+    def parseBikinVariabel(self)->str | None:
         self.maju()
         tempNode : node.nodeBikinVariabel = node.nodeBikinVariabel(self.tokenSkrg.baris, self.tokenSkrg.kolom)
         # self.maju()
@@ -88,6 +90,9 @@ class parserClass:
                     # self.maju()
                 self.maju()
             else:
+                if(len(tempNode.namaVariabel)<=0):
+                    # return "variabel harus ada namanya"
+                    return self.errorHandlerObjek.kirimError(self.tokenSkrg.baris, self.tokenSkrg.kolom, __name__, self.tokenSkrg.nilai, 1)
                 self.ASTObjek.addNode(tempNode)
                 # print("DETAIL")
                 # print(tempNode.baris,tempNode.kolom,tempNode.namaVariabel,tempNode.nilaiVariabel,tempNode.tipedataVariabel)
@@ -101,7 +106,9 @@ class parserClass:
             self.refresh()
             match [self.tokenSkrg.tipe, self.tokenDepan.tipe]:
                 case pola.POLA_BIKIN_VARIABEL:
-                    self.parseBikinVariabel()
+                    parsingBikinVariabel : str | None = self.parseBikinVariabel()
+                    if(type(parsingBikinVariabel) is str):
+                        return parsingBikinVariabel
                     pass
                 
                 case _:
