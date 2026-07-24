@@ -28,10 +28,10 @@ class lekserClass:
         self.temp : str = ""
         self.currentChar : str = ""
         self.forwardChar : str = ""
-        self.dotCount : int = 0
+        # dotCount : int = 0
         self.fileOriginal : str = ""
         self.tokens : list[Token] = []
-        self.invalidFlag : bool = False
+        # invalidFlag : bool = False
         # self.commentFlag : bool = False
     
     def maju(self) -> None:
@@ -75,6 +75,9 @@ class lekserClass:
     
     def proses(self, p_fileMentahan : str) -> str | None:
         kedalamanMultiComment : int = 0
+        invalidFlag : bool = False
+        dotCount : int = 0
+        
         while self.pointerIterator < len(p_fileMentahan):
             self.fileOriginal = p_fileMentahan
             self.currentChar = self.fileOriginal[self.pointerIterator]
@@ -82,8 +85,8 @@ class lekserClass:
                 self.forwardChar = self.fileOriginal[self.pointerIterator+1]
             
             if(self.state==states.default):
-                self.dotCount=0
-                self.invalidFlag=False
+                dotCount=0
+                invalidFlag=False
                 
                 # if(not self.commentFlag):
                 if(self.currentChar.isdigit()):
@@ -136,22 +139,23 @@ class lekserClass:
                     self.maju()
 
                 elif(self.currentChar=="."):
-                    if(self.dotCount<1):
-                        self.dotCount+=1
+                    if(dotCount<1):
+                        dotCount+=1
                         self.simpenCharKeTemp()
                         self.maju()
                     else:   
                         # self.errorhandlerObjek.tambahinError(self.barisIterator, self.kolomIterator, __name__, self.temp, 1)
                         self.errorhandlerObjek.tambahinError(__name__, 1, self.barisIterator, self.kolomIterator, self.temp)
+                        # self.errorhandlerObjek.kirimError(__name__, 1, self.barisIterator, self.kolomIterator, self.temp)
                         self.maju()
                         # return self.errorhandlerObjek.kirimError(self.barisIterator, self.kolomIterator, __name__, self.temp, 1)
                 else:
                     if(self.currentChar==" " or self.currentChar=="\n"):
-                        if(self.invalidFlag):
+                        if(invalidFlag):
                             # print("invld")
                             self.konversiDanPushKeToken(tataBahasa.T_IVTF)
                         else:
-                            if(self.dotCount<1):
+                            if(dotCount<1):
                                 self.konversiDanPushKeToken(tataBahasa.T_LITERAL_INT)
                                 # self.pushTempKeToken(tataBahasa.T_LITERAL_INT)
                                 
@@ -159,7 +163,7 @@ class lekserClass:
                                 self.konversiDanPushKeToken(tataBahasa.T_LITERAL_FLOAT)
                         self.gantiState(states.default)
                     else:
-                        self.invalidFlag=True
+                        invalidFlag=True
                         self.simpenCharKeTemp()
                         self.maju()
                         
@@ -187,12 +191,12 @@ class lekserClass:
                     
             elif(self.state==states.identifier):
                 if(self.currentChar==" " or self.currentChar=="\n"):
-                    if(self.invalidFlag):
+                    if(invalidFlag):
                         self.konversiDanPushKeToken(tataBahasa.T_IVTF)
                     self.gantiState(states.default)
                     
                 elif(self.currentChar in simbolList.keys()):
-                    self.invalidFlag=True
+                    invalidFlag=True
                     self.simpenCharKeTemp()
                     self.maju()
                 else:
@@ -239,8 +243,8 @@ class lekserClass:
             #     self.konversiDanPushKeToken()
             # self.konversiDanPushKeToken()
             
-        print("\n")
-        for token in self.tokens:
-            print("[",token.tipe,":", token.nilai,"]")
-            if("T_DLMR" == token.tipe):
-                print("\n")
+        # print("\n")
+        # for token in self.tokens:
+        #     print("[",token.tipe,":", token.nilai,"]")
+        #     if("T_DLMR" == token.tipe):
+        #         print("\n")

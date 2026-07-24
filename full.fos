@@ -1,0 +1,29 @@
+bikin variabel namanya umur tipenya integer nilainya 20 selesai
+bikin variabel namanya umurPtr tipenya pointer integer nilainya alamatnya umur
+
+bikin enum namanya states isinya
+   aktif, mati, sleep
+   selesai
+
+bikin kelas namanya kelasBaru isinya
+   fungsi konstruktor isinya
+      tampilin("objek udh dibikin") selesai
+      akhir
+   
+   bikin fungsi namanya test tipenya void isinya
+      tampilin("woi") selesai
+      akhir
+
+bikin fungsi namanya cekUmur
+   tipenya boolean
+   parameternya integer p_umur, integer min_umur nilainya 18
+   isinya
+      balikin p_umur>minUmur selesai
+   selesai
+
+//sengaja gamake \n biar bisa gini, sbnrnya bisa make ; cuman gatau njr kek nanggung bgt gitu
+bikin variabel namanya umur
+   tipenya integer
+   nilainya 20
+selesai
+

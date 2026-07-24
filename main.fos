@@ -1,34 +1,32 @@
-// ==========================================
-// TEST CASE 1: Single-line di Luar & Dalam Kode
-// ==========================================
-// Ini komentar di awal baris
-bikin variabel namanya user_1 tipenya string nilainya "Budi" selesai // Komentar di ujung baris
+bikin variabel namanya umur tipenya integer nilainya 20 selesai
+bikin pointer namanya umurPtr nilainya alamatnya umur selesai //gausah masang tipe? atau tipe nya integer juga?
 
+bikin enum namanya states isinya
+   aktif, mati, sleep
+   selesai
 
-/* ==========================================
-   TEST CASE 2: Multi-line Standar
-   Terdiri dari beberapa baris
-   ========================================== */
-bikin variabel namanya user_2 tipenya integer nilainya 20 selesai
+bikin kelas namanya kelasBaru isinya
+   fungsi konstruktor isinya
+      tampilin("objek udh dibikin") selesai
+      selesai
+   
+   bikin fungsi namanya test tipenya void isinya
+      tampilin("woi") selesai
+      selesai
 
+//pembuatan variabel parameter gasama kyk bikin variabel biasa
+bikin fungsi namanya cekUmur tipenya boolean parameternya integer p_umur, integer min_umur nilainya 18 isinya
+   balikin p_umur>minUmur selesai
+   selesai
 
-/* ==========================================
-   TEST CASE 3: JEBAKAN BENTROK STATE
-   1. Ada '//' di dalam komentar multiline
-   2. Ada '/*' dan '*/' yang ditulis di dalam string
-   ========================================== */
+//sengaja gamake \n biar bisa gini, sbnrnya bisa make ; cuman gatau njr kek nanggung bgt gitu
+bikin variabel namanya umur
+   tipenya integer
+   nilainya 20
+selesai
 
-/* 
-   // Ini single line di dalam multiline!
-   Lexer harus TETAP ada di STATE_MULTI_COMMENT.
-   Gak boleh kaget/pindah state seenaknya.
-   bikin variabel namanya x_salah tipenya float nilainya 0.0 selesai
-*/
-bikin variabel namanya user_3 tipenya boolean nilainya benar selesai
+//utk pointer kalo gini aman kah?
+bikin pointer namanya umurPtr tipenya integer nilainya alamatnya umur selesai
 
-// Komentar single line yang isinya simbol multiline /* halo */ tetep di-skip sampai newline
-bikin variabel namanya user_4 tipenya string nilainya "Teks /* ini bukan comment */ " selesai
-
-
-/* TEST CASE 4: Multi-line Cuma 1 Baris */
-bikin variabel namanya saldo tipenya float nilainya 150000.50 selesai /* di ujung */
+//apa mending yg km usulin? minusnya kalo gini perlu treatment spesial pas bikin variabelnya
+bikin variabel namanya umurPtr tipenya pointer integer nilainya alamatnya umur

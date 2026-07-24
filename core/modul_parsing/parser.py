@@ -223,6 +223,6 @@ class parserClass:
                 
             # print(self.tokenSkrg)
             # self.maju()
-        self.ASTObjek.printTree()
+        # self.ASTObjek.printTree()
     
     # def ambilPohon(self)
