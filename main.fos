@@ -1,9 +1,34 @@
-// Ini komentar penuh satu baris di paling atas
-bikin variabel namanya namaUser tipenya string nilainya "Budi" selesai // Ini komentar di ujung baris
+// ==========================================
+// TEST CASE 1: Single-line di Luar & Dalam Kode
+// ==========================================
+// Ini komentar di awal baris
+bikin variabel namanya user_1 tipenya string nilainya "Budi" selesai // Komentar di ujung baris
 
-// Komentar yang di dalamnya ada keyword: bikin variabel tipenya integer
-bikin variabel namanya umur tipenya integer nilainya 25 selesai
 
-bikin variabel namanya saldo tipenya float nilainya 100.50 selesai // nilainya "salah" tapi ini kan di dalam komentar haha 123!@#$%^&*()
+/* ==========================================
+   TEST CASE 2: Multi-line Standar
+   Terdiri dari beberapa baris
+   ========================================== */
+bikin variabel namanya user_2 tipenya integer nilainya 20 selesai
 
-// bikin variabel namanya x_di-comment tipenya integer nilainya 99 selesai
+
+/* ==========================================
+   TEST CASE 3: JEBAKAN BENTROK STATE
+   1. Ada '//' di dalam komentar multiline
+   2. Ada '/*' dan '*/' yang ditulis di dalam string
+   ========================================== */
+
+/* 
+   // Ini single line di dalam multiline!
+   Lexer harus TETAP ada di STATE_MULTI_COMMENT.
+   Gak boleh kaget/pindah state seenaknya.
+   bikin variabel namanya x_salah tipenya float nilainya 0.0 selesai
+*/
+bikin variabel namanya user_3 tipenya boolean nilainya benar selesai
+
+// Komentar single line yang isinya simbol multiline /* halo */ tetep di-skip sampai newline
+bikin variabel namanya user_4 tipenya string nilainya "Teks /* ini bukan comment */ " selesai
+
+
+/* TEST CASE 4: Multi-line Cuma 1 Baris */
+bikin variabel namanya saldo tipenya float nilainya 150000.50 selesai /* di ujung */
