@@ -12,7 +12,8 @@ class states(Enum):
     default = 1,
     numerik = 2,
     string = 3,
-    simbol = 4
+    simbol = 4,
+    identifier = 5,
             
 class lekserClass:
     def __init__(self, p_errorHandlerReference : errorHandlerClass):
@@ -24,13 +25,18 @@ class lekserClass:
         self.kolomIterator : int = 1
         self.temp : str = ""
         self.currentChar : str = ""
+        self.forwardChar : str = ""
         self.dotCount : int = 0
         self.fileOriginal : str = ""
         self.tokens : list[Token] = []
+        self.invalidFlag : bool = False
+        self.commentFlag : bool = False
     
     def maju(self) -> None:
         self.pointerIterator+=1
         self.kolomIterator+=1
+        if(self.pointerIterator>=20):
+            pass
     
     def simpenCharKeTemp(self)->None:
         self.temp+=self.currentChar
@@ -56,6 +62,7 @@ class lekserClass:
     def gantiBaris(self)->None:
         self.barisIterator+=1
         self.kolomIterator=0
+        self.commentFlag=False
     
     def konversiTempJikaBerisi(self)->None:
         if(len(self.temp)>0):
@@ -67,48 +74,61 @@ class lekserClass:
     def proses(self, p_fileMentahan : str) -> str | None:
         while self.pointerIterator < len(p_fileMentahan):
             self.fileOriginal = p_fileMentahan
-            self.currentChar = p_fileMentahan[self.pointerIterator]
+            self.currentChar = self.fileOriginal[self.pointerIterator]
+            if(self.pointerIterator<len(self.fileOriginal)-1):
+                self.forwardChar = self.fileOriginal[self.pointerIterator+1]
+            
             if(self.state==states.default):
                 self.dotCount=0
+                self.invalidFlag=False
                 
-                if(self.currentChar.isdigit()):
-                    # if(len(self.temp)>0):
-                    #     self.konversiDanPushKeToken()
-                    self.konversiTempJikaBerisi()
-                    self.gantiState(states.numerik)
-                    # print("digit")
+                if(not self.commentFlag):
+                    if(self.currentChar.isdigit()):
+                        # if(len(self.temp)>0):
+                        #     self.konversiDanPushKeToken()
+                        self.konversiTempJikaBerisi()
+                        self.gantiState(states.numerik)
+                        # print("digit")
+                        
+                    elif(self.currentChar=='"'):
+                        self.gantiState(states.string)
+                        self.maju()
+                        # print("petik")
+                        
+                    elif(self.currentChar in simbolList.keys()):
+                        self.gantiState(states.simbol)
                     
-                elif(self.currentChar=='"'):
-                    self.gantiState(states.string)
-                    self.maju()
-                    # print("petik")
+                    elif(self.currentChar==";"):
+                        # self.konversiDanPushKeToken()
+                        self.simpenCharKeTemp()
+                        self.maju()
+                        # print("delimiter")
+                        
+                    elif(self.currentChar==" "):
+                        # if(len(self.temp)!=0):
+                        #     self.konversiDanPushKeToken()
+                        self.konversiTempJikaBerisi()
+                        self.maju()
+                        
+                    elif(self.currentChar=="\n"):
+                        # if(len(self.temp)>0):
+                        #     self.konversiDanPushKeToken()
+                        self.konversiTempJikaBerisi()
+                        self.gantiBaris()
+                        self.clearTemp()
+                        self.maju()
                     
-                elif(self.currentChar in simbolList):
-                    self.gantiState(states.simbol)
-                
-                elif(self.currentChar==";"):
-                    # self.konversiDanPushKeToken()
-                    self.simpenCharKeTemp()
-                    self.maju()
-                    # print("delimiter")
-                    
-                elif(self.currentChar==" "):
-                    # if(len(self.temp)!=0):
-                    #     self.konversiDanPushKeToken()
-                    self.konversiTempJikaBerisi()
-                    self.maju()
-                    
+                    else:
+                        self.gantiState(states.identifier)
+                        
                 elif(self.currentChar=="\n"):
                     # if(len(self.temp)>0):
                     #     self.konversiDanPushKeToken()
-                    self.konversiTempJikaBerisi()
                     self.gantiBaris()
-                    self.clearTemp()
                     self.maju()
-
-                    
                 else:
-                    self.simpenCharKeTemp()
+                #     self.gantiState(states.identifier)
+                    # self.simpenCharKeTemp()
                     self.maju()
                 
             elif(self.state==states.numerik):
@@ -127,28 +147,36 @@ class lekserClass:
                         self.maju()
                         # return self.errorhandlerObjek.kirimError(self.barisIterator, self.kolomIterator, __name__, self.temp, 1)
                 else:
-                    if(self.dotCount<1):
-                        self.konversiDanPushKeToken(tataBahasa.T_LITERAL_INT)
-                        # self.pushTempKeToken(tataBahasa.T_LITERAL_INT)
-                        
+                    if(self.currentChar==" "):
+                        if(self.invalidFlag):
+                            print("invld")
+                            self.konversiDanPushKeToken(tataBahasa.T_IVTF)
+                        else:
+                            if(self.dotCount<1):
+                                self.konversiDanPushKeToken(tataBahasa.T_LITERAL_INT)
+                                # self.pushTempKeToken(tataBahasa.T_LITERAL_INT)
+                                
+                            else:
+                                self.konversiDanPushKeToken(tataBahasa.T_LITERAL_FLOAT)
+                        self.gantiState(states.default)
                     else:
-                        self.konversiDanPushKeToken(tataBahasa.T_LITERAL_FLOAT)
-                        # self.pushTempKeToken(tataBahasa.T_LITERAL_FLOAT)
+                        self.invalidFlag=True
+                        self.simpenCharKeTemp()
+                        self.maju()
                         
-                    self.gantiState(states.default)
             
             elif(self.state==states.string):
                 self.simpenCharKeTemp()
                 self.maju()
                 if(p_fileMentahan[self.pointerIterator]=='"'):
-                    self.konversiDanPushKeToken(tataBahasa.TIPEDATA_STR)
+                    self.konversiDanPushKeToken(tataBahasa.T_LITERAL_STR)
                     self.state=states.default
                     self.maju()
                 if(self.pointerIterator>=7):
                     pass
             
             elif(self.state==states.simbol):
-                if(self.currentChar in simbolList):
+                if(self.currentChar in simbolList.keys()):
                     self.konversiTempJikaBerisi()
                     # if(len(self.temp)>0):
                     #     self.konversiDanPushKeToken()
@@ -157,7 +185,26 @@ class lekserClass:
                     self.maju()
                 else:
                     self.state=states.default
-            pass
+                    
+            elif(self.state==states.identifier):
+                if(self.currentChar==" " or self.currentChar=="\n"):
+                    if(self.invalidFlag):
+                        self.konversiDanPushKeToken(tataBahasa.T_IVTF)
+                    self.gantiState(states.default)
+                    
+                elif(self.currentChar in simbolList.keys()):
+                    self.invalidFlag=True
+                    self.simpenCharKeTemp()
+                    self.maju()
+                else:
+                    if(not self.commentFlag):
+                        if(self.currentChar==tataBahasa.OPERATOR_DIVE and self.forwardChar==tataBahasa.OPERATOR_DIVE):
+                            self.commentFlag=True 
+                            self.maju()
+                            self.gantiState(states.default)
+                        else:
+                            self.simpenCharKeTemp()
+                    self.maju()
             # if(tataBahasa.KEYWORD_NLNY in self.tokens):
             #     pass
         else:
@@ -166,8 +213,8 @@ class lekserClass:
             #     self.konversiDanPushKeToken()
             # self.konversiDanPushKeToken()
             
-        # print("\n")
-        # for token in self.tokens:
-        #     print("[",token.tipe,":", token.nilai,"]")
-        #     if("T_DLMR" == token.tipe):
-        #         print("\n")
+        print("\n")
+        for token in self.tokens:
+            print("[",token.tipe,":", token.nilai,"]")
+            if("T_DLMR" == token.tipe):
+                print("\n")

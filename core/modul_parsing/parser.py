@@ -60,6 +60,18 @@ class parserClass:
                 self.maju()
             return node.nodeNomor(tempToken)
         
+        elif(self.tokenSkrg.tipe==tb.T_LITERAL_STR):
+            tempToken = self.tokenSkrg
+            if(self.tokenDepan.tipe in kyrwd.operatorList.values() or self.tokenDepan.tipe in kyrwd.literalList.keys() or self.tokenDepan.tipe in [tb.T_PRTS_KIRI, tb.T_PRTS_KNAN]):
+                self.maju()
+            return node.nodeString(tempToken)
+        
+        elif(self.tokenSkrg.tipe==tb.T_LITERAL_BOOL):
+            tempToken = self.tokenSkrg
+            if(self.tokenDepan.tipe in kyrwd.operatorList.values() or self.tokenDepan.tipe in kyrwd.literalList.keys() or self.tokenDepan.tipe in [tb.T_PRTS_KIRI, tb.T_PRTS_KNAN]):
+                self.maju()
+            return node.nodeBoolean(tempToken)
+
         else:
             if(self.tokenSkrg.tipe==tb.T_PRTS_KIRI):
                 self.maju()
@@ -101,35 +113,83 @@ class parserClass:
     def parseBikinVariabel(self)->None:
         self.maju(2)
         tempNode : node.nodeBikinVariabel = node.nodeBikinVariabel(self.tokenSkrg.baris, self.tokenSkrg.kolom)
+        state : int = 0
         # self.maju()
         while self.idxIterator<len(self.fullToken):
             if(self.tokenSkrg.tipe!=tb.T_DLMR):
-                if(self.tokenSkrg.tipe==tb.T_NMNY):
-                    # print("nama varnya : ",self.tokenDepan.nilai)
-                    tempNode.namaVariabel = self.tokenDepan.nilai
-                    self.maju()
-                    
-                elif(self.tokenSkrg.tipe==tb.T_TPNY):
-                    # print("tipe varnya : ",self.tokenDepan.nilai)
-                    tempNode.tipedataVariabel = self.tokenDepan.nilai
-                    self.maju()
-                    
-                elif(self.tokenSkrg.tipe==tb.T_NLNY):
-                    self.maju()
-                    tempNode.nilaiVariabel = self.parseEkspresi()
-                    # print("nilai varnya : ",tempNode)
+                if(state==0):
+                    if(self.tokenSkrg.tipe==tb.T_NMNY):
+                        state=1
+                        self.maju()
+                        
+                    elif(self.tokenSkrg.tipe==tb.T_TPNY):
+                        state=2
+                        self.maju()
+                        
+                    elif(self.tokenSkrg.tipe==tb.T_NLNY):
+                        state=3
+                        self.maju()
+                        
+                elif(state==1):
+                    if(self.tokenSkrg.tipe==tb.T_IDTF):
+                        if(len(tempNode.namaVariabel)<=0):
+                            tempNode.namaVariabel = self.tokenSkrg.nilai
+                            self.maju()
+                        else:
+                            self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=2, p_baris=self.tokenSkrg.baris)
+                            self.maju()
+                    elif(self.tokenSkrg.tipe==tb.T_NMNY):
+                        self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=4, p_baris=self.tokenSkrg.baris)
+                        self.maju()
+                    elif(self.tokenSkrg.tipe in [tb.T_TPNY, tb.T_TPNY]):
+                        state=0
+                    else:
+                        tempNode.namaVariabel+= self.tokenSkrg.nilai
+                        self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=3, p_baris=self.tokenSkrg.baris)
+                        self.maju()
                     # self.maju()
-                self.maju()
+            
+                elif(state==2):
+                    tempNode.tipedataVariabel = self.tokenSkrg.nilai
+                    self.maju()
+                    state=0
+                
+                elif(state==3):
+                    tempNode.nilaiVariabel = self.parseEkspresi()
+                    self.maju()
+                    state=0
             else:
                 if(len(tempNode.namaVariabel)<=0):
-                    # self.errorHandlerObjek.tambahinError(__name__, 1, self.tokenSkrg.baris, self.tokenSkrg.kolom, self.tokenSkrg.nilai)
                     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=1, p_baris=self.tokenSkrg.baris)
-                    # return self.errorHandlerObjek.kirimError(self.tokenSkrg.baris, self.tokenSkrg.kolom, __name__, self.tokenSkrg.nilai, 1)
+
                 self.ASTObjek.addNode(tempNode)
-                # print("DETAIL")
-                # print(tempNode.baris,tempNode.kolom,tempNode.namaVariabel,tempNode.nilaiVariabel,tempNode.tipedataVariabel)
                 break
-            pass
+            
+            # if(self.tokenSkrg.tipe!=tb.T_DLMR):
+            #     if(self.tokenSkrg.tipe==tb.T_NMNY):
+            #         if(len(tempNode.namaVariabel)<=0):tempNode.namaVariabel = self.tokenDepan.nilai
+            #         else:self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=2, p_baris=self.tokenSkrg.baris)
+            #         if(self.tokenDepan.tipe!=tb.T_IDTF):self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=3, p_baris=self.tokenSkrg.baris)
+            #         self.maju()
+                    
+            #     elif(self.tokenSkrg.tipe==tb.T_TPNY):
+            #         # print("tipe varnya : ",self.tokenDepan.nilai)
+            #         tempNode.tipedataVariabel = self.tokenDepan.nilai
+            #         self.maju()
+                    
+            #     elif(self.tokenSkrg.tipe==tb.T_NLNY):
+            #         self.maju()
+            #         tempNode.nilaiVariabel = self.parseEkspresi()
+            #         # print("nilai varnya : ",tempNode)
+            #         # self.maju()
+            #     self.maju()
+            # else:
+            #     if(len(tempNode.namaVariabel)<=0):
+            #         self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=1, p_baris=self.tokenSkrg.baris)
+
+            #     self.ASTObjek.addNode(tempNode)
+            #     break
+            # pass
         
     def proses(self, p_tokens : list[Token])->None:
         # tokenDepan : Token = p_tokens[idxIterator+1]

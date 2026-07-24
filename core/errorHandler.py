@@ -30,7 +30,10 @@ class errorHandlerClass:
                 1 : "   input invalid, masa iya float ngisinya gitu"
             },
             data_language.tataBahasa.MODUL_PATH_PRSR : {
-                1 : "   nama variabelnya isiin dulu njr, kalo kosong gabisa dipanggil ntar"
+                1 : "   nama variabelnya isiin dulu tu, kalo kosong gabisa dipanggil nntinya",
+                2 : "   namanya 1 aja jgn boros boros",
+                3 : "   tolong ngisi namanya jangan berbentuk keyword / simbol, diawalin numerik, ataupun string",
+                4 : "   keywordnya ngeduplikat",
             },
         }
     

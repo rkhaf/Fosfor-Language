@@ -13,9 +13,9 @@ def run(fileOriginal : str) -> None:
     # tokenizerObjek = tokenizerClass()
     
     lekserProsesing : str | None = lekserObjek.proses(fileOriginal)
-    tokens : list[Token] = lekserObjek.ambilTokens()
+    # tokens : list[Token] = lekserObjek.ambilTokens()
     # print(tokens)
-    parserProsesing : str | None = parserObjek.proses(tokens)
+    # parserProsesing : str | None = parserObjek.proses(tokens)
     
     if(errorHandlerObjek.adaError()):
         errorHandlerObjek.displayError()

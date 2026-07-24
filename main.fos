@@ -1,3 +1,9 @@
-bikin variabel namanya umur_user tipenya integer nilainya 18 + (2 * 5) selesai
-bikin variabel nilainya (100.5 - 50.0) / 2.0 namanya diskon_persen tipenya float selesai
-bikin variabel tipenya float nilainya 3.14 * (5 * 5) namanya luas_lingkaran selesai
+// Ini komentar penuh satu baris di paling atas
+bikin variabel namanya namaUser tipenya string nilainya "Budi" selesai // Ini komentar di ujung baris
+
+// Komentar yang di dalamnya ada keyword: bikin variabel tipenya integer
+bikin variabel namanya umur tipenya integer nilainya 25 selesai
+
+bikin variabel namanya saldo tipenya float nilainya 100.50 selesai // nilainya "salah" tapi ini kan di dalam komentar haha 123!@#$%^&*()
+
+// bikin variabel namanya x_di-comment tipenya integer nilainya 99 selesai
