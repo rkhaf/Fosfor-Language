@@ -1,29 +1,113 @@
-bikin variabel namanya umur tipenya integer nilainya 20 selesai
-bikin variabel namanya umurPtr tipenya pointer integer nilainya alamatnya umur
+// ==========================================
+// 1. DEKLARASI STRUCT (C++ Style in Fosfor)
+// ==========================================
+bikin struktur kelasBaru isinya
+   bikin variabel test1 tipenya integer nilainya 0;
 
-bikin enum namanya states isinya
-   aktif, mati, sleep
-   selesai
-
-bikin kelas namanya kelasBaru isinya
-   fungsi konstruktor isinya
-      tampilin("objek udh dibikin") selesai
-      akhir
-   
-   bikin fungsi namanya test tipenya void isinya
-      tampilin("woi") selesai
+   // Method struct (AST otomatis nyisipin 'kelasBaru* this' di LLVM IR)
+   bikin fungsi test tipenya void isinya
+      tampilin("woi");
       akhir
 
-bikin fungsi namanya cekUmur
-   tipenya boolean
-   parameternya integer p_umur, integer min_umur nilainya 18
-   isinya
-      balikin p_umur>minUmur selesai
-   selesai
+   // Method dengan parameter & mengedit internal variabel
+   bikin fungsi ubahTest tipenya void parameternya (integer nilaiBaru) isinya
+      test1 = nilaiBaru;
+      akhir
+   akhir
 
-//sengaja gamake \n biar bisa gini, sbnrnya bisa make ; cuman gatau njr kek nanggung bgt gitu
-bikin variabel namanya umur
-   tipenya integer
-   nilainya 20
-selesai
+// ==========================================
+// 2. DEKLARASI FUNGSI KUSTOM
+// ==========================================
+
+// Fungsi dengan default parameter
+bikin fungsi cekUmur tipenya boolean parameternya (integer p_umur, integer min_umur nilainya 18) isinya
+   balikin p_umur > min_umur;
+   akhir
+
+// Fungsi dengan Pass-By-Reference Implisit (referensi)
+// Menerima address tanpa perlu deepcopy & tanpa bikin pusing user
+bikin fungsi tambahUmur tipenya void parameternya (referensi integer targetUmur) isinya
+   targetUmur = targetUmur + 1;
+   akhir
+
+// ==========================================
+// 3. FUNGSI UTAMA (ENTRY POINT PROGRAM)
+// ==========================================
+// Menggunakan 'fungsi utama' (bersih, ga butuh 'bikin' & ga butuh return manual)
+fungsi main isinya
+
+   // A. Instansiasi Struct & Pemanggilan Method
+   bikin variabel objBaru tipenya kelasBaru;
+   objBaru.test();               // Cetak "woi"
+   objBaru.ubahTest(100);        // Ubah test1 jadi 100
+   tampilin("Nilai struct: " + keString(objBaru.test1));
+
+   // B. Variabel, Pointer, & Reference
+   bikin variabel umur tipenya integer nilainya 20;
+   bikin variabel umurPtr tipenya pointer integer nilainya alamatnya umur;
+
+   // Panggil fungsi pass-by-reference (langsung lempar 'umur', otomatis dapet address-nya)
+   tambahUmur(umur); 
+   tampilin("Umur setelah ditambah: " + keString(umur)); // Jadi 21!
+
+   // C. Percabangan 'kalau' & 'kalau nggak'
+   kalau (umur > 18) isinya
+      tampilin("Sudah dewasa");
+      akhir
+   kalau (umur > 30) isinya
+      tampilin("Sudah bapak-bapak");
+      akhir
+   kalau nggak isinya
+      tampilin("Masih muda");
+      akhir
+
+   // D. Nested 'kalau'
+   kalau (umur > 18) isinya
+      kalau (umur > 20) isinya
+         kalau (umur > 25) isinya
+            tampilin("minimal 26");
+            akhir
+         tampilin("minimal 21");
+         akhir
+      tampilin("minimal 19");
+      akhir
+
+   // E. Koleksi / Array & Perulangan
+   bikin variabel container tipenya list[integer] nilainya [1, 2, 3];
+   bikin variabel counter tipenya integer nilainya 0;
+
+   ngulangin selama (counter < container.ukuran()) isinya
+      // Gabung string + fungsi konversi keString
+      tampilin("elemen: " + keString(container[counter]));
+      
+      // Unary Increment
+      counter++;
+      
+      // Kontrol Loop
+      kalau (counter == 2) isinya
+         lanjut; // continue
+         akhir
+      akhir
+
+   // F. Match / Switch Case (Persamaan)
+   persamaan (umur) isinya
+      saat 20 isinya
+         tampilin("umurnya 20");
+         stop; // break
+         akhir
+
+      saat 21 isinya
+         tampilin("umurnya 21");
+         akhir
+
+      saat 22 isinya
+         tampilin("umurnya 22");
+         akhir
+         
+      saat lain isinya
+         tampilin("ga nemu");
+         akhir
+      akhir
+
+   akhir
 

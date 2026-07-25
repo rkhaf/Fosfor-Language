@@ -38,8 +38,9 @@ def run(fileOriginal : str) -> None:
     #     # print("\n")
     for token in tokens:
         print("[",token.tipe,":", token.nilai,"]")
-        if("T_DLMR" == token.tipe):
+        if(token.tipe == "T_DLMR" or token.tipe == "T_AKHR"):
             print("\n")
+            pass
     #     # tokenizerProsesing : str|None = tokenizerObjek.proses(leksems)
         
     #     # if(tokenizerProsesing is None):

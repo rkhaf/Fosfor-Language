@@ -5,6 +5,10 @@ from errorHandler import errorHandlerClass
 from modul_baca.tokenizer import tokenizerClass
 from data_language.dataFormat import Token
 from data_language.keywords import simbolList
+from data_language.keywords import kurungList
+from data_language.keywords import punctuationList
+from data_language.keywords import operatorList
+from data_language.keywords import perbandinganList
 
 import data_language.tataBahasa as tataBahasa
 
@@ -15,7 +19,8 @@ class states(Enum):
     simbol = 4,
     identifier = 5,
     singleLineComment = 6,
-    multiLineComment = 7
+    multiLineComment = 7,
+    punctuatorBracket = 8
             
 class lekserClass:
     def __init__(self, p_errorHandlerReference : errorHandlerClass):
@@ -42,6 +47,9 @@ class lekserClass:
     
     def simpenCharKeTemp(self)->None:
         self.temp+=self.currentChar
+        
+    def simpenKeTemp(self, p_val : str)->None:
+        self.temp+=p_val
     
     def gantiState(self, p_state : states)->None:
         self.state = p_state
@@ -88,37 +96,39 @@ class lekserClass:
                 dotCount=0
                 invalidFlag=False
                 
-                # if(not self.commentFlag):
-                if(self.currentChar.isdigit()):
-                    # if(len(self.temp)>0):
-                    #     self.konversiDanPushKeToken()
+                if(self.currentChar+self.forwardChar==tataBahasa.CMNT_SNGL):
+                    self.gantiState(states.singleLineComment)
+                    
+                elif(self.currentChar+self.forwardChar==tataBahasa.CMNT_MLTI_OPEN):
+                    self.gantiState(states.multiLineComment)
+                    
+                elif(self.currentChar.isdigit()):
                     self.konversiTempJikaBerisi()
                     self.gantiState(states.numerik)
-                    # print("digit")
                     
                 elif(self.currentChar=='"'):
                     self.gantiState(states.string)
                     self.maju()
-                    # print("petik")
                     
-                elif(self.currentChar in simbolList.keys()):
+                elif(self.currentChar in simbolList.keys() or self.currentChar in perbandinganList.keys() or self.currentChar in operatorList.keys()):
                     self.gantiState(states.simbol)
                 
-                elif(self.currentChar==";"):
-                    # self.konversiDanPushKeToken()
+                # elif(self.currentChar in perbandinganList.keys()):
+                #     self.gantiState(states.simbol)
+                
+                elif(self.currentChar==tataBahasa.KEYWORD_DLMR):
+                    # self.simpenCharKeTemp()
+                    self.konversiTempJikaBerisi()
+                    # self.clearTemp()
                     self.simpenCharKeTemp()
+                    self.konversiDanPushKeToken()
                     self.maju()
-                    # print("delimiter")
                     
                 elif(self.currentChar==" "):
-                    # if(len(self.temp)!=0):
-                    #     self.konversiDanPushKeToken()
                     self.konversiTempJikaBerisi()
                     self.maju()
                     
                 elif(self.currentChar=="\n"):
-                    # if(len(self.temp)>0):
-                    #     self.konversiDanPushKeToken()
                     self.konversiTempJikaBerisi()
                     self.gantiBaris()
                     self.clearTemp()
@@ -149,8 +159,11 @@ class lekserClass:
                         # self.errorhandlerObjek.kirimError(__name__, 1, self.barisIterator, self.kolomIterator, self.temp)
                         self.maju()
                         # return self.errorhandlerObjek.kirimError(self.barisIterator, self.kolomIterator, __name__, self.temp, 1)
+                # elif(self.currentChar in kurungList or self.currentChar in punctuationList):
+                #     self.gantiState(states.punctuatorBracket)
+                    
                 else:
-                    if(self.currentChar==" " or self.currentChar=="\n"):
+                    if(self.currentChar==" " or self.currentChar=="\n" or self.currentChar==tataBahasa.KEYWORD_DLMR or self.currentChar in kurungList or self.currentChar in punctuationList):
                         if(invalidFlag):
                             # print("invld")
                             self.konversiDanPushKeToken(tataBahasa.T_IVTF)
@@ -162,6 +175,7 @@ class lekserClass:
                             else:
                                 self.konversiDanPushKeToken(tataBahasa.T_LITERAL_FLOAT)
                         self.gantiState(states.default)
+
                     else:
                         invalidFlag=True
                         self.simpenCharKeTemp()
@@ -179,37 +193,60 @@ class lekserClass:
                     pass
             
             elif(self.state==states.simbol):
-                if(self.currentChar in simbolList.keys()):
-                    self.konversiTempJikaBerisi()
-                    # if(len(self.temp)>0):
-                    #     self.konversiDanPushKeToken()
-                    self.simpenCharKeTemp()
-                    self.konversiDanPushKeToken()
-                    self.maju()
+                if(self.currentChar in simbolList.keys() or self.currentChar in operatorList.keys() or self.currentChar in perbandinganList.keys()):
+                    tempMerged : str = self.currentChar+self.forwardChar
+                    if(tempMerged==tataBahasa.CMNT_SNGL):
+                        self.maju()
+                        self.gantiState(states.singleLineComment)
+                    elif(tempMerged in perbandinganList.keys() or tempMerged in operatorList.keys()):
+                        self.konversiTempJikaBerisi()
+                        # self.simpenCharKeTemp()
+                        self.simpenKeTemp(tempMerged)
+                        self.maju()
+                        # self.simpenCharKeTemp()
+                        self.konversiDanPushKeToken()
+                        self.maju()
+                    else:
+                        self.konversiTempJikaBerisi()
+                        self.simpenCharKeTemp()
+                        self.konversiDanPushKeToken()
+                        self.maju()
                 else:
                     self.state=states.default
                     
             elif(self.state==states.identifier):
-                if(self.currentChar==" " or self.currentChar=="\n"):
+                # if(self.currentChar==" " or self.currentChar=="\n" or self.currentChar==tataBahasa.KEYWORD_DLMR):
+                if(self.currentChar==" " or self.currentChar=="\n" or self.currentChar==tataBahasa.KEYWORD_DLMR or self.currentChar in perbandinganList.keys() or self.currentChar in operatorList.keys() or self.currentChar+self.forwardChar in perbandinganList.keys()):
                     if(invalidFlag):
                         self.konversiDanPushKeToken(tataBahasa.T_IVTF)
                     self.gantiState(states.default)
+
+                elif(self.currentChar in kurungList.keys() or self.currentChar in punctuationList.keys()):
+                    self.gantiState(states.punctuatorBracket)
+                
+                # elif(self.currentChar==tataBahasa.OPERATOR_PLUS or self.currentChar==tataBahasa.OPERATOR_MINS):
+                #     # self.konversiTempJikaBerisi()
+                #     # self.simpenCharKeTemp()
+                #     # self.konversiDanPushKeToken()
+                #     # self.maju()
+                #     self.gantiState(states.simbol)
                     
                 elif(self.currentChar in simbolList.keys()):
                     invalidFlag=True
                     self.simpenCharKeTemp()
                     self.maju()
                 else:
-                    if(self.currentChar==tataBahasa.OPERATOR_DIVE and self.forwardChar==tataBahasa.OPERATOR_DIVE):
-                        self.maju()
-                        self.gantiState(states.singleLineComment)
+                    # if(self.currentChar==tataBahasa.OPERATOR_DIVE and self.forwardChar==tataBahasa.OPERATOR_DIVE):
+                    #     self.maju()
+                    #     self.gantiState(states.singleLineComment)
                         
-                    elif(self.currentChar==tataBahasa.OPERATOR_DIVE and self.forwardChar==tataBahasa.OPERATOR_MULT):
-                        self.maju()
-                        self.gantiState(states.multiLineComment)
+                    # elif(self.currentChar==tataBahasa.OPERATOR_DIVE and self.forwardChar==tataBahasa.OPERATOR_MULT):
+                    #     self.maju()
+                    #     self.gantiState(states.multiLineComment)
                         
-                    else:
-                        self.simpenCharKeTemp()
+                    # else:
+                    #     self.simpenCharKeTemp()
+                    self.simpenCharKeTemp()
                     self.maju()
             
             elif(self.state==states.singleLineComment):
@@ -237,6 +274,15 @@ class lekserClass:
                     # self.gantiState(states.multiLineComment)
                 else:
                     self.maju()
+                
+            elif(self.state==states.punctuatorBracket):
+                if(self.currentChar in kurungList or self.currentChar in punctuationList):
+                    self.konversiTempJikaBerisi()
+                    self.simpenCharKeTemp()
+                    self.konversiDanPushKeToken()
+                    self.maju()
+                else:
+                    self.gantiState(states.default)
         else:
             self.konversiTempJikaBerisi()
             # if(len(self.temp)>0):

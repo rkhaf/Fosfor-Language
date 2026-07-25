@@ -3,6 +3,9 @@ from data_language.keywords import primitiveList
 from data_language.keywords import operatorList
 from data_language.keywords import literalList
 from data_language.keywords import simbolList
+from data_language.keywords import kurungList
+from data_language.keywords import punctuationList
+from data_language.keywords import perbandinganList
 from data_language.dataFormat import Token
 import data_language.tataBahasa as tataBahasa
 
@@ -28,6 +31,18 @@ class tokenizerClass:
             
             elif(p_leksem in simbolList.keys()):
                 return Token(p_baris, p_kolom, simbolList.get(p_leksem,"ERR"), p_leksem)
+            
+            elif(p_leksem in kurungList.keys()):
+                return Token(p_baris, p_kolom, kurungList.get(p_leksem,"ERR"), p_leksem)
+            
+            elif(p_leksem in punctuationList.keys()):
+                return Token(p_baris, p_kolom, punctuationList.get(p_leksem,"ERR"), p_leksem)
+            
+            elif(p_leksem in perbandinganList.keys()):
+                return Token(p_baris, p_kolom, perbandinganList.get(p_leksem,"ERR"), p_leksem)
+            
+            # elif(p_leksem in perbandinganList.keys()):
+            #     return Token(p_baris, p_kolom, perbandinganList.get(p_leksem,"ERR"), p_leksem)
             
             else:
                 return Token(p_baris, p_kolom, tataBahasa.T_IDTF, p_leksem)
