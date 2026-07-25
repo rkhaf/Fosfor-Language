@@ -15,6 +15,23 @@ class nodeClass:
     def getDatas(self)->dict[str, Any]:
         return {}
 
+class nodeRoot(nodeClass):
+    """
+    node buat representasi dari scope root
+    """
+    def __init__(self, p_baris : int = 0, p_kolom : int = 0)->None:
+        self.baris : int = p_baris
+        self.kolom : int = p_kolom
+        self.nodeContainer : list[nodeClass] = []
+        super().__init__(p_baris, p_kolom)
+    
+    # def getDatas(self) -> dict[str, Any]:
+    #     temp : dict[str, Any] = {}
+    #     for node in self.nodeContainer:
+    #             node.getDatas()
+        
+    #     return self.nodeContainer
+
 class nodeError(nodeClass):
     """
     buat bahan return-an klo semisal ada node yg gk valid
@@ -98,8 +115,8 @@ class nodeBiner(nodeEkspresi):
         self.tipeData : str = ""
     
         if(self.operand1.tipe==self.operand2.tipe):
-            test = list(PL.values())
-            print(test)
+            # test = list(PL.values())
+            # print(test)
             self.tipeData = self.operand1.tipe
             # print("sama",self.tipeData)
         else:
@@ -130,10 +147,13 @@ class nodeBikinFungsi(nodeStatement):
     """
     node representasi utk bikin fungsi
     """
-    def __init__(self, p_baris : int, p_kolom : int, p_namaFungsi : str, p_tipedataFungsi : str)->None:
+    def __init__(self, p_baris : int, p_kolom : int, p_namaFungsi : str = "", p_tipedataFungsi : str = "")->None:
         super().__init__(p_baris, p_kolom)
         
-        self.namaVariabel : str = ""
         self.namaFungsi : str = p_namaFungsi
         self.tipedataFungsi : str = p_tipedataFungsi
+        self.parameterFungsi : str = ""
         self.isiFungsi : nodeBlock
+    
+    def getDatas(self) -> dict[str, Any]:
+        return {"nama fungsi" : self.namaFungsi, "tipedata fungsi" : self.tipedataFungsi, "parameter fungsi" : self.parameterFungsi, "isi fungsi" : "BLA BLA BLA"}

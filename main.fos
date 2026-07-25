@@ -1,5 +1,5 @@
-bikin variabel namanya umur tipenya integer nilainya 20;
+bikin variabel namanya test tipenya integer nilainya 23;
 
-fungsi main isinya
-   tampilin(umur);
-   akhir
+bikin fungsi namanya kali tipenya integer parameternya (integer a, integer b) isinya
+    balikin a*b;
+    akhir

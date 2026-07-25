@@ -35,6 +35,8 @@ class lekserClass:
         self.forwardChar : str = ""
         self.fileOriginal : str = ""
         self.tokens : list[Token] = []
+        self.commentStart : list[int] = [0,0]
+        
     def maju(self) -> None:
         self.pointerIterator+=1
         self.kolomIterator+=1
@@ -81,6 +83,7 @@ class lekserClass:
         kedalamanMultiComment : int = 0
         invalidFlag : bool = False
         dotCount : int = 0
+        # commentStartLine : int = 0
         
         while self.pointerIterator < len(p_fileMentahan):
             self.fileOriginal = p_fileMentahan #nyalin sourcecode
@@ -152,7 +155,7 @@ class lekserClass:
                     
                 else:
                     # selain elemen yg boleh dibaca berbarengan dgn numerik
-                    if(self.currentChar==" " or self.currentChar=="\n" or self.currentChar==tataBahasa.KEYWORD_DLMR or self.currentChar in kurungList or self.currentChar in punctuationList):
+                    if(self.currentChar==" " or self.currentChar=="\n" or self.currentChar==tataBahasa.KEYWORD_DLMR or self.currentChar in kurungList.keys() or self.currentChar in punctuationList.keys() or self.currentChar in operatorList.keys()):
                         # ngecek apkh udh diflag invalid apa nggk
                         if(invalidFlag):
                             # print("invld")
@@ -178,11 +181,16 @@ class lekserClass:
                 self.simpenCharKeTemp()
                 self.maju()
                 
-                # ngecek stopper utk stringnya
-                if(p_fileMentahan[self.pointerIterator]=='"'):
-                    self.konversiDanPushKeToken(tataBahasa.T_LITERAL_STR)
-                    self.state=states.default
-                    self.maju()
+                #safeguard bwt stopper klo semisal lupa ditutup
+                if(self.pointerIterator<len(self.fileOriginal)):
+                    # ngecek stopper utk stringnya
+                    if(p_fileMentahan[self.pointerIterator]=='"'):
+                        self.konversiDanPushKeToken(tataBahasa.T_LITERAL_STR)
+                        self.state=states.default
+                        self.maju()
+                else:
+                    self.errorhandlerObjek.tambahinError(__name__, 2, self.barisIterator, self.kolomIterator, self.temp)
+                    
             
             # state simbol
             elif(self.state==states.simbol):
@@ -233,21 +241,32 @@ class lekserClass:
                     self.maju()
                     
             elif(self.state==states.multiLineComment):
-                if(self.currentChar==tataBahasa.OPERATOR_MULT and self.forwardChar==tataBahasa.OPERATOR_DIVE):
+                if(self.currentChar==tataBahasa.OPERATOR_DIVE and self.forwardChar==tataBahasa.OPERATOR_MULT):
                     if(kedalamanMultiComment<=0):
-                        self.maju()
-                        self.maju()
-                        self.gantiState(states.default)
-                    else:
-                        self.maju()
-                        kedalamanMultiComment-=1
-                    
-                elif(self.currentChar==tataBahasa.OPERATOR_DIVE and self.forwardChar==tataBahasa.OPERATOR_MULT):
+                        self.commentStart[0] = self.barisIterator
+                        self.commentStart[1] = self.kolomIterator
                     kedalamanMultiComment+=1
                     self.maju()
                     
+                if(kedalamanMultiComment>0):
+                    if(self.currentChar==tataBahasa.OPERATOR_MULT and self.forwardChar==tataBahasa.OPERATOR_DIVE):
+                        if(kedalamanMultiComment<=0):
+                            self.maju()
+                            self.maju()
+                            self.gantiState(states.default)
+                        else:
+                            self.maju()
+                            kedalamanMultiComment-=1
+                    elif(self.currentChar=="\n"):
+                        self.gantiBaris()
+                        self.maju()
+                    else:
+                        if(self.pointerIterator>=len(self.fileOriginal)-1 and kedalamanMultiComment>0):
+                            self.errorhandlerObjek.tambahinError(__name__, 3, self.commentStart[0], self.commentStart[1], self.temp)
+                        self.maju()
                 else:
                     self.maju()
+                    self.gantiState(states.default)
                 
             elif(self.state==states.punctuatorBracket):
                 if(self.currentChar in kurungList or self.currentChar in punctuationList):

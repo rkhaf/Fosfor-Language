@@ -15,13 +15,13 @@ def run(fileOriginal : str) -> None:
     lekserProsesing : str | None = lekserObjek.proses(fileOriginal)
     tokens : list[Token] = lekserObjek.ambilTokens()
     # print(tokens)
-    # parserProsesing : str | None = parserObjek.proses(tokens)
+    parserProsesing : str | None = parserObjek.proses(tokens)
     
     
     if(errorHandlerObjek.adaError()):
         errorHandlerObjek.displayError()
     else:
-        # parserObjek.ASTObjek.printTree()
+        parserObjek.ASTObjek.printTree()
         pass
     
     # if(lekserProsesing is None):
@@ -36,11 +36,11 @@ def run(fileOriginal : str) -> None:
     #         pass
         
     #     # print("\n")
-    for token in tokens:
-        print("[",token.tipe,":", token.nilai,"]")
-        if(token.tipe == "T_DLMR" or token.tipe == "T_AKHR"):
-            print("\n")
-            pass
+    # for token in tokens:
+    #     print("[",token.tipe,":", token.nilai,"]")
+    #     if(token.tipe == "T_DLMR" or token.tipe == "T_AKHR"):
+    #         print("\n")
+    #         pass
     #     # tokenizerProsesing : str|None = tokenizerObjek.proses(leksems)
         
     #     # if(tokenizerProsesing is None):

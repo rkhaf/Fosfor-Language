@@ -81,7 +81,7 @@ class parserClass:
                         self.maju()
                     return nodee
                 else:
-                    print(self.tokenSkrg.tipe)
+                    # print(self.tokenSkrg.tipe)
                     raise Exception("ada yg aneh")
                     
             else:
@@ -109,8 +109,80 @@ class parserClass:
             nodeKiri = node.nodeBiner(nodeKiri, operator, nodeKanan)
         return nodeKiri
     
+    def parseBikinFungsi(self)->node.nodeBikinFungsi:
+        self.maju(2)
+        tempNode : node.nodeBikinFungsi = node.nodeBikinFungsi(self.tokenSkrg.baris, self.tokenSkrg.kolom)
+        state : int = 0
+        while self.idxIterator<len(self.fullToken):
+            if(self.tokenSkrg.tipe!=tb.T_DLMR):
+                #state default nyari keyword yg dibutuhin
+                if(state==0):
+                    if(self.tokenSkrg.tipe==tb.T_NMNY):
+                        state=1
+                        self.maju()
+                        
+                    elif(self.tokenSkrg.tipe==tb.T_TPNY):
+                        state=2
+                        self.maju()
+                        
+                    elif(self.tokenSkrg.tipe==tb.T_PMNY):
+                        state=3
+                        self.maju()
+                        
+                    elif(self.tokenSkrg.tipe==tb.T_ISNY):
+                        state=4
+                        self.maju()
+                    else:
+                        self.maju()
+                #state nyari nama
+                elif(state==1):
+                    if(self.tokenSkrg.tipe!=tb.T_IDTF):
+                        self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=3, p_baris=self.tokenSkrg.baris)
 
-    def parseBikinVariabel(self)->None:
+                    elif(self.tokenSkrg in [tb.T_TPNY, tb.T_PMNY, tb.T_ISNY]):
+                        state=0
+
+                    else:
+                        tempNode.namaFungsi = self.tokenSkrg.nilai
+                        state=0
+                    self.maju()
+                
+                #state nyari tipe
+                elif(state==2):
+                    if(not self.tokenSkrg.tipe in kyrwd.primitiveList.values()):
+                        # print("test:",self.tokenSkrg.tipe)
+                        self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=5, p_baris=self.tokenSkrg.baris)
+
+                    elif(self.tokenSkrg in [tb.T_NMNY, tb.T_PMNY, tb.T_ISNY]):
+                        state=0
+                        
+                    else:
+                        tempNode.tipedataFungsi = self.tokenSkrg.nilai
+                        state=0
+                    self.maju()
+                
+                elif(state==3):
+                    tempNode.parameterFungsi="TEMPTEST"
+                    self.maju()
+                    state=0
+                    # if(self.tokenSkrg in [tb.T_NMNY, tb.T_TPNY, tb.T_ISNY]):
+                    #     state=0
+                        
+                #state ngebaca isi
+                elif(state==4):
+                    # tempNode.isiFungsi
+                    state=0
+                    # if(self.tokenSkrg in [tb.T_NMNY, tb.T_TPNY, tb.T_PMNY]):
+                    #     state=0
+                        
+                    self.maju()
+                    pass
+            else:
+                break
+        # raise Exception("TEST")
+        return tempNode
+
+    def parseBikinVariabel(self)->node.nodeBikinVariabel:
         self.maju(2)
         tempNode : node.nodeBikinVariabel = node.nodeBikinVariabel(self.tokenSkrg.baris, self.tokenSkrg.kolom)
         state : int = 0
@@ -162,52 +234,32 @@ class parserClass:
                 if(len(tempNode.namaVariabel)<=0):
                     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=1, p_baris=self.tokenSkrg.baris)
 
-                self.ASTObjek.addNode(tempNode)
+                # self.ASTObjek.addNode(tempNode)
                 break
-            
-            # if(self.tokenSkrg.tipe!=tb.T_DLMR):
-            #     if(self.tokenSkrg.tipe==tb.T_NMNY):
-            #         if(len(tempNode.namaVariabel)<=0):tempNode.namaVariabel = self.tokenDepan.nilai
-            #         else:self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=2, p_baris=self.tokenSkrg.baris)
-            #         if(self.tokenDepan.tipe!=tb.T_IDTF):self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=3, p_baris=self.tokenSkrg.baris)
-            #         self.maju()
-                    
-            #     elif(self.tokenSkrg.tipe==tb.T_TPNY):
-            #         # print("tipe varnya : ",self.tokenDepan.nilai)
-            #         tempNode.tipedataVariabel = self.tokenDepan.nilai
-            #         self.maju()
-                    
-            #     elif(self.tokenSkrg.tipe==tb.T_NLNY):
-            #         self.maju()
-            #         tempNode.nilaiVariabel = self.parseEkspresi()
-            #         # print("nilai varnya : ",tempNode)
-            #         # self.maju()
-            #     self.maju()
-            # else:
-            #     if(len(tempNode.namaVariabel)<=0):
-            #         self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=1, p_baris=self.tokenSkrg.baris)
+        return tempNode
 
-            #     self.ASTObjek.addNode(tempNode)
-            #     break
-            # pass
-        
     def proses(self, p_tokens : list[Token])->None:
         # tokenDepan : Token = p_tokens[idxIterator+1]
         self.fullToken = p_tokens
         while self.idxIterator<len(self.fullToken)-1:
+            tempNode : node.nodeClass = node.nodeClass(0,0)
             self.refresh()
             match [self.tokenSkrg.tipe, self.tokenDepan.tipe]:
                 case pola.POLA_BIKIN_VARIABEL:
-                    parsingBikinVariabel : None = self.parseBikinVariabel()
-                    # if(type(parsingBikinVariabel) is str):
-                    #     return parsingBikinVariabel
+                    tempNode = self.parseBikinVariabel()
+                    pass
+                
+                case pola.POLA_BIKIN_FUNGSI:
+                    tempNode = self.parseBikinFungsi()
                     pass
                 
                 case _:
                     pass
                     
+            self.ASTObjek.nodeRoot.nodeContainer.append(tempNode)
             if(self.idxIterator<len(self.fullToken)-1):
                 self.maju()
+        print(len(self.ASTObjek.nodeRoot.nodeContainer))
                 
             
             # match [self.tokenSkrg.tipe, self.tokenDepan.tipe]:
