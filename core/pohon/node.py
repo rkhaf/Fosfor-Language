@@ -215,7 +215,7 @@ class nodePanggilFungsi(nodeStatement):
     def __init__(self, p_baris: int, p_kolom: int) -> None:
         super().__init__(p_baris, p_kolom)
         self.namaFungsi : str = ""
-        self.parameterInput : list[nodeIdentifier | nodeNomor | nodeString | nodeBoolean]
+        self.parameterInput : list[nodeEkspresi]
         
 
 class nodeBikinFungsi(nodeStatement):

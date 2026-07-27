@@ -141,7 +141,7 @@ class parserClass:
                     else:
                     # print(self.tokenSkrg.tipe)
                         if(not self.parseEkspresiInvalidFlag):
-                            print("DEBUG 1")
+                            # print("DEBUG 1")
                             self.parseEkspresiInvalidFlag=True
                             self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=13, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenDepan.nilai)
                             raise Exception("STOPPER1")
@@ -153,8 +153,9 @@ class parserClass:
                     # raise Exception("ada yg aneh")
             else:
                 # return node.nodeError
-                print("TEST",self.tokenSkrg)
-                raise Exception("ada yg aneh njr")
+                # print("TEST",self.tokenSkrg)
+                return node.nodeIdentifier(self.tokenSkrg)
+                # raise Exception("ada yg aneh njr")
             # elif(self.tokenSkrg.tipe!=tb.T_IDTF):
             #     print("yg ini1",self.tokenSkrg.nilai)
             #     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=7, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
@@ -226,97 +227,140 @@ class parserClass:
                             self.maju()
                             
                         elif(self.tokenSkrg.tipe==tb.T_SYMBOL_KOMA):
-                            state=2
+                            state=12
                             self.maju()
                             
                         elif(self.tokenSkrg.tipe==tb.T_PRTS_KNAN):
-                            state=2
+                            state=12
                         
+                        elif(self.tokenSkrg.tipe==tb.T_SYMBOL_TKWA):
+                            state=2
+                            self.maju()
+                            
                         elif(self.tokenSkrg.tipe==tb.T_SMDG):
                             state=3
+                            self.maju()
                         
                         elif(self.tokenSkrg.tipe in kyrwd.literalList.values()):
                             self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=11, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
                             # raise Exception("TES")
+                            # print("DEBUG1")
                             errorFlag = True
                             self.maju()
                         
                         else:
-                            self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=7, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
-                            # raise Exception("TES")
-                            errorFlag = True
+                            # self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=7, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
+                            # # raise Exception("TES")
+                            # print("DEBUG2")
+                            # errorFlag = True
                             self.maju()
-                    #state baca param
-                    elif(state==1):
-                        if(self.tokenSkrg.tipe in kyrwd.primitiveList.values()):
-                            #ngecek apkh tipedata udh diisi
-                            if(tempTipeParam is None):
-                                tempTipeParam=self.tokenSkrg
-                                self.maju()
-                            else:
-                                self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=6, p_baris=self.tokenSkrg.baris)
-                                self.maju()
-                                errorFlag = True
-                                
-                        elif(self.tokenSkrg.tipe==tb.T_IDTF):
-                            #ngecek apkh nama udh diisi
-                            if(tempNamaParam is None):
-                                tempNamaParam=self.tokenSkrg
-                                self.maju()
-                            else:
-                                self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=2, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
-                                self.maju()
-                                errorFlag = True
-                        
-                        elif(self.tokenSkrg.tipe==tb.T_IVTF):
-                            # if(tempNamaParam is None):
-                                
-                            self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=3, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
-                            self.maju()
-                            errorFlag = True
                             
-                        # elif(self.tokenSkrg.tipe==tb.T_PRTS_KNAN):
-                        else:
+                    #state baca nama param
+                    elif(state==1):
+                        if(self.tokenSkrg.tipe in [tb.T_SYMBOL_TKWA, tb.T_SMDG, tb.T_SYMBOL_KOMA, tb.T_PRTS_KNAN]):
                             state=0
+                        else:
+                            if(not tempNamaParam is None):
+                                self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=2, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
+                                # errorFlag = True
+                                # self.maju()
+                            tempNamaParam=self.tokenSkrg
+                            self.maju()
+                        
+                        # elif(self.tokenSkrg.tipe==tb.T_IVTF):
+                        #     # print("DEBUG4")
+                        #     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=3, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
+                        #     self.maju()
+                        #     errorFlag = True
+                            
+                        # else:
+                        #     tempNamaParam=self.tokenSkrg
+                            # if(self.tokenSkrg.tipe!=tb.T_SYMBOL_TKWA):
+                            #     print("DEBUG5")
+                            #     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=3, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
+                        
+                    #state baca tipedata
+                    elif(state==2):
+                        if(self.tokenSkrg.tipe in [tb.T_SYMBOL_TKWA, tb.T_SMDG, tb.T_SYMBOL_KOMA, tb.T_PRTS_KNAN]):
+                            state=0
+                        else:
+                            if(not tempTipeParam is None):
+                                self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=2, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
+                            tempTipeParam = self.tokenSkrg
+                            self.maju()
+                        # if(self.tokenSkrg.tipe in kyrwd.primitiveList.values() or self.tokenSkrg.tipe==tb.T_IDTF):
+                        #     if(not tempTipeParam is None):
+                        #         self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=2, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
+                        #     # else:
+                        # else:
+                        #     state=0
+                        # self.maju()
+                        # tempTipeParam = self.tokenSkrg
+                    
+                    #state baca value
+                    elif(state==3):
+                        if(self.tokenSkrg.tipe in [tb.T_SYMBOL_TKWA, tb.T_SMDG, tb.T_SYMBOL_KOMA, tb.T_PRTS_KNAN]):
+                            state=0
+                        else:
+                            if(tempNodeParam.nilaiDefault is None):
+                                tempNilaiParam=self.parseEkspresi()
+                            else:
+                                raise Exception("INVALID EKSPRESI")
+                            if(self.tokenSkrg.tipe==tb.T_SYMBOL_KOMA):
+                                self.maju()
+                        # if(self.tokenSkrg.tipe==tb.T_SMDG):
+                        #     self.maju()
+                        # elif(self.tokenSkrg.tipe==tb.T_SYMBOL_KOMA):
+                        #     state=0
+                        # elif(self.tokenSkrg.tipe in kyrwd.literalList.values() or self.tokenSkrg.tipe==tb.T_IDTF):
+                        #     if(tempNodeParam.nilaiDefault is None):
+                        #         # tempNodeParam.nilaiDefault=self.parseEkspresi()
+                        #         tempNilaiParam=self.parseEkspresi()
+                        #         if(self.tokenSkrg.tipe!=tb.T_PRTS_KNAN):
+                        #             self.maju() #if skrg ) then false
+                        #         state=0
+                        #     else:
+                        #         raise Exception("ekspresi param invalid")
+                            # self.maju()
+                        # else:
+                        #     state=0
                             
                     #state save ke node parameter
-                    elif(state==2):
+                    elif(state==12):
                         # match (tempNamaParam is None, tempTipeParam is None, tempNilaiParam is None):
-                        #     case []
-                        if((not tempNamaParam is None) and (not tempTipeParam is None)):
-                            tempNodeParam.nama = tempNamaParam.nilai
-                            tempNodeParam.tipedata = tempTipeParam.tipe
-                            tempNodeParam.nilaiDefault = tempNilaiParam
-                            paramContainer.append(tempNodeParam)
+                        tempNodeParam.nama = ("" if tempNamaParam is None else tempNamaParam.nilai)
+                        tempNodeParam.tipedata = ("" if tempTipeParam is None else tempTipeParam.tipe)
+                        tempNodeParam.nilaiDefault = tempNilaiParam
+                        paramContainer.append(tempNodeParam)
+                        tempNamaParam = None
+                        tempTipeParam = None
+                        tempNilaiParam = None
+                        # if((not tempNamaParam is None) and (not tempTipeParam is None)):
+                        #     tempNodeParam.nama = tempNamaParam.nilai
+                        #     tempNodeParam.tipedata = tempTipeParam.tipe
+                        #     tempNodeParam.nilaiDefault = tempNilaiParam
+                        #     paramContainer.append(tempNodeParam)
                             
-                            # tempNode.nama.append(tempNamaParam)
-                            # tempNode.tipedata.append(tempTipeParam)
-                            tempNamaParam = None
-                            tempTipeParam = None
-                            tempNilaiParam = None
-                        else:
-                            self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=8, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
-                            raise Exception("ada yg ga lengkap")
+                        #     # tempNode.nama.append(tempNamaParam)
+                        #     # tempNode.tipedata.append(tempTipeParam)
+                        #     tempNamaParam = None
+                        #     tempTipeParam = None
+                        #     tempNilaiParam = None
+                        # else:
+                        #     # if(tempNamaParam is None):
+                        #     #     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=8, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
+                                
+                        #     # self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=8, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
+                        #     # print(str(tempNamaParam is None),str(tempTipeParam is None),str(tempNilaiParam))
+                        #     # raise Exception("ada yg ga lengkap")
+                        #     return paramContainer
+                        
                         if(self.tokenSkrg.tipe==tb.T_PRTS_KNAN):
                             break
                         else:
                             state=1
                     #state nentuin nilai default
-                    elif(state==3):
-                        if(self.tokenSkrg.tipe==tb.T_SMDG):
-                            self.maju()
-                        elif(self.tokenSkrg.tipe in kyrwd.literalList.values() or self.tokenSkrg.tipe==tb.T_IDTF):
-                            if(tempNodeParam.nilaiDefault is None):
-                                # tempNodeParam.nilaiDefault=self.parseEkspresi()
-                                tempNilaiParam=self.parseEkspresi()
-                                if(self.tokenSkrg.tipe!=tb.T_PRTS_KNAN):
-                                    self.maju() #if skrg ) then false
-                                state=0
-                            else:
-                                raise Exception("ekspresi param invalid")
-                            # self.maju()
-                        else:
-                            state=0
+
                 else:
                     break
         return paramContainer

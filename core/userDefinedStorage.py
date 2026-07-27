@@ -1,0 +1,1 @@
+tabel_simbol : dict[str, ]

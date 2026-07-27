@@ -37,7 +37,7 @@ class errorHandlerClass:
             data_language.tataBahasa.MODUL_PATH_PRSR : {
                 1 : "nama variabelnya isiin dulu tu, kalo kosong gabisa dipanggil nntinya",
                 2 : "namanya 1 aja jgn boros boros",
-                3 : "tolong ngisi namanya jangan dari keyword, berisi simbol, diawalin numerik, ataupun berbentuk string",
+                3 : "tolong ngisinya jangan dari keyword, berisi simbol, diawalin numerik, ataupun berbentuk string",
                 4 : "keywordnya ngeduplikat",
                 5 : "tipedatanya gk bener",
                 6 : "tipedatanya ngeduplikat",
