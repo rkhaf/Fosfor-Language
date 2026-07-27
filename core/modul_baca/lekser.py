@@ -222,14 +222,19 @@ class lekserClass:
                     self.gantiState(states.default)
 
                 elif(self.currentChar in kurungList.keys() or self.currentChar in punctuationList.keys()):
+                    if(invalidFlag):
+                        self.konversiDanPushKeToken(tataBahasa.T_IVTF)
                     self.gantiState(states.punctuatorBracket)
+                    
                 elif(self.currentChar in simbolList.keys()):
                     invalidFlag=True
                     self.simpenCharKeTemp()
                     self.maju()
+                    
                 else:
                     self.simpenCharKeTemp()
                     self.maju()
+                pass
             
             elif(self.state==states.singleLineComment):
                 

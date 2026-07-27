@@ -1,7 +1,7 @@
 # from llvmFolder.library import LLVM_PRIMITIVE_TYPES
 from data_language.dataFormat import Token
 from data_language import tataBahasa as tb
-from data_language.keywords import primitiveList as PL
+# from data_language.keywords import primitiveList as PL
 from typing import Any
 
 class nodeClass:
@@ -58,9 +58,19 @@ class nodeBlock(nodeStatement):
     """
     node container utk contain node
     """
-    def __init__(self, p_baris : int, p_kolom : int, p_namaVariabel : str, p_tipedataVariabel : str)->None:
+    def __init__(self, p_baris : int, p_kolom : int)->None:
         super().__init__(p_baris, p_kolom)
         self.isiBlock : list[nodeClass] = []
+    
+    def getDatas(self) -> dict[str, Any]:
+        tempStore : dict[str, Any] = {}
+        for node in self.isiBlock:
+            test = list(node.getDatas().keys())
+            test2 = list(node.getDatas().values())
+            test3 = test[0]
+            test4 = test2[0]
+            tempStore[test3] = test4
+        return {"isi block" : tempStore}
 
 class nodeNomor(nodeEkspresi):
     """
@@ -89,6 +99,26 @@ class nodeString(nodeEkspresi):
     
     def getDatas(self) -> dict[str, Any]:
         return {"tipe numerik" : self.tipe, "nilai numerik" : self.nilai}
+
+class nodeBalikin(nodeStatement):
+    def __init__(self, p_baris: int, p_kolom: int) -> None:
+        self.returnEkspresi : nodeEkspresi
+        super().__init__(p_baris, p_kolom)
+    
+    def getDatas(self) -> dict[str, Any]:
+        return {"ngereturn : " : self.returnEkspresi.getDatas()}
+
+class nodeIdentifier(nodeEkspresi):
+    """
+    node buat ngecontain identifier
+    """
+    def __init__(self, p_token : Token, p_tipe: str="") -> None:
+        self.identifierToken : Token = p_token
+        super().__init__(p_token.baris, p_token.kolom, tb.T_IDTF)
+    
+    def getDatas(self) -> dict[str, Any]:
+        # return {"tipe numerik" : self.tipe, "nilai numerik" : self.nilai}
+        return {self.identifierToken.tipe : self.identifierToken.nilai}
         
 class nodeBoolean(nodeEkspresi):
     """
@@ -104,6 +134,41 @@ class nodeBoolean(nodeEkspresi):
     def getDatas(self) -> dict[str, Any]:
         return {"tipe numerik" : self.tipe, "nilai numerik" : self.nilai}
 
+class nodeInvalidEkspresi(nodeEkspresi):
+    """
+    node buat ngewakilin ekspresi invalid boolean
+    """
+    def __init__(self, p_token : Token)->None:
+        super().__init__(p_token.baris, p_token.kolom, p_token.tipe)
+
+
+class nodeParameter(nodeEkspresi):
+    """
+    node buat ngecontain parameter
+    """
+    def __init__(self, p_baris: int, p_kolom: int, p_tipe: str = "") -> None:
+        self.tipe : str = "null"
+        self.nama : str = ""
+        self.tipedata : str = ""
+        self.nilaiDefault : nodeEkspresi | None = None
+        super().__init__(p_baris, p_kolom, self.tipe)
+    
+    def getDatas(self) -> dict[str, Any]:
+        # tempKumpulanNama : list[str] = []
+        # tempKumpulanTipedata : list[str] = []
+        
+        # for token in self.nama:
+        #     tempKumpulanNama.append(token.nilai)
+            
+        # for token in self.tipedata:
+        #     tempKumpulanTipedata.append(token.tipe)
+        if(self.nilaiDefault is None):
+            return {self.tipedata : [self.nama]}
+        else:
+            return {self.tipedata : [self.nama, self.nilaiDefault.getDatas()]}
+            # return {self.tipedata : [self.nama, self.nilaiDefault.getDatas()]}
+        # return {"list nama" : tempKumpulanNama, "list tipedatanya" : tempKumpulanTipedata}
+
 class nodeBiner(nodeEkspresi):
     """
     node buat ngecontain operasi biner
@@ -114,7 +179,7 @@ class nodeBiner(nodeEkspresi):
         self.operand2 : nodeEkspresi = p_operand2
         self.tipeData : str = ""
     
-        if(self.operand1.tipe==self.operand2.tipe):
+        if(self.operand1.tipe==self.operand2.tipe or self.operand1.tipe==tb.T_IDTF or self.operand2.tipe==tb.T_IDTF):
             # test = list(PL.values())
             # print(test)
             self.tipeData = self.operand1.tipe
@@ -127,7 +192,7 @@ class nodeBiner(nodeEkspresi):
         # pass
     
     def getDatas(self) -> dict[str, Any]:
-        return {"[OPERASI_BINER] : operand1" : self.operand1.getDatas(),"operator" : self.operator,"operand2" : self.operand2.getDatas()}
+        return {"operator" : self.operator, "operand1" : self.operand1.getDatas(), "operand2" : self.operand2.getDatas()}
 
 class nodeBikinVariabel(nodeStatement):
     """
@@ -138,10 +203,20 @@ class nodeBikinVariabel(nodeStatement):
         
         self.namaVariabel : str = ""
         self.tipedataVariabel : str = ""
-        self.nilaiVariabel : nodeEkspresi
+        self.nilaiVariabel : nodeEkspresi = nodeEkspresi(p_baris, p_kolom, self.tipedataVariabel)
     
     def getDatas(self) ->dict[str, Any]:
         return {"nama variabel" : self.namaVariabel, "tipedata variabel" : self.tipedataVariabel, "nilai variabel" : self.nilaiVariabel.getDatas(),}
+
+class nodePanggilFungsi(nodeStatement):
+    """
+    node representasi utk manggil fungsi
+    """
+    def __init__(self, p_baris: int, p_kolom: int) -> None:
+        super().__init__(p_baris, p_kolom)
+        self.namaFungsi : str = ""
+        self.parameterInput : list[nodeIdentifier | nodeNomor | nodeString | nodeBoolean]
+        
 
 class nodeBikinFungsi(nodeStatement):
     """
@@ -152,8 +227,33 @@ class nodeBikinFungsi(nodeStatement):
         
         self.namaFungsi : str = p_namaFungsi
         self.tipedataFungsi : str = p_tipedataFungsi
-        self.parameterFungsi : str = ""
-        self.isiFungsi : nodeBlock
+        self.parameterFungsi : list[nodeParameter] = []
+        self.isiFungsi : list[nodeClass] = []
     
     def getDatas(self) -> dict[str, Any]:
-        return {"nama fungsi" : self.namaFungsi, "tipedata fungsi" : self.tipedataFungsi, "parameter fungsi" : self.parameterFungsi, "isi fungsi" : "BLA BLA BLA"}
+        tempStore : dict[str, Any] = {}
+        temp1 : list[dict[str, Any]] = []
+        temp2 : list[dict[str, Any]] = []
+        
+        for node in self.isiFungsi:
+            temp1.append(node.getDatas())
+            test = list(node.getDatas().keys())
+            test2 = list(node.getDatas().values())
+            test3 = test[0]
+            test4 = test2[0]
+            tempStore[test3] = test4
+            # print("PRINTING1.1",node.getDatas())
+            # print("PRINTING1.2",test)
+            # print("PRINTING1.2",test2)
+            
+        tempStore2 : dict[str, Any] = {}
+        for nodeParam in self.parameterFungsi:
+            temp2.append(nodeParam.getDatas())
+            test = list(nodeParam.getDatas().keys())
+            test2 = list(nodeParam.getDatas().values())
+            test3 = test[0]
+            test4 = test2[0][0]
+            tempStore2[test4] = test3 
+            # print("PRINTING2",test2)
+        # return {"isi fungsi" : tempStore}
+        return {"nama fungsi" : self.namaFungsi, "tipedata fungsi" : self.tipedataFungsi, "parameter fungsi" : temp2, "isi fungsi" : temp1}

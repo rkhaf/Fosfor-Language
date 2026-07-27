@@ -21,7 +21,7 @@ class errorHandlerClass:
     def __init__(self) -> None:
         # self.errors : list[errorFormat] = []
         # self.errors : list[list[errorFormat]] = []
-        self.errors : dict[int, list[errorFormat]] = {}
+        self.errors : dict[int, set[errorFormat]] = {}
         # self.errors : set[errorFormat] = set()
         self.panjangGarisHeader : int = 100
         
@@ -40,6 +40,14 @@ class errorHandlerClass:
                 3 : "tolong ngisi namanya jangan dari keyword, berisi simbol, diawalin numerik, ataupun berbentuk string",
                 4 : "keywordnya ngeduplikat",
                 5 : "tipedatanya gk bener",
+                6 : "tipedatanya ngeduplikat",
+                7 : "ada yg nyasar, tolong cek lagi",
+                8 : "parameternya invalid",
+                9 : "kyknya fungsinya blm ditutup make ';' ",
+                10 : "kyknya variabelnya blm ditutup make ';' ",
+                11 : "klo mau ngisi value pake assignment '='",
+                12 : "ekspresinya invalid",
+                13 : "operand kanan invalid",
             },
         }
     
@@ -81,7 +89,8 @@ class errorHandlerClass:
     def tambahinError(self, p_kelas:str, p_kodeError:int, p_baris:int=-1, p_kolom:int=-1, p_bagian:str="")->None:
         # if(not p_baris in self.errors.keys())
         # self.errors[p_baris].append(errorFormat(p_baris, p_kolom, p_kelas, p_bagian, p_kodeError))
-        self.errors.setdefault(p_baris, []).append(errorFormat(p_baris, p_kolom, p_kelas, p_bagian, p_kodeError))
+        self.errors.setdefault(p_baris, set()).add(errorFormat(p_baris, p_kolom, p_kelas, p_bagian, p_kodeError))
+        # self.errors.setdefault(p_baris, )
         pass
         # self.errors.add(errorFormat(p_baris, p_kolom, p_kelas, p_bagian, p_kodeError))
         

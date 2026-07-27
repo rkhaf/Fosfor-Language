@@ -24,7 +24,9 @@ class ASTClass:
         # print("HANS :",json.dumps(self.nodeRoot.getDatas(), indent=2))
         for node in self.nodeRoot.nodeContainer:
             # print("  ",node.getDatas())
+            pass
             print(json.dumps(node.getDatas(), indent=2))
+            pass
         # if(len(self.nodes)!=0):
         #     for node in self.nodes:
         #         # print("  ",node.getDatas())

@@ -1,5 +1,15 @@
-bikin variabel namanya test tipenya integer nilainya 23;
+// bikin variabel namanya asd tipenya integer nilainya 23*45;
 
-bikin fungsi namanya kali tipenya integer parameternya (integer a, integer b) isinya
-    balikin a*b;
+bikin fungsi 
+    tipenya integer 
+    isinya
+        balikin a*b;
     akhir
+    parameternya(integer p_input1 = 23, integer p_input2 = asd)
+    namanya bagi;
+
+bikin variabel namanya test tipenya integer nilainya 23*45;
+
+fungsi main isinya
+    tampilin(bagi(10,2));
+akhir
