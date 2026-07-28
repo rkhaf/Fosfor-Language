@@ -111,3 +111,7 @@ class tokenClass:
     def isPrimitiveValues(self)->bool:
         from data_language.grammar import primitiveList
         return self.tipe in primitiveList.values()
+    
+    def isKeyword(self)->bool:
+        from data_language.grammar import keywordList
+        return self.tipe in keywordList.values()

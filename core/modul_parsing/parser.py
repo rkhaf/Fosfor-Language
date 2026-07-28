@@ -203,15 +203,9 @@ class parserClass:
                     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=13, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenDepan.nilai)
                     break
             return nodeKiri
-        # elif(self.tokenSkrg.tipe==Ttype.T_IDTF):
-        #     return node.nodeIdentifier(self.tokenSkrg)
-        # else:
-        #     raise Exception("gak terdaftar")
-            # return node.nodeError(self.tokenSkrg.baris, self.tokenSkrg.kolom)
-    
+        
     def parseParameter(self)->list[node.nodeParameter]:
         paramContainer : list[node.nodeParameter] = []
-        # tempNode : node.nodeParameter = node.nodeParameter(self.tokenSkrg.baris, self.tokenSkrg.kolom)
         tempNamaParam : tokenClass | None = None
         tempTipeParam : tokenClass | None = None
         tempNilaiParam : node.nodeClass | None = None
@@ -339,25 +333,6 @@ class parserClass:
                         tempNamaParam = None
                         tempTipeParam = None
                         tempNilaiParam = None
-                        # if((not tempNamaParam is None) and (not tempTipeParam is None)):
-                        #     tempNodeParam.nama = tempNamaParam.nilai
-                        #     tempNodeParam.tipedata = tempTipeParam.tipe
-                        #     tempNodeParam.nilaiDefault = tempNilaiParam
-                        #     paramContainer.append(tempNodeParam)
-                            
-                        #     # tempNode.nama.append(tempNamaParam)
-                        #     # tempNode.tipedata.append(tempTipeParam)
-                        #     tempNamaParam = None
-                        #     tempTipeParam = None
-                        #     tempNilaiParam = None
-                        # else:
-                        #     # if(tempNamaParam is None):
-                        #     #     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=8, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
-                                
-                        #     # self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=8, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
-                        #     # print(str(tempNamaParam is None),str(tempTipeParam is None),str(tempNilaiParam))
-                        #     # raise Exception("ada yg ga lengkap")
-                        #     return paramContainer
                         
                         if(self.tokenSkrg.tipe==Ttype.T_PRTS_KNAN):
                             break
@@ -369,8 +344,14 @@ class parserClass:
                     break
         return paramContainer
 
-    # def parsePanggilFungsi(self)->node.node
-    
+    def parsePanggilFungsi(self)->node.nodePanggilFungsi:
+        self.maju()
+        if(self.tokenSkrg.isKeyword()):
+            self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=7, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
+
+
+        return node.nodePanggilFungsi(self.tokenSkrg.baris, self.tokenSkrg.kolom, self.tokenSkrg)
+        
     def parseBikinFungsi(self)->node.nodeBikinFungsi:
         self.maju(2)
         tempNode : node.nodeBikinFungsi = node.nodeBikinFungsi(self.tokenSkrg.baris, self.tokenSkrg.kolom)
@@ -625,6 +606,8 @@ class parserClass:
                 self.maju()
         return kumpulanNode
 
+    # def parseGlobal(self)
+
     def proses(self, p_tokens : list[tokenClass])->None:
         # tokenDepan : Token = p_tokens[idxIterator+1]
         self.fullToken = p_tokens
@@ -641,7 +624,7 @@ class parserClass:
                     pass
                 
                 case pola.POLA_PANGGIL_FUNGSI:
-                    # tempNode = self.parsePanggilFungsi()
+                    tempNode = self.parsePanggilFungsi()
                     pass
                 case _:
                     pass

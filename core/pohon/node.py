@@ -119,7 +119,7 @@ class nodeIdentifier(nodeEkspresi):
     
     def getDatas(self) -> dict[Any, Any]:
         # return {"tipe numerik" : self.tipe, "nilai numerik" : self.nilai}
-        return {self.identifierToken.tipe : self.identifierToken.nilai}
+        return {self.identifierToken.tipe.name : self.identifierToken.nilai}
         
 class nodeBoolean(nodeEkspresi):
     """
@@ -213,10 +213,16 @@ class nodePanggilFungsi(nodeStatement):
     """
     node representasi utk manggil fungsi
     """
-    def __init__(self, p_baris: int, p_kolom: int) -> None:
+    def __init__(self, p_baris: int, p_kolom: int, p_namaFungsi: tokenClass, p_parameterInput: list[nodeEkspresi] = []) -> None:
         super().__init__(p_baris, p_kolom)
-        self.namaFungsi : str = ""
-        self.parameterInput : list[nodeEkspresi]
+        self.namaFungsi : tokenClass = p_namaFungsi
+        self.parameterInput : list[nodeEkspresi] = p_parameterInput
+    
+    def getDatas(self) -> dict[str, Any]:
+        temp1 : list[dict[str, Any]] = []
+        for input in self.parameterInput:
+            temp1.append(input.getDatas())
+        return {"nama fungsi" : self.namaFungsi.nilai, "parameter" : temp1}
         
 
 class nodeBikinFungsi(nodeStatement):
@@ -257,4 +263,5 @@ class nodeBikinFungsi(nodeStatement):
             tempStore2[test4] = test3 
             # print("PRINTING2",test2)
         # return {"isi fungsi" : tempStore}
+        pass
         return {"nama fungsi" : self.namaFungsi, "tipedata fungsi" : self.tipedataFungsi, "parameter fungsi" : temp2, "isi fungsi" : temp1}
