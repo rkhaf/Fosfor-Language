@@ -14,6 +14,12 @@ class datatypes:
     def __init__(self)->None:
         pass
 
+class compositeDatatype(datatypes):
+    """
+    class parent dri seluruh tipedata komposit
+    """
+    pass
+
 class primitiveDatatype(datatypes):
     """
     container tipedata primitive
@@ -51,7 +57,18 @@ PRIMITIVE_TIPEDATA_MAPPING : dict[str, primitiveDatatype] = {
 """mapping {nama string tipedata} : {kelas representasi tipedata}
 """
 
-PRIMITIVE_TIPEDATA_MAPPING
-class listDatatype(datatypes):
-    def __init__(self, ) -> None:
+class vektorDatatype(compositeDatatype):
+    def __init__(self, p_isiTipedataList:datatypes) -> None:
+        self.isiTipedataList : datatypes = p_isiTipedataList
         super().__init__()
+
+    def __repr__(self) -> str:
+        return f"vektor[{self.isiTipedataList}]"
+
+class pointerDatatype(compositeDatatype):
+    def __init__(self, p_baseTipeData : datatypes) -> None:
+        self.baseTipeData : datatypes = p_baseTipeData
+        super().__init__()
+
+    def __repr__(self) -> str:
+        return f"ptr {self.baseTipeData}"
