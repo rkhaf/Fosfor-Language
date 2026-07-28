@@ -27,6 +27,7 @@ class parserClass:
         self.idxIterator : int = 0
         self.state : states = states.default
         self.parseEkspresiInvalidFlag : bool = False
+        self.punyaEntryPoint : bool = False
         pass
     
     def maju(self, p_nilai : int = 1):
@@ -191,7 +192,7 @@ class parserClass:
             nodeKiri = self.parseTerm()
             
             while self.tokenSkrg.tipe==Ttype.T_PLUS or self.tokenSkrg.tipe==Ttype.T_MINS:
-                if(self.tokenDepan.tipe==Ttype.T_IDTF or self.tokenDepan.tipe in grammar.literalList.values()):
+                if(self.tokenDepan.tipe==Ttype.T_IDTF or self.tokenDepan.tipe in grammar.literalList.values() or self.tokenDepan.tipe==grammar.SYMBOL_PRTS_KNAN):
                     operator = self.tokenSkrg
                     self.maju()
                     nodeKanan = self.parseTerm()
@@ -571,6 +572,17 @@ class parserClass:
                 break
         return tempNode
     
+    # def parsePanggilFungsi(self)->node.nodePanggilFungsi:
+    #     tempNodePanggilFungsi : node.nodePanggilFungsi = node.nodePanggilFungsi(self.tokenSkrg.baris, self.tokenSkrg.kolom, self.tokenSkrg)
+    #     state:int=0
+        
+    #     while self.idxIterator<len(self.fullToken)-1:
+    #         if(state==0):
+    #             if(self.tokenSkrg.tipe==Ttype.T_IDTF):
+    #                 if()
+    #                 tempNodePanggilFungsi.namaFungsi = self.tokenSkrg
+        
+    
     def parseCodeContainer(self)->list[node.nodeClass]:
         # nodeBlock : node.nodeBlock = node.nodeBlock(self.tokenSkrg.baris, self.tokenSkrg.kolom)
         kumpulanNode : list[node.nodeClass] = []
@@ -597,7 +609,10 @@ class parserClass:
                 
                 case [Ttype.T_AKHR,_]:
                     break
+                
                 case _:
+                    # print("ERR",self.tokenSkrg)
+                    # self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=9, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom)
                     pass
             if(not tempNode is None):
                 # nodeBlock.isiBlock.append(tempNode)
@@ -606,49 +621,70 @@ class parserClass:
                 self.maju()
         return kumpulanNode
 
-    # def parseGlobal(self)
-
-    def proses(self, p_tokens : list[tokenClass])->None:
-        # tokenDepan : Token = p_tokens[idxIterator+1]
-        self.fullToken = p_tokens
+    def parseGlobal(self)->None:
+        outerScopeFlag : bool = False
+        outerScopeList : list[list[tokenClass]] = []
+        outerScopeRecorder : list[tokenClass] = []
         while self.idxIterator<len(self.fullToken)-1:
-            tempNode : node.nodeClass = node.nodeClass(0,0)
+            tempNode : node.nodeClass = node.nodeError(0,0)
             self.refresh()
             match [self.tokenSkrg.tipe, self.tokenDepan.tipe]:
-                case pola.POLA_BIKIN_VARIABEL:
-                    tempNode = self.parseBikinVariabel()
-                    pass
+                # case pola.POLA_BIKIN_VARIABEL:
+                #     tempNode = self.parseBikinVariabel()
+                #     pass
                 
                 case pola.POLA_BIKIN_FUNGSI:
+                    if(outerScopeFlag):
+                        outerScopeFlag=False
+                        outerScopeList.append(outerScopeRecorder.copy())
+                        outerScopeRecorder.clear()
+                        
                     tempNode = self.parseBikinFungsi()
                     pass
                 
-                case pola.POLA_PANGGIL_FUNGSI:
-                    tempNode = self.parsePanggilFungsi()
+                case pola.POLA_ENTRY_POINT:
+                    if(self.tokenDepan.nilai==grammar.KEYWORD_ENTRY_POINT):
+                        self.punyaEntryPoint=True
+                        self.maju(3)
+                        tempNode = node.nodeBikinFungsi(self.tokenSkrg.baris, self.tokenSkrg.kolom, self.tokenSkrg.nilai, grammar.KEYWORD_VOID)
+                        tempNode.isiFungsi = self.parseCodeContainer()
+                    else:
+                        raise Exception("APENI WOI")
                     pass
                 case _:
-                    pass
+                    outerScopeRecorder.append(self.tokenSkrg)
+                    # self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=14, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
                     
-            self.ASTObjek.nodeRoot.nodeContainer.append(tempNode)
+                    outerScopeFlag=True
+            
+            if(not isinstance(tempNode,node.nodeError)):
+                self.ASTObjek.nodeRoot.nodeContainer.append(tempNode)
+                
+                    
             if(self.idxIterator<len(self.fullToken)-1):
                 self.maju()
-            pass
-        # print(len(self.ASTObjek.nodeRoot.nodeContainer))
+                if(self.idxIterator==len(self.fullToken)-1):
+                    if(outerScopeFlag):
+                        outerScopeFlag=False
+                        outerScopeRecorder.append(self.tokenSkrg)
+                        outerScopeList.append(outerScopeRecorder.copy())
+                        outerScopeRecorder.clear()
+                # if(self.idxIterator>15):
+                #     pass
                 
-            
-            # match [self.tokenSkrg.tipe, self.tokenDepan.tipe]:
-            #     case pola.POLA_BIKIN_VARIABEL:
-            #         print("ada yg bikin variabel nih")
-            #         if(self.tokenSkrg.tipe==Ttype.T_NMNY):
-            #             print("  namanya: ",self.tokenDepan.nilai)
-            #         self.maju()
-                
-            #     case _:
-            #         print(self.tokenSkrg.tipe, self.tokenDepan.tipe)
-            #         pass
-                
-            # print(self.tokenSkrg)
-            # self.maju()
-        # self.ASTObjek.printTree()
-    
-    # def ambilPohon(self)
+        
+        if(len(outerScopeList)>0):
+            for outerScopePiece in outerScopeList:
+                if(outerScopePiece[0].baris!=outerScopePiece[-1].baris):
+                    self.errorHandlerObjek.tambahinError(p_kelas=__name__,\
+                        p_kodeError=14, p_baris=outerScopePiece[0].baris, p_bagian=f"mulai dari ({outerScopePiece[0].nilai}) sampe ({outerScopePiece[-1].nilai}) baris : {outerScopePiece[-1].baris} kolom : "+str(outerScopePiece[-1].kolom-(outerScopePiece[-1].getValueLength() if outerScopePiece[-1].getValueLength()>1 else 0)))
+                else:
+                    self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=14, p_baris=outerScopePiece[0].baris, p_bagian=f"mulai dari ({outerScopePiece[0].nilai}) sampe ({outerScopePiece[-1].nilai})")
+
+    def proses(self, p_tokens : list[tokenClass])->None:
+        self.fullToken = p_tokens
+        self.parseGlobal()
+        
+        if(not self.punyaEntryPoint):
+            self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=15)
+        

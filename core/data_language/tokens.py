@@ -115,3 +115,12 @@ class tokenClass:
     def isKeyword(self)->bool:
         from data_language.grammar import keywordList
         return self.tipe in keywordList.values()
+    
+    def __repr__(self) -> str:
+        return f"{self.tipe.name} : {self.nilai}"
+    
+    def getValueLength(self)->int:
+        return len(self.nilai)
+    
+    def isIdentifier(self)->bool:
+        return self.tipe==tokenType.T_IDTF

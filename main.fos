@@ -1,12 +1,14 @@
-// bikin variabel namanya asd tipenya integer nilainya 23;
-// bikin variabel namanya asd tipenya integer nilainya 23*45;
-
-// bikin fungsi
-//     isinya balikin p_input1*p_input2;
-//     tipenya integer
-//     parameternya(p_input1:integer, p_input2:integer)
-//     namanya bagi;
 
 fungsi main isinya
-    tampilin(bagi(10,2));
+    // test();
+    // umur = 12;
+    // bikin variabel namanya .....;
+    balikin (24+56)+((100/2)*20);
 akhir
+
+// bikin variabel namanya hans;
+
+// bikin fungsi namanya heinkel isinya
+//     houston();
+//     balikin "rendezvous";
+//     akhir;

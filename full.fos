@@ -54,7 +54,7 @@ fungsi main isinya
    kalau (umur > 18) isinya
       tampilin("Sudah dewasa");
       akhir
-   kalau (umur > 30) isinya
+   kalau nggak (umur > 30) isinya
       tampilin("Sudah bapak-bapak");
       akhir
    kalau nggak isinya

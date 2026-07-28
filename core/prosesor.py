@@ -12,13 +12,12 @@ def run(fileOriginal : str) -> None:
     lekserObjek = lekserClass(errorHandlerObjek)
     parserObjek = parserClass(errorHandlerObjek)
     # tokenizerObjek = tokenizerClass()
-    
+
     lekserProsesing : str | None = lekserObjek.proses(fileOriginal)
     tokens : list[tokenClass] = lekserObjek.ambilTokens()
     # print(tokens)
     parserProsesing : str | None = parserObjek.proses(tokens)
-    
-    
+
     if(errorHandlerObjek.adaError()):
         errorHandlerObjek.displayError()
     else:

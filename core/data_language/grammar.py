@@ -83,6 +83,8 @@ KEYWORD_NGLG : str = "ngulangin"
 KEYWORD_SLMA : str = "selama"
 KEYWORD_DLMR : str = ";"
 
+KEYWORD_ENTRY_POINT : str = "main"
+
 KEYWORD_LGKA_BKAN : str = "bukan"
 KEYWORD_LGKA_ATAU : str = "atau"
 KEYWORD_LGKA_DAN : str = "dan"

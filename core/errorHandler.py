@@ -49,6 +49,8 @@ class errorHandlerClass:
                 11 : "klo mau ngisi value pake assignment '='",
                 12 : "ekspresinya invalid",
                 13 : "operand kanan invalid",
+                14 : "ngodonf nya didlm fungsi loh yh, jgn ditaroh diluar gtu",
+                15 : "kodenya gaada entry point, nambahin fungsi main dulu dh",
             },
         }
     
