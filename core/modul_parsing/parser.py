@@ -175,7 +175,7 @@ class parserClass:
         nodeKiri = self.parseFaktor()
         
         while self.tokenSkrg.tipe == Ttype.T_MULT or self.tokenSkrg.tipe == Ttype.T_DIVE:
-            if(self.tokenDepan.tipe==Ttype.T_IDTF or self.tokenDepan.tipe in grammar.literalList.values()):
+            if(self.tokenDepan.tipe==Ttype.T_IDTF or self.tokenDepan.tipe in grammar.literalList.values() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
                 operator = self.tokenSkrg
                 self.maju()
                 nodeKanan=self.parseFaktor()
@@ -192,7 +192,7 @@ class parserClass:
             nodeKiri = self.parseTerm()
             
             while self.tokenSkrg.tipe==Ttype.T_PLUS or self.tokenSkrg.tipe==Ttype.T_MINS:
-                if(self.tokenDepan.tipe==Ttype.T_IDTF or self.tokenDepan.tipe in grammar.literalList.values() or self.tokenDepan.tipe==grammar.SYMBOL_PRTS_KNAN):
+                if(self.tokenDepan.tipe==Ttype.T_IDTF or self.tokenDepan.tipe in grammar.literalList.values() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
                     operator = self.tokenSkrg
                     self.maju()
                     nodeKanan = self.parseTerm()
