@@ -1,0 +1,103 @@
+import data_language.tataBahasa as tataBahasa
+from core.data_language.tokens import tokenType
+
+keywordList : dict[str, tokenType] = {
+    tataBahasa.KEYWORD_BKIN : tokenType.T_BKIN,
+    tataBahasa.KEYWORD_VRBL : tokenType.T_VRBL,
+    tataBahasa.KEYWORD_NMNY : tokenType.T_NMNY,
+    tataBahasa.KEYWORD_TPNY : tokenType.T_TPNY,
+    tataBahasa.KEYWORD_NLNY : tokenType.T_NLNY,
+    tataBahasa.KEYWORD_PTER : tokenType.T_PTER,
+    tataBahasa.KEYWORD_ALMT : tokenType.T_ALMT,
+    tataBahasa.KEYWORD_DLMR : tokenType.T_DLMR,
+    tataBahasa.KEYWORD_ISNY : tokenType.T_ISNY,
+    tataBahasa.KEYWORD_AKHR : tokenType.T_AKHR,
+    tataBahasa.KEYWORD_STRK : tokenType.T_STRK,
+    tataBahasa.KEYWORD_FGSI : tokenType.T_FGSI,
+    tataBahasa.KEYWORD_VOID : tokenType.T_VOID,
+    tataBahasa.KEYWORD_RFSI : tokenType.T_RFSI,
+    tataBahasa.KEYWORD_KLAU : tokenType.T_KLAU,
+    tataBahasa.KEYWORD_PRSM : tokenType.T_PRSM,
+    tataBahasa.KEYWORD_SAAT : tokenType.T_SAAT,
+    tataBahasa.KEYWORD_LNJT : tokenType.T_LNJT,
+    tataBahasa.KEYWORD_STOP : tokenType.T_STOP,
+    tataBahasa.KEYWORD_LAIN : tokenType.T_LAIN,
+    tataBahasa.KEYWORD_PMNY : tokenType.T_PMNY,
+    tataBahasa.KEYWORD_BLKN : tokenType.T_BLKN,
+    tataBahasa.KEYWORD_NGGK : tokenType.T_NGGK,
+    tataBahasa.KEYWORD_NGLG : tokenType.T_NGLG,
+    tataBahasa.KEYWORD_SLMA : tokenType.T_SLMA,
+    tataBahasa.KEYWORD_LGKA_ATAU : tokenType.T_LGKA_ATAU,
+    tataBahasa.KEYWORD_LGKA_DAN : tokenType.T_LGKA_DAN,
+    tataBahasa.KEYWORD_LGKA_BKAN : tokenType.T_LGKA_BKAN
+}
+
+literalList : dict[str, tokenType] = {
+    tataBahasa.KEYWORD_BOOL_TRUE : tokenType.T_LITERAL_BOOL,
+    tataBahasa.KEYWORD_BOOL_FALSE : tokenType.T_LITERAL_BOOL,
+    tataBahasa.T_LITERAL_FLOAT : tokenType.T_LITERAL_FLOAT,
+    tataBahasa.T_LITERAL_INT : tokenType.T_LITERAL_INT,
+    tataBahasa.T_LITERAL_STR : tokenType.T_LITERAL_STR,
+}
+
+primitiveList : dict[str, tokenType] = {
+    tataBahasa.TIPEDATA_INT : tokenType.T_TIPE_INT,
+    tataBahasa.TIPEDATA_FLOAT : tokenType.T_TIPE_FLT,
+    tataBahasa.TIPEDATA_STR : tokenType.T_TIPE_STR,
+    tataBahasa.TIPEDATA_BOOL : tokenType.T_TIPE_BOOL,
+}
+
+operatorList : dict[str, tokenType] = {
+    tataBahasa.OPERATOR_DIVE : tokenType.T_DIVE,
+    tataBahasa.OPERATOR_MDLO : tokenType.T_MDLO,
+    tataBahasa.OPERATOR_MINS : tokenType.T_MINS,
+    tataBahasa.OPERATOR_MULT : tokenType.T_MULT,
+    tataBahasa.OPERATOR_PLUS : tokenType.T_PLUS,
+    tataBahasa.OPERATOR_ICRT : tokenType.T_ICRT,
+    tataBahasa.OPERATOR_DCRT : tokenType.T_DCRT,
+    tataBahasa.OPERATOR_SMDG : tokenType.T_SMDG
+}
+
+simbolList : dict[str, tokenType] = {
+    # tataBahasa.SYMBOL_PRTS_KNAN : tataBahasa.T_SYMBOL_,
+    # tataBahasa.SYMBOL_PRTS_KIRI : tataBahasa.T_SYMBOL_,
+    tataBahasa.SYMBOL_SERU : tokenType.T_SYMBOL_SERU,
+    tataBahasa.SYMBOL_AT : tokenType.T_SYMBOL_AT,
+    tataBahasa.SYMBOL_HSTG : tokenType.T_SYMBOL_HSTG,
+    tataBahasa.SYMBOL_DLLR : tokenType.T_SYMBOL_DLLR,
+    tataBahasa.SYMBOL_CRET : tokenType.T_SYMBOL_CRET,
+    tataBahasa.SYMBOL_AMPD : tokenType.T_SYMBOL_AMPD,
+    # tataBahasa.SYMBOL_TKMA : tataBahasa.SYMBOL_TKMA,
+    tataBahasa.SYMBOL_TNYA : tokenType.T_SYMBOL_TNYA,
+    # tataBahasa.SYMBOL_KCIL : tataBahasa.T_SYMBOL_KCIL,
+    # tataBahasa.SYMBOL_BSAR : tataBahasa.T_SYMBOL_BSAR,
+    tataBahasa.SYMBOL_GRLR : tokenType.T_SYMBOL_GRLR,
+}
+
+kurungList : dict[str, tokenType] = {
+    tataBahasa.SYMBOL_BRKT_KIRI : tokenType.T_SYMBOL_BRKT_KIRI,
+    tataBahasa.SYMBOL_BRKT_KNAN : tokenType.T_SYMBOL_BRKT_KNAN,
+    tataBahasa.SYMBOL_PRTS_KIRI : tokenType.T_PRTS_KIRI,
+    tataBahasa.SYMBOL_PRTS_KNAN : tokenType.T_PRTS_KNAN,
+}
+
+punctuationList : dict[str, tokenType] = {
+    tataBahasa.SYMBOL_TKWA : tokenType.T_SYMBOL_TKWA,
+    tataBahasa.SYMBOL_KOMA : tokenType.T_SYMBOL_KOMA,
+    tataBahasa.SYMBOL_TTIK : tokenType.T_SYMBOL_TTIK
+}
+
+perbandinganList : dict[str, tokenType] = {
+    tataBahasa.CMPR_BSAR : tokenType.T_CMPR_BSAR,
+    tataBahasa.CMPR_SBSR : tokenType.T_CMPR_SBSR,
+    tataBahasa.CMPR_KCIL : tokenType.T_CMPR_KCIL,
+    tataBahasa.CMPR_SKCL : tokenType.T_CMPR_SKCL,
+    tataBahasa.CMPR_SAMA : tokenType.T_CMPR_SAMA,
+    tataBahasa.CMPR_GSMA : tokenType.T_CMPR_GSMA,
+}
+
+# logikaList : dict[str, str] = {
+#     tataBahasa.KEYWORD_LGKA_ATAU : tataBahasa.T_LGKA_ATAU,
+#     tataBahasa.KEYWORD_LGKA_DAN : tataBahasa.T_LGKA_DAN,
+#     tataBahasa.KEYWORD_LGKA_BKAN : tataBahasa.T_LGKA_BKAN
+# }

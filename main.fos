@@ -1,10 +1,12 @@
-// bikin variabel namanya asd tipenya integer nilainya 23*45;
+// bikin variabel namanya asd tipenya integer nilainya 23;
+bikin variabel namanya asd tipenya integer nilainya 23*45;
 
-bikin fungsi 
-    parameternya(p_input!a)
+bikin fungsi
+    tipenya integer
+    parameternya(p_input!a=23)
     namanya bagi;
 
-bikin variabel namanya test tipenya integer nilainya 23*45;
+// bikin variabel namanya test tipenya boolean nilainya benar;
 
 // fungsi main isinya
 //     tampilin(bagi(10,2));

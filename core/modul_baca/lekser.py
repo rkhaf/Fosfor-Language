@@ -3,14 +3,17 @@
 from enum import Enum
 from errorHandler import errorHandlerClass
 from modul_baca.tokenizer import tokenizerClass
-from data_language.dataFormat import Token
-from data_language.keywords import simbolList
-from data_language.keywords import kurungList
-from data_language.keywords import punctuationList
-from data_language.keywords import operatorList
-from data_language.keywords import perbandinganList
+# from data_language.dataFormat import Token
+from data_language.tokens import tokenClass
+# from core.data_language.tokens import tokenType
+from data_language import grammar
+# from data_language.grammar import simbolList
+# from data_language.grammar import kurungList
+# from data_language.grammar import punctuationList
+# from data_language.grammar import operatorList
+# from data_language.grammar import perbandinganList
 
-import data_language.tataBahasa as tataBahasa
+# import data_language.grammar as tataBahasa
 
 class states(Enum):
     default = 1,
@@ -34,7 +37,7 @@ class lekserClass:
         self.currentChar : str = ""
         self.forwardChar : str = ""
         self.fileOriginal : str = ""
-        self.tokens : list[Token] = []
+        self.tokens : list[tokenClass] = []
         self.commentStart : list[int] = [0,0]
         
     def maju(self) -> None:
@@ -60,9 +63,9 @@ class lekserClass:
             self.tokens.append(self.tokenizerObjek.getToken(self.barisIterator, self.kolomIterator, self.temp))
         self.temp=""
     
-    def pushTempKeToken(self, p_tipeToken : str)->None:
-        self.tokens.append(Token(self.barisIterator, self.kolomIterator, p_tipeToken, self.temp))
-        self.temp=""
+    # def pushTempKeToken(self, p_tipeToken : str)->None:
+    #     self.tokens.append(Token(self.barisIterator, self.kolomIterator, p_tipeToken, self.temp))
+    #     self.temp=""
     
     def clearTemp(self)->None:
         self.temp=""
@@ -76,7 +79,7 @@ class lekserClass:
         if(len(self.temp)>0):
             self.konversiDanPushKeToken()
     
-    def ambilTokens(self)->list[Token]:
+    def ambilTokens(self)->list[tokenClass]:
         return self.tokens
     
     def proses(self, p_fileMentahan : str) -> str | None:
@@ -99,10 +102,10 @@ class lekserClass:
                 invalidFlag=False
                 
                 # if dibawah ini smpe ke else fungsinya bwt deteksi state doang
-                if(self.currentChar+self.forwardChar==tataBahasa.CMNT_SNGL):
+                if(self.currentChar+self.forwardChar==grammar.CMNT_SNGL):
                     self.gantiState(states.singleLineComment)
                     
-                elif(self.currentChar+self.forwardChar==tataBahasa.CMNT_MLTI_OPEN):
+                elif(self.currentChar+self.forwardChar==grammar.CMNT_MLTI_OPEN):
                     self.gantiState(states.multiLineComment)
                     
                 elif(self.currentChar.isdigit()):
@@ -113,10 +116,10 @@ class lekserClass:
                     self.gantiState(states.string)
                     self.maju()
                     
-                elif(self.currentChar in simbolList.keys() or self.currentChar in perbandinganList.keys() or self.currentChar in operatorList.keys()):
+                elif(self.currentChar in grammar.simbolList.keys() or self.currentChar in grammar.perbandinganList.keys() or self.currentChar in grammar.operatorList.keys()):
                     self.gantiState(states.simbol)
 
-                elif(self.currentChar==tataBahasa.KEYWORD_DLMR):
+                elif(self.currentChar==grammar.KEYWORD_DLMR):
                     self.konversiTempJikaBerisi()
                     self.simpenCharKeTemp()
                     self.konversiDanPushKeToken()
@@ -155,19 +158,19 @@ class lekserClass:
                     
                 else:
                     # selain elemen yg boleh dibaca berbarengan dgn numerik
-                    if(self.currentChar==" " or self.currentChar=="\n" or self.currentChar==tataBahasa.KEYWORD_DLMR or self.currentChar in kurungList.keys() or self.currentChar in punctuationList.keys() or self.currentChar in operatorList.keys()):
+                    if(self.currentChar==" " or self.currentChar=="\n" or self.currentChar==grammar.KEYWORD_DLMR or self.currentChar in grammar.kurungList.keys() or self.currentChar in grammar.punctuationList.keys() or self.currentChar in grammar.operatorList.keys()):
                         # ngecek apkh udh diflag invalid apa nggk
                         if(invalidFlag):
                             # print("invld")
-                            self.konversiDanPushKeToken(tataBahasa.T_IVTF)
+                            self.konversiDanPushKeToken(grammar.T_IVTF)
                             
                         else:
                             # ngecek jenis literal
                             if(dotCount<1):
-                                self.konversiDanPushKeToken(tataBahasa.T_LITERAL_INT)
+                                self.konversiDanPushKeToken(grammar.T_LITERAL_INT)
                                 
                             else:
-                                self.konversiDanPushKeToken(tataBahasa.T_LITERAL_FLOAT)
+                                self.konversiDanPushKeToken(grammar.T_LITERAL_FLOAT)
                         self.gantiState(states.default)
 
                     else:
@@ -185,7 +188,7 @@ class lekserClass:
                 if(self.pointerIterator<len(self.fileOriginal)):
                     # ngecek stopper utk stringnya
                     if(p_fileMentahan[self.pointerIterator]=='"'):
-                        self.konversiDanPushKeToken(tataBahasa.T_LITERAL_STR)
+                        self.konversiDanPushKeToken(grammar.T_LITERAL_STR)
                         self.state=states.default
                         self.maju()
                 else:
@@ -195,13 +198,13 @@ class lekserClass:
             # state simbol
             elif(self.state==states.simbol):
                 # ngecek apkh char skrg masih didalem simbol, operator, perbandingan
-                if(self.currentChar in simbolList.keys() or self.currentChar in operatorList.keys() or self.currentChar in perbandinganList.keys()):
+                if(self.currentChar in grammar.simbolList.keys() or self.currentChar in grammar.operatorList.keys() or self.currentChar in grammar.perbandinganList.keys()):
                     tempMerged : str = self.currentChar+self.forwardChar
                     # # state default
-                    # if(tempMerged==tataBahasa.CMNT_SNGL):
+                    # if(tempMerged==grammar.CMNT_SNGL):
                     #     self.maju()
                     #     self.gantiState(states.singleLineComment)
-                    if(tempMerged in perbandinganList.keys() or tempMerged in operatorList.keys()):
+                    if(tempMerged in grammar.perbandinganList.keys() or tempMerged in grammar.operatorList.keys()):
                         self.konversiTempJikaBerisi()
                         self.simpenKeTemp(tempMerged)
                         self.maju()
@@ -216,17 +219,17 @@ class lekserClass:
                     self.state=states.default
                     
             elif(self.state==states.identifier):
-                if(self.currentChar==" " or self.currentChar=="\n" or self.currentChar==tataBahasa.KEYWORD_DLMR or self.currentChar in perbandinganList.keys() or self.currentChar in operatorList.keys() or self.currentChar+self.forwardChar in perbandinganList.keys()):
+                if(self.currentChar==" " or self.currentChar=="\n" or self.currentChar==grammar.KEYWORD_DLMR or self.currentChar in grammar.perbandinganList.keys() or self.currentChar in grammar.operatorList.keys() or self.currentChar+self.forwardChar in grammar.perbandinganList.keys()):
                     if(invalidFlag):
-                        self.konversiDanPushKeToken(tataBahasa.T_IVTF)
+                        self.konversiDanPushKeToken(grammar.T_IVTF)
                     self.gantiState(states.default)
 
-                elif(self.currentChar in kurungList.keys() or self.currentChar in punctuationList.keys()):
+                elif(self.currentChar in grammar.kurungList.keys() or self.currentChar in grammar.punctuationList.keys()):
                     if(invalidFlag):
-                        self.konversiDanPushKeToken(tataBahasa.T_IVTF)
+                        self.konversiDanPushKeToken(grammar.T_IVTF)
                     self.gantiState(states.punctuatorBracket)
                     
-                elif(self.currentChar in simbolList.keys()):
+                elif(self.currentChar in grammar.simbolList.keys()):
                     invalidFlag=True
                     self.simpenCharKeTemp()
                     self.maju()
@@ -246,7 +249,7 @@ class lekserClass:
                     self.maju()
                     
             elif(self.state==states.multiLineComment):
-                if(self.currentChar==tataBahasa.OPERATOR_DIVE and self.forwardChar==tataBahasa.OPERATOR_MULT):
+                if(self.currentChar==grammar.OPERATOR_DIVE and self.forwardChar==grammar.OPERATOR_MULT):
                     if(kedalamanMultiComment<=0):
                         self.commentStart[0] = self.barisIterator
                         self.commentStart[1] = self.kolomIterator
@@ -254,7 +257,7 @@ class lekserClass:
                     self.maju()
                     
                 if(kedalamanMultiComment>0):
-                    if(self.currentChar==tataBahasa.OPERATOR_MULT and self.forwardChar==tataBahasa.OPERATOR_DIVE):
+                    if(self.currentChar==grammar.OPERATOR_MULT and self.forwardChar==grammar.OPERATOR_DIVE):
                         if(kedalamanMultiComment<=0):
                             self.maju()
                             self.maju()
@@ -274,7 +277,7 @@ class lekserClass:
                     self.gantiState(states.default)
                 
             elif(self.state==states.punctuatorBracket):
-                if(self.currentChar in kurungList or self.currentChar in punctuationList):
+                if(self.currentChar in grammar.kurungList.keys() or self.currentChar in grammar.punctuationList.keys()):
                     self.konversiTempJikaBerisi()
                     self.simpenCharKeTemp()
                     self.konversiDanPushKeToken()

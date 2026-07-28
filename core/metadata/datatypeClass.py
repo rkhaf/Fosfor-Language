@@ -14,11 +14,16 @@ class datatypes:
     def __init__(self)->None:
         pass
 
+    def _isPointer(self)->bool:
+        return isinstance(self, pointerDatatype)
+    
+    # def 
+
 class compositeDatatype(datatypes):
     """
     class parent dri seluruh tipedata komposit
     """
-    pass
+
 
 class primitiveDatatype(datatypes):
     """

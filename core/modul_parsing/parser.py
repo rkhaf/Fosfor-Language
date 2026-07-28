@@ -1,11 +1,15 @@
-from data_language.dataFormat import Token
+# from core.data_language.tokens import Token
+from data_language.tokens import tokenType
+from data_language.tokens import tokenClass
 from modul_parsing.AST import ASTClass
-from data_language import tataBahasa as tb
+# from data_language import tataBahasa as tb
+from data_language import grammar
 from pohon import node
 # from data_language import keywords
 from errorHandler import errorHandlerClass
 from data_language import pola
-from data_language import keywords as kyrwd
+# from data_language import keywords as kyrwd
+from data_language.tokens import tokenType as Ttype
 from enum import Enum
 
 class states(Enum):
@@ -16,10 +20,10 @@ class parserClass:
     def __init__(self, p_errorHandlerReference : errorHandlerClass)->None:
         self.errorHandlerObjek : errorHandlerClass = p_errorHandlerReference
         self.ASTObjek : ASTClass = ASTClass()
-        self.fullToken : list[Token]
-        self.tokenSkrg : Token
-        self.tokenDepan : Token
-        self.tokenBlkng : Token
+        self.fullToken : list[tokenClass]
+        self.tokenSkrg : tokenClass
+        self.tokenDepan : tokenClass
+        self.tokenBlkng : tokenClass
         self.idxIterator : int = 0
         self.state : states = states.default
         self.parseEkspresiInvalidFlag : bool = False
@@ -46,18 +50,18 @@ class parserClass:
             self.tokenDepan = self.fullToken[self.idxIterator+1]
         pass
     
-    def getNextToken(self, p_tokenTipe : str)->Token | None:
+    def getNextToken(self, p_tokenTipe : Ttype)->tokenClass | None:
         if(self.tokenSkrg.tipe==p_tokenTipe):
             return self.tokenDepan
     
     def parseLiteral(self)->node.nodeNomor | node.nodeString | node.nodeBoolean:
-        if(self.tokenSkrg.tipe in [tb.T_LITERAL_INT, tb.T_LITERAL_FLOAT]):
+        if(self.tokenSkrg.tipe in [Ttype.T_LITERAL_INT, Ttype.T_LITERAL_FLOAT]):
             return node.nodeNomor(self.tokenSkrg)
 
-        elif(self.tokenSkrg.tipe == tb.T_LITERAL_STR):
+        elif(self.tokenSkrg.tipe == Ttype.T_LITERAL_STR):
             return node.nodeString(self.tokenSkrg)
         
-        elif(self.tokenSkrg.tipe == tb.T_LITERAL_BOOL):
+        elif(self.tokenSkrg.tipe == Ttype.T_LITERAL_BOOL):
             return node.nodeBoolean(self.tokenSkrg)
         
         else:
@@ -65,18 +69,18 @@ class parserClass:
 
     def parseFaktor(self)->node.nodeEkspresi | node.nodeInvalidEkspresi:
         # print("PARSE FAKTOR")
-        if(self.tokenSkrg.tipe==tb.T_LITERAL_FLOAT or self.tokenSkrg.tipe==tb.T_LITERAL_INT):
+        if(self.tokenSkrg.tipe==Ttype.T_LITERAL_FLOAT or self.tokenSkrg.tipe==Ttype.T_LITERAL_INT):
             if(not self.parseEkspresiInvalidFlag):
                 tempToken = self.tokenSkrg
-                if(self.tokenDepan.tipe in kyrwd.operatorList.values() or self.tokenDepan.tipe in [tb.T_PRTS_KIRI, tb.T_PRTS_KNAN]):
-                # if(self.tokenDepan.tipe in kyrwd.keywordList or self.tokenDepan.tipe==tb.T_IDTF):
+                if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
+                # if(self.tokenDepan.tipe in grammar.keywordList or self.tokenDepan.tipe==Ttype.T_IDTF):
                     if(self.idxIterator==len(self.fullToken)-1):
                         tempLastValidToken = self.fullToken[self.idxIterator]
                         self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=9, p_baris=tempLastValidToken.baris, p_kolom=tempLastValidToken.kolom)
                     else:
                         self.maju()
                         pass
-                elif(self.tokenDepan.tipe in kyrwd.literalList.keys() and not self.idxIterator==len(self.fullToken)-1):
+                elif(self.tokenDepan.tipe in grammar.literalList.keys() and not self.idxIterator==len(self.fullToken)-1):
                     self.parseEkspresiInvalidFlag=True
                     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=12, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenDepan.nilai)
                     if(self.idxIterator==len(self.fullToken)-1):
@@ -90,31 +94,31 @@ class parserClass:
             else:
                 return node.nodeInvalidEkspresi(self.tokenSkrg)
         
-        elif(self.tokenSkrg.tipe==tb.T_LITERAL_STR):
+        elif(self.tokenSkrg.tipe==Ttype.T_LITERAL_STR):
             if(not self.parseEkspresiInvalidFlag):
                 tempToken = self.tokenSkrg
-                if(self.tokenDepan.tipe in kyrwd.operatorList.values() or self.tokenDepan.tipe in kyrwd.literalList.keys() or self.tokenDepan.tipe in [tb.T_PRTS_KIRI, tb.T_PRTS_KNAN]):
+                if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
                     self.maju()
                 return node.nodeString(tempToken)
             else:
                 return node.nodeInvalidEkspresi(self.tokenSkrg)
         
-        elif(self.tokenSkrg.tipe==tb.T_LITERAL_BOOL):
+        elif(self.tokenSkrg.tipe==Ttype.T_LITERAL_BOOL):
             if(not self.parseEkspresiInvalidFlag):
                 tempToken = self.tokenSkrg
-                if(self.tokenDepan.tipe in kyrwd.operatorList.values() or self.tokenDepan.tipe in kyrwd.literalList.keys() or self.tokenDepan.tipe in [tb.T_PRTS_KIRI, tb.T_PRTS_KNAN]):
+                if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
                     self.maju()
                 return node.nodeBoolean(tempToken)
             else:
                 return node.nodeInvalidEkspresi(self.tokenSkrg)
 
-        elif(self.tokenSkrg.tipe==tb.T_IDTF):
+        elif(self.tokenSkrg.tipe==Ttype.T_IDTF):
             if(not self.parseEkspresiInvalidFlag):
                 tempToken = self.tokenSkrg
-                # if(self.tokenDepan.tipe in kyrwd.operatorList.values() or self.tokenDepan.tipe in kyrwd.literalList.keys() or self.tokenDepan.tipe in [tb.T_PRTS_KIRI, tb.T_PRTS_KNAN]):
-                if(self.tokenDepan.tipe in kyrwd.operatorList.values() or self.tokenDepan.tipe in [tb.T_PRTS_KIRI, tb.T_PRTS_KNAN]):
+                # if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
+                if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
                     self.maju()
-                elif(self.tokenDepan.tipe==tb.T_DLMR):
+                elif(self.tokenDepan.tipe==Ttype.T_DLMR):
                     pass
                 else:
                     print("yg ini")
@@ -127,12 +131,12 @@ class parserClass:
                 return node.nodeInvalidEkspresi(self.tokenSkrg)
         else:
             tempToken = self.fullToken[self.idxIterator-1]
-            if(self.tokenSkrg.tipe==tb.T_PRTS_KIRI):
+            if(self.tokenSkrg.tipe==Ttype.T_PRTS_KIRI):
                 self.maju()
                 # if(not self.parseEkspresiInvalidFlag):
                 nodee = self.parseEkspresi()
-                if(self.tokenSkrg.tipe==tb.T_PRTS_KNAN):
-                    if(self.tokenDepan.tipe in kyrwd.operatorList.values() or self.tokenDepan.tipe in kyrwd.literalList.keys() or self.tokenDepan.tipe in [tb.T_PRTS_KIRI, tb.T_PRTS_KNAN]):
+                if(self.tokenSkrg.tipe==Ttype.T_PRTS_KNAN): #type: ignore
+                    if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
                         self.maju()
                     return nodee
                 else:
@@ -156,7 +160,7 @@ class parserClass:
                 # print("TEST",self.tokenSkrg)
                 return node.nodeIdentifier(self.tokenSkrg)
                 # raise Exception("ada yg aneh njr")
-            # elif(self.tokenSkrg.tipe!=tb.T_IDTF):
+            # elif(self.tokenSkrg.tipe!=Ttype.T_IDTF):
             #     print("yg ini1",self.tokenSkrg.nilai)
             #     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=7, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
             #     return node.nodeIdentifier(self.tokenSkrg)
@@ -169,8 +173,8 @@ class parserClass:
         # print("PARSE TERM")
         nodeKiri = self.parseFaktor()
         
-        while self.tokenSkrg.tipe == tb.T_MULT or self.tokenSkrg.tipe == tb.T_DIVE:
-            if(self.tokenDepan.tipe==tb.T_IDTF or self.tokenDepan.tipe in kyrwd.literalList.values()):
+        while self.tokenSkrg.tipe == Ttype.T_MULT or self.tokenSkrg.tipe == Ttype.T_DIVE:
+            if(self.tokenDepan.tipe==Ttype.T_IDTF or self.tokenDepan.tipe in grammar.literalList.values()):
                 operator = self.tokenSkrg
                 self.maju()
                 nodeKanan=self.parseFaktor()
@@ -183,11 +187,11 @@ class parserClass:
     
     def parseEkspresi(self)->node.nodeEkspresi:
         # print("PARSE EKSPRESI")
-        # if(self.tokenSkrg.tipe in kyrwd.literalList.values()):
+        # if(self.tokenSkrg.tipe in grammar.literalList.values()):
             nodeKiri = self.parseTerm()
             
-            while self.tokenSkrg.tipe==tb.T_PLUS or self.tokenSkrg.tipe==tb.T_MINS:
-                if(self.tokenDepan.tipe==tb.T_IDTF or self.tokenDepan.tipe in kyrwd.literalList.values()):
+            while self.tokenSkrg.tipe==Ttype.T_PLUS or self.tokenSkrg.tipe==Ttype.T_MINS:
+                if(self.tokenDepan.tipe==Ttype.T_IDTF or self.tokenDepan.tipe in grammar.literalList.values()):
                     operator = self.tokenSkrg
                     self.maju()
                     nodeKanan = self.parseTerm()
@@ -199,7 +203,7 @@ class parserClass:
                     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=13, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenDepan.nilai)
                     break
             return nodeKiri
-        # elif(self.tokenSkrg.tipe==tb.T_IDTF):
+        # elif(self.tokenSkrg.tipe==Ttype.T_IDTF):
         #     return node.nodeIdentifier(self.tokenSkrg)
         # else:
         #     raise Exception("gak terdaftar")
@@ -208,40 +212,40 @@ class parserClass:
     def parseParameter(self)->list[node.nodeParameter]:
         paramContainer : list[node.nodeParameter] = []
         # tempNode : node.nodeParameter = node.nodeParameter(self.tokenSkrg.baris, self.tokenSkrg.kolom)
-        tempNamaParam : Token | None = None
-        tempTipeParam : Token | None = None
+        tempNamaParam : tokenClass | None = None
+        tempTipeParam : tokenClass | None = None
         tempNilaiParam : node.nodeClass | None = None
         
         state : int = 0
         errorFlag : bool = False
         while self.idxIterator<len(self.fullToken):
             tempNodeParam : node.nodeParameter = node.nodeParameter(self.tokenSkrg.baris, self.tokenSkrg.kolom)
-            if(self.tokenSkrg.tipe!=tb.T_DLMR):
+            if(self.tokenSkrg.tipe!=Ttype.T_DLMR):
                 
                 if(not errorFlag):
                     #state default
                     if(state==0):
                         
-                        if(self.tokenSkrg.tipe==tb.T_PRTS_KIRI):
+                        if(self.tokenSkrg.tipe==Ttype.T_PRTS_KIRI):
                             state=1
                             self.maju()
                             
-                        elif(self.tokenSkrg.tipe==tb.T_SYMBOL_KOMA):
+                        elif(self.tokenSkrg.tipe==Ttype.T_SYMBOL_KOMA):
                             state=12
                             self.maju()
                             
-                        elif(self.tokenSkrg.tipe==tb.T_PRTS_KNAN):
+                        elif(self.tokenSkrg.tipe==Ttype.T_PRTS_KNAN):
                             state=12
                         
-                        elif(self.tokenSkrg.tipe==tb.T_SYMBOL_TKWA):
+                        elif(self.tokenSkrg.tipe==Ttype.T_SYMBOL_TKWA):
                             state=2
                             self.maju()
                             
-                        elif(self.tokenSkrg.tipe==tb.T_SMDG):
+                        elif(self.tokenSkrg.tipe==Ttype.T_SMDG):
                             state=3
                             self.maju()
                         
-                        elif(self.tokenSkrg.tipe in kyrwd.literalList.values()):
+                        elif(self.tokenSkrg.tipe in grammar.literalList.values()):
                             self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=11, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
                             # raise Exception("TES")
                             # print("DEBUG1")
@@ -257,7 +261,7 @@ class parserClass:
                             
                     #state baca nama param
                     elif(state==1):
-                        if(self.tokenSkrg.tipe in [tb.T_SYMBOL_TKWA, tb.T_SMDG, tb.T_SYMBOL_KOMA, tb.T_PRTS_KNAN]):
+                        if(self.tokenSkrg.tipe in [Ttype.T_SYMBOL_TKWA, Ttype.T_SMDG, Ttype.T_SYMBOL_KOMA, Ttype.T_PRTS_KNAN]):
                             state=0
                         else:
                             if(not tempNamaParam is None):
@@ -267,7 +271,7 @@ class parserClass:
                             tempNamaParam=self.tokenSkrg
                             self.maju()
                         
-                        # elif(self.tokenSkrg.tipe==tb.T_IVTF):
+                        # elif(self.tokenSkrg.tipe==Ttype.T_IVTF):
                         #     # print("DEBUG4")
                         #     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=3, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
                         #     self.maju()
@@ -275,20 +279,20 @@ class parserClass:
                             
                         # else:
                         #     tempNamaParam=self.tokenSkrg
-                            # if(self.tokenSkrg.tipe!=tb.T_SYMBOL_TKWA):
+                            # if(self.tokenSkrg.tipe!=Ttype.T_SYMBOL_TKWA):
                             #     print("DEBUG5")
                             #     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=3, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
                         
                     #state baca tipedata
                     elif(state==2):
-                        if(self.tokenSkrg.tipe in [tb.T_SYMBOL_TKWA, tb.T_SMDG, tb.T_SYMBOL_KOMA, tb.T_PRTS_KNAN]):
+                        if(self.tokenSkrg.tipe in [Ttype.T_SYMBOL_TKWA, Ttype.T_SMDG, Ttype.T_SYMBOL_KOMA, Ttype.T_PRTS_KNAN]):
                             state=0
                         else:
                             if(not tempTipeParam is None):
                                 self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=2, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
                             tempTipeParam = self.tokenSkrg
                             self.maju()
-                        # if(self.tokenSkrg.tipe in kyrwd.primitiveList.values() or self.tokenSkrg.tipe==tb.T_IDTF):
+                        # if(self.tokenSkrg.tipe in grammar.primitiveList.values() or self.tokenSkrg.tipe==Ttype.T_IDTF):
                         #     if(not tempTipeParam is None):
                         #         self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=2, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
                         #     # else:
@@ -299,24 +303,24 @@ class parserClass:
                     
                     #state baca value
                     elif(state==3):
-                        if(self.tokenSkrg.tipe in [tb.T_SYMBOL_TKWA, tb.T_SMDG, tb.T_SYMBOL_KOMA, tb.T_PRTS_KNAN]):
+                        if(self.tokenSkrg.tipe in [Ttype.T_SYMBOL_TKWA, Ttype.T_SMDG, Ttype.T_SYMBOL_KOMA, Ttype.T_PRTS_KNAN]):
                             state=0
                         else:
                             if(tempNodeParam.nilaiDefault is None):
                                 tempNilaiParam=self.parseEkspresi()
                             else:
                                 raise Exception("INVALID EKSPRESI")
-                            if(self.tokenSkrg.tipe==tb.T_SYMBOL_KOMA):
+                            if(self.tokenSkrg.tipe==Ttype.T_SYMBOL_KOMA):
                                 self.maju()
-                        # if(self.tokenSkrg.tipe==tb.T_SMDG):
+                        # if(self.tokenSkrg.tipe==Ttype.T_SMDG):
                         #     self.maju()
-                        # elif(self.tokenSkrg.tipe==tb.T_SYMBOL_KOMA):
+                        # elif(self.tokenSkrg.tipe==Ttype.T_SYMBOL_KOMA):
                         #     state=0
-                        # elif(self.tokenSkrg.tipe in kyrwd.literalList.values() or self.tokenSkrg.tipe==tb.T_IDTF):
+                        # elif(self.tokenSkrg.tipe in grammar.literalList.values() or self.tokenSkrg.tipe==Ttype.T_IDTF):
                         #     if(tempNodeParam.nilaiDefault is None):
                         #         # tempNodeParam.nilaiDefault=self.parseEkspresi()
                         #         tempNilaiParam=self.parseEkspresi()
-                        #         if(self.tokenSkrg.tipe!=tb.T_PRTS_KNAN):
+                        #         if(self.tokenSkrg.tipe!=Ttype.T_PRTS_KNAN):
                         #             self.maju() #if skrg ) then false
                         #         state=0
                         #     else:
@@ -329,7 +333,7 @@ class parserClass:
                     elif(state==12):
                         # match (tempNamaParam is None, tempTipeParam is None, tempNilaiParam is None):
                         tempNodeParam.nama = ("" if tempNamaParam is None else tempNamaParam.nilai)
-                        tempNodeParam.tipedata = ("" if tempTipeParam is None else tempTipeParam.tipe)
+                        tempNodeParam.tipedata = (Ttype.T_NULL if tempTipeParam is None else tempTipeParam.tipe)
                         tempNodeParam.nilaiDefault = tempNilaiParam
                         paramContainer.append(tempNodeParam)
                         tempNamaParam = None
@@ -355,7 +359,7 @@ class parserClass:
                         #     # raise Exception("ada yg ga lengkap")
                         #     return paramContainer
                         
-                        if(self.tokenSkrg.tipe==tb.T_PRTS_KNAN):
+                        if(self.tokenSkrg.tipe==Ttype.T_PRTS_KNAN):
                             break
                         else:
                             state=1
@@ -371,38 +375,38 @@ class parserClass:
         self.maju(2)
         tempNode : node.nodeBikinFungsi = node.nodeBikinFungsi(self.tokenSkrg.baris, self.tokenSkrg.kolom)
         state : int = 0
-        tempLastValidToken : Token = Token(-1,-1,"NULL","NULL")
+        tempLastValidToken : tokenClass = tokenClass(-1,-1,Ttype.T_NULL,"NULL")
         while self.idxIterator<len(self.fullToken):
-            if(self.tokenSkrg.tipe!=tb.T_DLMR):
+            if(self.tokenSkrg.tipe!=Ttype.T_DLMR):
                 #state default nyari keyword yg dibutuhin
                 if(state==0):
-                    if(self.tokenSkrg.tipe==tb.T_NMNY):
+                    if(self.tokenSkrg.tipe==Ttype.T_NMNY):
                         state=1
                         self.maju()
                         
-                    elif(self.tokenSkrg.tipe==tb.T_TPNY):
+                    elif(self.tokenSkrg.tipe==Ttype.T_TPNY):
                         state=2
                         self.maju()
                         
-                    elif(self.tokenSkrg.tipe==tb.T_PMNY):
+                    elif(self.tokenSkrg.tipe==Ttype.T_PMNY):
                         state=3
                         self.maju()
                         
-                    elif(self.tokenSkrg.tipe==tb.T_ISNY):
+                    elif(self.tokenSkrg.tipe==Ttype.T_ISNY):
                         state=4
                         self.maju()
                         
-                    elif(self.tokenSkrg.tipe==tb.T_DLMR):
+                    elif(self.tokenSkrg.tipe==Ttype.T_DLMR): #type: ignore
                         break
                     
-                    # elif(self.tokenSkrg.tipe==tb.T_AKHR):
+                    # elif(self.tokenSkrg.tipe==Ttype.T_AKHR):
                     #     tempLastValidToken = self.fullToken[self.idxIterator]
                     #     if(self.idxIterator==len(self.fullToken)-1):
                     #         break
                     #     else:
                     #         self.maju()
                     
-                    elif(self.tokenSkrg.tipe==tb.T_BKIN):
+                    elif(self.tokenSkrg.tipe==Ttype.T_BKIN):
                         tempLastValidToken = self.fullToken[self.idxIterator-1]
                         self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=9, p_baris=tempLastValidToken.baris, p_kolom=tempLastValidToken.kolom)
                         # print("TEST2",tempLastValidToken)
@@ -417,11 +421,11 @@ class parserClass:
                         self.maju()
                 #state nyari nama
                 elif(state==1):
-                    if(self.tokenSkrg.tipe!=tb.T_IDTF):
+                    if(self.tokenSkrg.tipe!=Ttype.T_IDTF):
                         self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=3, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
                         # state=0
                         
-                    elif(self.tokenSkrg in [tb.T_TPNY, tb.T_PMNY, tb.T_ISNY]):
+                    elif(self.tokenSkrg.tipe in [Ttype.T_TPNY, Ttype.T_PMNY, Ttype.T_ISNY]):
                         # state=0
                         pass
                     else:
@@ -437,12 +441,12 @@ class parserClass:
                 
                 #state nyari tipe
                 elif(state==2):
-                    if(not self.tokenSkrg.tipe in kyrwd.primitiveList.values() and self.tokenSkrg.tipe!=tb.T_VOID):
+                    if(not self.tokenSkrg.tipe in grammar.primitiveList.values() and self.tokenSkrg.tipe!=Ttype.T_VOID):
                         # print("test:",self.tokenSkrg.tipe)
                         self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=5, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
                         state=0
                         
-                    elif(self.tokenSkrg in [tb.T_NMNY, tb.T_PMNY, tb.T_ISNY]):
+                    elif(self.tokenSkrg.tipe in [Ttype.T_NMNY, Ttype.T_PMNY, Ttype.T_ISNY]):
                         state=0
                         
                     else:
@@ -472,7 +476,7 @@ class parserClass:
                     state=0
                     # tempLastValidToken = self.fullToken[self.idxIterator]
                     # print("TEST",tempLastValidToken)
-                    # if(self.tokenSkrg in [tb.T_NMNY, tb.T_TPNY, tb.T_PMNY]):
+                    # if(self.tokenSkrg in [Ttype.T_NMNY, Ttype.T_TPNY, Ttype.T_PMNY]):
                     #     state=0
                         
                     # self.maju()
@@ -486,25 +490,25 @@ class parserClass:
         self.maju(2)
         tempNode : node.nodeBikinVariabel = node.nodeBikinVariabel(self.tokenSkrg.baris, self.tokenSkrg.kolom)
         state : int = 0
-        tempLastValidToken : Token = Token(-1,-1,"NULL","NULL")
+        tempLastValidToken : tokenClass = tokenClass(-1,-1,tokenType.T_NULL,"NULL")
         errorFlag : bool = False
         while self.idxIterator<len(self.fullToken):
-            if(self.tokenSkrg.tipe!=tb.T_DLMR):
+            if(self.tokenSkrg.tipe!=Ttype.T_DLMR):
                 if(not errorFlag):
                     if(state==0):
-                        if(self.tokenSkrg.tipe==tb.T_NMNY):
+                        if(self.tokenSkrg.tipe==Ttype.T_NMNY):
                             state=1
                             self.maju()
                             
-                        elif(self.tokenSkrg.tipe==tb.T_TPNY):
+                        elif(self.tokenSkrg.tipe==Ttype.T_TPNY):
                             state=2
                             self.maju()
                             
-                        elif(self.tokenSkrg.tipe==tb.T_NLNY):
+                        elif(self.tokenSkrg.tipe==Ttype.T_NLNY):
                             state=3
                             self.maju()
                             
-                        elif(self.tokenSkrg.tipe==tb.T_BKIN):
+                        elif(self.tokenSkrg.tipe==Ttype.T_BKIN):
                             tempLastValidToken = self.fullToken[self.idxIterator-1]
                             self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=10, p_baris=tempLastValidToken.baris, p_kolom=tempLastValidToken.kolom)
                             self.mundur()
@@ -513,7 +517,7 @@ class parserClass:
                             self.maju()
                             
                     elif(state==1):
-                        if(self.tokenSkrg.tipe==tb.T_IDTF):
+                        if(self.tokenSkrg.tipe==Ttype.T_IDTF):
                             if(len(tempNode.namaVariabel)<=0):
                                 tempNode.namaVariabel = self.tokenSkrg.nilai
                                 # self.maju()
@@ -527,7 +531,7 @@ class parserClass:
                                 break
                             else:
                                 self.maju()
-                        elif(self.tokenSkrg.tipe==tb.T_NMNY):
+                        elif(self.tokenSkrg.tipe==Ttype.T_NMNY):
                             self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=4, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
                             if(self.idxIterator==len(self.fullToken)-1):
                                 tempLastValidToken = self.fullToken[self.idxIterator]
@@ -536,7 +540,7 @@ class parserClass:
                             else:
                                 self.maju()
                             errorFlag=True
-                        elif(self.tokenSkrg.tipe in [tb.T_TPNY, tb.T_TPNY]):
+                        elif(self.tokenSkrg.tipe in [Ttype.T_TPNY, Ttype.T_TPNY]):
                             state=0
                         else:
                             tempNode.namaVariabel+= self.tokenSkrg.nilai
@@ -553,9 +557,9 @@ class parserClass:
                         # self.maju()
                 
                     elif(state==2):
-                        if(not self.tokenSkrg.tipe in kyrwd.primitiveList.values() and self.tokenSkrg.tipe!=tb.T_IDTF):
+                        if(not self.tokenSkrg.tipe in grammar.primitiveList.values() and self.tokenSkrg.tipe!=Ttype.T_IDTF):
                             self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=3, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenSkrg.nilai)
-                        tempNode.tipedataVariabel = self.tokenSkrg.nilai
+                        tempNode.tipedataVariabel = self.tokenSkrg.tipe
                         if(self.idxIterator==len(self.fullToken)-1):
                             tempLastValidToken = self.fullToken[self.idxIterator]
                             self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=9, p_baris=tempLastValidToken.baris, p_kolom=tempLastValidToken.kolom)
@@ -602,7 +606,7 @@ class parserClass:
                     tempNode = self.parseBikinFungsi()
                     pass
                 
-                case [tb.T_BLKN,_]:
+                case [Ttype.T_BLKN,_]:
                     self.maju()
                     tempNodeReturn : node.nodeBalikin = node.nodeBalikin(self.tokenSkrg.baris, self.tokenSkrg.baris)
                     tempNodeReturn.returnEkspresi = self.parseEkspresi()
@@ -610,7 +614,7 @@ class parserClass:
                 #     break
                     pass
                 
-                case [tb.T_AKHR,_]:
+                case [Ttype.T_AKHR,_]:
                     break
                 case _:
                     pass
@@ -621,7 +625,7 @@ class parserClass:
                 self.maju()
         return kumpulanNode
 
-    def proses(self, p_tokens : list[Token])->None:
+    def proses(self, p_tokens : list[tokenClass])->None:
         # tokenDepan : Token = p_tokens[idxIterator+1]
         self.fullToken = p_tokens
         while self.idxIterator<len(self.fullToken)-1:
@@ -652,7 +656,7 @@ class parserClass:
             # match [self.tokenSkrg.tipe, self.tokenDepan.tipe]:
             #     case pola.POLA_BIKIN_VARIABEL:
             #         print("ada yg bikin variabel nih")
-            #         if(self.tokenSkrg.tipe==tb.T_NMNY):
+            #         if(self.tokenSkrg.tipe==Ttype.T_NMNY):
             #             print("  namanya: ",self.tokenDepan.nilai)
             #         self.maju()
                 

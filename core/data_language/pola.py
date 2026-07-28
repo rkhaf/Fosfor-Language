@@ -1,5 +1,7 @@
-from data_language import tataBahasa as tb
+# from data_language import tataBahasa as tb
+# from data_language import grammar
+from data_language.tokens import tokenType
 
-POLA_BIKIN_VARIABEL = [tb.T_BKIN, tb.T_VRBL]
-POLA_BIKIN_FUNGSI = [tb.T_BKIN, tb.T_FGSI]
-POLA_PANGGIL_FUNGSI = [tb.T_FGSI, tb.T_IDTF]
+POLA_BIKIN_VARIABEL = [tokenType.T_BKIN, tokenType.T_VRBL]
+POLA_BIKIN_FUNGSI = [tokenType.T_BKIN, tokenType.T_FGSI]
+POLA_PANGGIL_FUNGSI = [tokenType.T_FGSI, tokenType.T_IDTF]

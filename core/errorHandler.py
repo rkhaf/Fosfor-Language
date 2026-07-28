@@ -1,5 +1,6 @@
 from __future__ import annotations
-import data_language.tataBahasa
+# import grammar.
+from data_language import grammar
 
 class errorFormat:
     def __init__(self, p_baris:int=-1, p_kolom:int=-1, p_kelas:str="", p_token:str="", p_kodeError:int=-1):
@@ -26,15 +27,15 @@ class errorHandlerClass:
         self.panjangGarisHeader : int = 100
         
         self.errorTerdaftar : dict[str, dict[int, str]] = {
-            data_language.tataBahasa.MODUL_PATH_TOKN : {
+            grammar.MODUL_PATH_TOKN : {
                 1 : ""
             },
-            data_language.tataBahasa.MODUL_PATH_LEXR : {
+            grammar.MODUL_PATH_LEXR : {
                 1 : "   input invalid, masa iya float ngisinya gitu",
                 2 : "   stringnya blm ditutup",
                 3 : "   commentnya blm ditutup"
             },
-            data_language.tataBahasa.MODUL_PATH_PRSR : {
+            grammar.MODUL_PATH_PRSR : {
                 1 : "nama variabelnya isiin dulu tu, kalo kosong gabisa dipanggil nntinya",
                 2 : "namanya 1 aja jgn boros boros",
                 3 : "tolong ngisinya jangan dari keyword, berisi simbol, diawalin numerik, ataupun berbentuk string",

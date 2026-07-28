@@ -1,8 +1,9 @@
 # from lekser import lekserClass
 from modul_baca.lekser import lekserClass
 from modul_parsing.parser import parserClass
+from data_language.tokens import tokenType
 
-from data_language.dataFormat import Token
+from data_language.tokens import tokenClass
 from errorHandler import errorHandlerClass
 # from tokenizer import tokenizerClass
 
@@ -13,7 +14,7 @@ def run(fileOriginal : str) -> None:
     # tokenizerObjek = tokenizerClass()
     
     lekserProsesing : str | None = lekserObjek.proses(fileOriginal)
-    tokens : list[Token] = lekserObjek.ambilTokens()
+    tokens : list[tokenClass] = lekserObjek.ambilTokens()
     # print(tokens)
     parserProsesing : str | None = parserObjek.proses(tokens)
     
@@ -35,10 +36,10 @@ def run(fileOriginal : str) -> None:
     #         print(parserProsesing)
     #         pass
         
-    #     # print("\n")
+    # #     # print("\n")
     # for token in tokens:
     #     print("[",token.tipe,":", token.nilai,"]")
-    #     if(token.tipe == "T_DLMR" or token.tipe == "T_AKHR"):
+    #     if(token.tipe == tokenType.T_DLMR or token.tipe == tokenType.T_AKHR):
     #         print("\n")
     #         pass
     #     # tokenizerProsesing : str|None = tokenizerObjek.proses(leksems)
