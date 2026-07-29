@@ -1,14 +1,19 @@
+bikin fungsi tipenya integer namanya pengulang parameternya (p_jumlah:integer=50) isinya
+
+    bikin variabel namanya maks tipenya integer nilainya p_jumlah;
+    bikin variabel tipenya integer nilainya 0 namanya counter;
+
+    ngulangin selama (counter<b) isinya
+        bikin variabel nilainya (counter/2) namanya setengah tipenya float;
+        tampilin(counter);
+        tampilin(setengah);
+        counter++;
+    akhir;
+
+    balikin ((a+20)*c);
+akhir;
 
 fungsi main isinya
-    // test();
-    // umur = 12;
-    // bikin variabel namanya .....;
-    balikin (24+56)+((100/2)*20);
-akhir
-
-// bikin variabel namanya hans;
-
-// bikin fungsi namanya heinkel isinya
-//     houston();
-//     balikin "rendezvous";
-//     akhir;
+    bikin variabel namanya varr tipenya integer nilainya 30;
+    pengulang(varr);
+akhir;
