@@ -1,19 +1,9 @@
-# import tataBahasa
 
 from enum import Enum
 from errorHandler import errorHandlerClass
 from modul_baca.tokenizer import tokenizerClass
-# from data_language.dataFormat import Token
 from data_language.tokens import tokenClass
-# from core.data_language.tokens import tokenType
 from data_language import grammar
-# from data_language.grammar import simbolList
-# from data_language.grammar import kurungList
-# from data_language.grammar import punctuationList
-# from data_language.grammar import operatorList
-# from data_language.grammar import perbandinganList
-
-# import data_language.grammar as tataBahasa
 
 class states(Enum):
     default = 1,
@@ -63,10 +53,6 @@ class lekserClass:
             self.tokens.append(self.tokenizerObjek.getToken(self.barisIterator, self.kolomIterator, self.temp))
         self.temp=""
     
-    # def pushTempKeToken(self, p_tipeToken : str)->None:
-    #     self.tokens.append(Token(self.barisIterator, self.kolomIterator, p_tipeToken, self.temp))
-    #     self.temp=""
-    
     def clearTemp(self)->None:
         self.temp=""
     
@@ -86,7 +72,6 @@ class lekserClass:
         kedalamanMultiComment : int = 0
         invalidFlag : bool = False
         dotCount : int = 0
-        # commentStartLine : int = 0
         
         while self.pointerIterator < len(p_fileMentahan):
             self.fileOriginal = p_fileMentahan #nyalin sourcecode
@@ -200,10 +185,7 @@ class lekserClass:
                 # ngecek apkh char skrg masih didalem simbol, operator, perbandingan
                 if(self.currentChar in grammar.simbolList.keys() or self.currentChar in grammar.operatorList.keys() or self.currentChar in grammar.perbandinganList.keys()):
                     tempMerged : str = self.currentChar+self.forwardChar
-                    # # state default
-                    # if(tempMerged==grammar.CMNT_SNGL):
-                    #     self.maju()
-                    #     self.gantiState(states.singleLineComment)
+                    
                     if(tempMerged in grammar.perbandinganList.keys() or tempMerged in grammar.operatorList.keys()):
                         self.konversiTempJikaBerisi()
                         self.simpenKeTemp(tempMerged)
