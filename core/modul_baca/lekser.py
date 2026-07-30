@@ -68,7 +68,7 @@ class lekserClass:
     def ambilTokens(self)->list[tokenClass]:
         return self.tokens
     
-    def proses(self, p_fileMentahan : str) -> str | None:
+    def proses(self, p_fileMentahan : str) -> None:
         kedalamanMultiComment : int = 0
         invalidFlag : bool = False
         dotCount : int = 0

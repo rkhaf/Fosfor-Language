@@ -1,7 +1,9 @@
 # from lekser import lekserClass
 from modul_baca.lekser import lekserClass
 from modul_parsing.parser import parserClass
-from data_language.tokens import tokenType
+# from data_language.tokens import tokenType
+from modul_semantik.analisa import semantikClass
+from modul_parsing.AST import ASTClass
 
 from data_language.tokens import tokenClass
 from errorHandler import errorHandlerClass
@@ -11,17 +13,18 @@ def run(fileOriginal : str) -> None:
     errorHandlerObjek = errorHandlerClass()
     lekserObjek = lekserClass(errorHandlerObjek)
     parserObjek = parserClass(errorHandlerObjek)
+    semantikObjek = semantikClass(errorHandlerObjek)
     # tokenizerObjek = tokenizerClass()
 
-    lekserProsesing : str | None = lekserObjek.proses(fileOriginal)
+    lekserProsesing : None = lekserObjek.proses(fileOriginal)
     tokens : list[tokenClass] = lekserObjek.ambilTokens()
     # print(tokens)
-    parserProsesing : str | None = parserObjek.proses(tokens)
+    parserProsesing : None = parserObjek.proses(tokens)
 
     if(errorHandlerObjek.adaError()):
         errorHandlerObjek.displayError()
     else:
-        parserObjek.ASTObjek.printTree()
+        semantikProsesing : None = semantikObjek.proses(parserObjek.getTree())
         pass
     
     # if(lekserProsesing is None):

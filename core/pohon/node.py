@@ -1,9 +1,17 @@
-# from llvmFolder.library import LLVM_PRIMITIVE_TYPES
+
 from data_language.tokens import tokenClass
-# from data_language import tataBahasa as tb
 from data_language.tokens import tokenType as Ttype
-# from data_language.keywords import primitiveList as PL
 from typing import Any
+# from metadata import datatypeClass
+# from metadata.datatypeClass import datatypesFactory
+from metadata.datatypeClass import datatypes
+from metadata.datatypeClass import primitiveDatatype
+from metadata.datatypeClass import TIPEDATA_BOOLEAN
+from metadata.datatypeClass import TIPEDATA_FLOAT
+from metadata.datatypeClass import TIPEDATA_INTEGER
+from metadata.datatypeClass import TIPEDATA_STRING
+from metadata.datatypeClass import TIPEDATA_VOID
+from metadata.datatypeClass import TIPEDATA_NULL
 
 class nodeClass:
     """
@@ -42,9 +50,9 @@ class nodeEkspresi(nodeClass):
     """
     nodeParent buat node yg bisa ngereturn di kodenya
     """
-    def __init__(self, p_baris : int, p_kolom : int, p_tipe : Ttype)->None:
+    def __init__(self, p_baris : int, p_kolom : int, p_tipe : datatypes)->None:
         super().__init__(p_baris, p_kolom)
-        self.tipe : Ttype = p_tipe
+        self.tipe : datatypes = p_tipe
         pass
     
     def __repr__(self) -> str:
@@ -83,30 +91,32 @@ class nodeNomor(nodeEkspresi):
     """
     node buat ngecontain numerik
     """
-    def __init__(self, p_token : tokenClass)->None:
-        assert p_token.tipe==Ttype.T_LITERAL_FLOAT or p_token.tipe==Ttype.T_LITERAL_INT, "ERRORDEV: nodeNomor hrusnya cmn nerima token numerik"
-
-        super().__init__(p_token.baris, p_token.kolom, p_token.tipe)
-        self.tipe : Ttype = p_token.tipe
+    def __init__(self, p_token : tokenClass, p_tipedata : datatypes)->None:
+        # print(p_tipedata)
+        # assert p_token.tipe==Ttype.T_LITERAL_FLOAT or p_token.tipe==Ttype.T_LITERAL_INT, "ERRORDEV: nodeNomor hrusnya cmn nerima token numerik"
+        assert p_tipedata==TIPEDATA_INTEGER or p_tipedata==TIPEDATA_FLOAT, "ERRORDEV: nodeNomor hrusnya cmn nerima token numerik"
+        
+        self.tipe : datatypes = p_tipedata
         self.nilai : str = p_token.nilai
+        super().__init__(p_token.baris, p_token.kolom, self.tipe)
     
     def getDatas(self) -> dict[Any, Any]:
-        return {"tipe" : "literal", "tipeNilai" : self.tipe.name, "nilai" : self.nilai}
+        return {"tipe" : "literal", "tipeNilai" : self.tipe.__repr__(), "nilai" : self.nilai}
         # return {"tipe numerik" : self.tipe.name, "nilai numerik" : self.nilai}
 
 class nodeString(nodeEkspresi):
     """
     node buat ngecontain string
     """
-    def __init__(self, p_token : tokenClass)->None:
-        assert p_token.tipe==Ttype.T_LITERAL_STR, "ERRORDEV: nodeString hrusnya cmn nerima token string"
+    def __init__(self, p_token : tokenClass, p_tipedata : datatypes)->None:
+        assert p_tipedata==TIPEDATA_STRING, "ERRORDEV: nodeString hrusnya cmn nerima token string"
         
-        super().__init__(p_token.baris, p_token.kolom, p_token.tipe)
-        self.tipe : Ttype = p_token.tipe
+        self.tipe : datatypes = p_tipedata
         self.nilai : str = p_token.nilai
+        super().__init__(p_token.baris, p_token.kolom, self.tipe)
     
     def getDatas(self) -> dict[Any, Any]:
-        return {"tipe" : "literal", "tipeNilai" : self.tipe.name, "nilai" : self.nilai}
+        return {"tipe" : "literal", "tipeNilai" : self.tipe.__repr__(), "nilai" : self.nilai}
         # return {"tipe" : self.tipe.name, "nilai" : self.nilai}
 
 class nodeBalikin(nodeStatement):
@@ -123,66 +133,58 @@ class nodeIdentifier(nodeEkspresi):
     """
     node buat ngecontain identifier
     """
-    def __init__(self, p_token : tokenClass, p_tipe: str="") -> None:
-        self.identifierToken : tokenClass = p_token
-        super().__init__(p_token.baris, p_token.kolom, Ttype.T_IDTF)
+    def __init__(self, p_token : tokenClass) -> None:
+    # def __init__(self, p_token : tokenClass, p_tipedata : datatypes, p_tipe: str="") -> None:
+        self.identifierToken : str = p_token.nilai
+        super().__init__(p_token.baris, p_token.kolom, TIPEDATA_NULL)
     
     def getDatas(self) -> dict[Any, Any]:
         # return {"tipe numerik" : self.tipe, "nilai numerik" : self.nilai}
         # return {self.identifierToken.tipe.name : self.identifierToken.nilai}
-        return {"tipe" : "identifier", "nama" : self.identifierToken.nilai}
+        return {"tipe" : "identifier", "nama" : self.identifierToken}
         
 class nodeBoolean(nodeEkspresi):
     """
     node buat ngecontain boolean
     """
-    def __init__(self, p_token : tokenClass)->None:
-        assert p_token.tipe==Ttype.T_LITERAL_BOOL, "ERRORDEV: nodeBoolean hrusnya cmn nerima token string"
+    def __init__(self, p_token : tokenClass, p_tipedata : datatypes)->None:
+        assert p_tipedata==TIPEDATA_BOOLEAN, "ERRORDEV: nodeBoolean hrusnya cmn nerima token boolean"
+        # assert p_token.tipe==Ttype.T_LITERAL_BOOL, "ERRORDEV: nodeBoolean hrusnya cmn nerima token boolean"
         
-        super().__init__(p_token.baris, p_token.kolom, p_token.tipe)
-        self.tipe : Ttype = p_token.tipe
+        self.tipe : datatypes = p_tipedata
         self.nilai : str = p_token.nilai
+        super().__init__(p_token.baris, p_token.kolom, self.tipe)
     
     def getDatas(self) -> dict[Any, Any]:
-        return {"tipe" : "literal", "tipeNilai" : self.tipe.name, "nilai" : self.nilai}
+        return {"tipe" : "literal", "tipeNilai" : self.tipe.__repr__(), "nilai" : self.nilai}
         # return {"tipe numerik" : self.tipe.name, "nilai numerik" : self.nilai}
 
 class nodeInvalidEkspresi(nodeEkspresi):
     """
     node buat ngewakilin ekspresi invalid boolean
     """
-    def __init__(self, p_token : tokenClass)->None:
-        super().__init__(p_token.baris, p_token.kolom, p_token.tipe)
+    def __init__(self, p_token : tokenClass, p_tipedata : datatypes)->None:
+        super().__init__(p_token.baris, p_token.kolom, p_tipedata)
 
 
 class nodeParameter(nodeEkspresi):
     """
     node buat ngecontain parameter
     """
-    def __init__(self, p_baris: int, p_kolom: int, p_tipe: str = "") -> None:
-        self.tipe : Ttype = Ttype.T_NULL
-        self.nama : str = ""
-        self.tipedata : Ttype 
+    def __init__(self, p_baris: int, p_kolom: int, p_nama: str = "", p_tipe: datatypes = TIPEDATA_NULL) -> None:
+        self.tipe : datatypes = p_tipe
+        self.nama : str = p_nama
+        self.tipedata : datatypes = TIPEDATA_NULL
         self.nilaiDefault : nodeEkspresi | None = None
         super().__init__(p_baris, p_kolom, self.tipe)
     
     def getDatas(self) -> dict[Any, Any]:
-        # tempKumpulanNama : list[str] = []
-        # tempKumpulanTipedata : list[str] = []
-        
-        # for token in self.nama:
-        #     tempKumpulanNama.append(token.nilai)
-            
-        # for token in self.tipedata:
-        #     tempKumpulanTipedata.append(token.tipe)
         if(self.nilaiDefault is None):
-            return {"tipe" : "deklarasiParameter", "nama" : self.nama, "tipeParam" : self.tipedata.name, "nilaiDefault" : "NULL"}
-            # return {self.tipedata.name : [self.nama]}
+            return {"tipe" : "deklarasiParameter", "nama" : self.nama, "tipeParam" : self.tipedata.__repr__(), "nilaiDefault" : "NULL"}
+
         else:
-            return {"tipe" : "deklarasiParameter", "nama" : self.nama, "tipeParam" : self.tipedata.name, "nilaiDefault" : self.nilaiDefault.getDatas()}
-            # return {self.tipedata.name : [self.nama, self.nilaiDefault.getDatas()]}
-            # return {self.tipedata : [self.nama, self.nilaiDefault.getDatas()]}
-        # return {"list nama" : tempKumpulanNama, "list tipedatanya" : tempKumpulanTipedata}
+            return {"tipe" : "deklarasiParameter", "nama" : self.nama, "tipeParam" : self.tipedata.__repr__(), "nilaiDefault" : self.nilaiDefault.getDatas()}
+
 
 class nodeBiner(nodeEkspresi):
     """
@@ -192,19 +194,15 @@ class nodeBiner(nodeEkspresi):
         self.operand1 : nodeEkspresi = p_operand1
         self.operator : str = p_operatorToken.nilai
         self.operand2 : nodeEkspresi = p_operand2
-        self.tipeData : Ttype 
+        self.tipeData : datatypes 
     
-        if(self.operand1.tipe==self.operand2.tipe or self.operand1.tipe==Ttype.T_IDTF or self.operand2.tipe==Ttype.T_IDTF):
-            # test = list(PL.values())
-            # print(test)
+        if(self.operand1.tipe==self.operand2.tipe or (self.operand1.tipe==TIPEDATA_NULL or self.operand2.tipe==TIPEDATA_NULL)):
             self.tipeData = self.operand1.tipe
-            # print("sama",self.tipeData)
+            
         else:
             raise Exception("ngejumlahin tpi tipedatanya beda")
-        super().__init__(p_operatorToken.baris, p_operatorToken.kolom, self.tipeData)
         
-    # def generateTipeData(self)->None:
-        # pass
+        super().__init__(p_operatorToken.baris, p_operatorToken.kolom, self.tipeData)
     
     def getDatas(self) -> dict[Any, Any]:
         return {"tipe" : "oprBiner", "operator" : self.operator, "kiri" : self.operand1.getDatas(), "kanan" : self.operand2.getDatas()}
@@ -218,11 +216,12 @@ class nodeBikinVariabel(nodeStatement):
         super().__init__(p_baris, p_kolom)
         
         self.namaVariabel : str = ""
-        self.tipedataVariabel : Ttype = Ttype.T_NULL
+        self.tipedataVariabel : datatypes = TIPEDATA_NULL
+        # self.tipedataVariabel : Ttype = Ttype.T_NULL
         self.nilaiVariabel : nodeEkspresi = nodeEkspresi(p_baris, p_kolom, self.tipedataVariabel)
-    
+
     def getDatas(self) ->dict[str, Any]:
-        return {"tipe" : "deklarasiVariabel", "nama" : self.namaVariabel, "tipeNilai" : self.tipedataVariabel.name, "nilai" : self.nilaiVariabel.getDatas()}
+        return {"tipe" : "deklarasiVariabel", "nama" : self.namaVariabel, "tipeNilai" : self.tipedataVariabel.__repr__(), "nilai" : self.nilaiVariabel.getDatas()}
         # return {"nama variabel" : self.namaVariabel, "tipedata variabel" : self.tipedataVariabel.name, "nilai variabel" : self.nilaiVariabel.getDatas(),}
 
 class nodePanggilFungsi(nodeEkspresi):
@@ -230,7 +229,7 @@ class nodePanggilFungsi(nodeEkspresi):
     node representasi utk manggil fungsi
     """
     def __init__(self, p_baris: int, p_kolom: int, p_namaFungsi: tokenClass, p_parameterInput: list[nodeEkspresi] | None = None) -> None:
-        super().__init__(p_baris, p_kolom, Ttype.T_NULL)
+        super().__init__(p_baris, p_kolom, TIPEDATA_NULL)
         self.namaFungsi : tokenClass = p_namaFungsi
         if p_parameterInput is None:
             self.parameterInput = []
@@ -274,9 +273,6 @@ class nodeBikinFungsi(nodeStatement):
             test3 = test[0]
             test4 = test2[0]
             tempStore[test3] = test4
-            # print("PRINTING1.1",node.getDatas())
-            # print("PRINTING1.2",test)
-            # print("PRINTING1.2",test2)
             
         tempStore2 : dict[str, Any] = {}
         for nodeParam in self.parameterFungsi:
@@ -286,7 +282,5 @@ class nodeBikinFungsi(nodeStatement):
             test3 = test[0]
             test4 = test2[0][0]
             tempStore2[test4] = test3 
-            # print("PRINTING2",test2)
-        # return {"isi fungsi" : tempStore}
         pass
         return {"tipe" : "deklarasiFungsi", "nama" : self.namaFungsi, "tipeReturn" : self.tipedataFungsi, "parameter" : temp2, "badan" : temp1}
