@@ -1,4 +1,4 @@
-bikin fungsi tipenya integer namanya kuadrat parameternya (p_nilai:integer) isinya
+bikin fungsi tipenya integer namanya kuadrat parameternya (p_nilai:integer, skrr_pop_pop:string) isinya
     balikin (p_nilai*p_nilai);
 akhir;
 

@@ -204,6 +204,9 @@ class nodeBiner(nodeEkspresi):
     
     def getDatas(self) -> dict[Any, Any]:
         return {"tipe" : "oprBiner", "operator" : self.operator, "kiri" : self.operand1.getDatas(), "kanan" : self.operand2.getDatas()}
+    
+    def getRealDatas(self) -> dict[str, Any]:
+        return {"tipe" : "oprBiner", "operator" : self.operator, "kiri" : self.operand1.getRealDatas(), "kanan" : self.operand2.getRealDatas()}
         # return {"operator" : self.operator, "operand1" : self.operand1.getDatas(), "operand2" : self.operand2.getDatas()}
 
 class nodeBikinVariabel(nodeStatement):
@@ -259,7 +262,7 @@ class nodeBikinFungsi(nodeStatement):
         self.parameterFungsi : list[nodeParameter] = []
         self.isiFungsi : list[nodeClass] = []
     
-    def getDatas(self) -> dict[Any, Any]:
+    def getDatas(self) -> dict[str, Any]:
         # tempStore : dict[str, Any] = {}
         temp1 : list[dict[str, Any]] = []
         temp2 : list[dict[str, Any]] = []
@@ -272,7 +275,22 @@ class nodeBikinFungsi(nodeStatement):
             temp2.append(nodeParam.getDatas())
             
         return {"tipe" : "deklarasiFungsi", "nama" : self.namaFungsi, "tipeReturn" : self.tipedataFungsi, "parameter" : temp2, "badan" : temp1}
-    
+
+    def getRealDatas(self) -> dict[str, Any]:
+        # tempStore : dict[str, Any] = {}
+        temp1 : list[dict[str, Any]] = []
+        temp2 : list[dict[str, Any]] = []
+        
+        for node in self.isiFungsi:
+            temp1.append(node.getRealDatas())
+            
+        # tempStore2 : dict[str, Any] = {}
+        for nodeParam in self.parameterFungsi:
+            temp2.append(nodeParam.getRealDatas())
+            
+        return {"tipe" : "deklarasiFungsi", "nama" : self.namaFungsi, "tipeReturn" : self.tipedataFungsi, "parameter" : temp2, "badan" : temp1}
+
+
     def registerFungsi(self)->dict[str, Any]:
         temp2 : list[dict[str, Any]] = []
         for nodeParam in self.parameterFungsi:

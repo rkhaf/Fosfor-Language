@@ -1,28 +1,76 @@
 from errorHandler import errorHandlerClass
 from modul_parsing.AST import ASTClass
-from pohon.node import nodeBikinFungsi
-from pohon.node import nodeClass
+# from pohon.node import nodeBikinFungsi
+# from pohon.node import node.nodeClass
+from pohon import node
 from modul_semantik.simbolTableManager import scopeContainer
 from modul_semantik.simbolTableManager import varibelObjek
 from modul_semantik.simbolTableManager import fungsiObjek
 from metadata.datatypeClass import datatypes
 from metadata.datatypeClass import TIPEDATA_NULL
+from typing import Any
 import json
 
 class semantikClass:
     def __init__(self, p_errorHandlerRef : errorHandlerClass) -> None:
         self.errorHandlerObjek = p_errorHandlerRef
         self.scopes : list[scopeContainer] = []
+        # self.rootScope : scopeContainer = scopeContainer()
         pass
+    
+    def cekScope(self, p_node: node.nodeClass, p_scope: scopeContainer)->None:
+        match p_node:
+            
+            case node.nodeBikinFungsi():
+                # if p_scope is None:
+                newScope : scopeContainer = scopeContainer()
+                newScope.scopeParent=p_scope
+                
+                # print("iyh ini fungsi",p_node.getDatas())
+                nodeDatas = p_node.getRealDatas()
+                
+                #ngeparse bagian parameter
+                bikinFungsiParameters : list[dict[str, Any]] = nodeDatas["parameter"]
+                for parameter in bikinFungsiParameters:
+                    
+                    namaParameter : str = parameter["nama"]
+                    tipeParameter : datatypes = parameter["tipeParam"]
+                
+                    newVarObj : varibelObjek = varibelObjek(namaParameter, tipeParameter)
+                    newScope.mappingVariabel.setdefault(namaParameter, newVarObj)
+                    # print(namaParameter, tipeParameter)
+                    # print(type(namaParameter), type(tipeParameter))
+                
+                #ngeparse bagian isi fungsi
+                bikinFungsiBadan : list[dict[str, Any]] = nodeDatas["badan"]
+                for nodeKode in bikinFungsiBadan:
+                    print(nodeKode)
+                    # self.cekScope(nodeKode, newScope)
+                    pass
+                
+                self.scopes.append(newScope)
+                # for label, val in nodeDatas.items():
+                #     if(label=="parameter"):
+                #         print(val)
+                
+                # self.scopes.append(newScope)
+                pass
+            
+            case node.nodeBalikin():
+                print("iya knp?")
+                pass
+            
+            case _:
+                pass
 
     def proses(self, p_tree : ASTClass)->None:
         counterMainLoop : int = 0
         counterFungsi : int = 0
-        
+
         rootScope : scopeContainer = scopeContainer()
         self.scopes.append(rootScope)
         
-        getTree : list[nodeClass] = p_tree.getTree()
+        getTree : list[node.nodeClass] = p_tree.getTree()
         totalNode : int = len(getTree)
         while counterMainLoop<2:
             
@@ -74,15 +122,15 @@ class semantikClass:
                     
                 case 1:
                     while counterFungsi<totalNode:
-                        # print(getTree[counterFungsi])
-                        newScope : scopeContainer = scopeContainer()
-                        newScope.scopeParent = rootScope
+                        getNode = getTree[counterFungsi]
+                        # newScope : scopeContainer = scopeContainer()
+                        # newScope.scopeParent = rootScope
                         
-                        getAttr = getattr(getTree[counterFungsi], "evaluasi")()
+                        # getAttr = getattr(getNode, "evaluasi")()
                         
+                        self.cekScope(getNode, rootScope)
                         
-                        
-                        self.scopes.append(newScope)
+                        # self.scopes.append(newScope)
                         counterFungsi+=1
                     counterFungsi=0
                     pass
@@ -94,5 +142,6 @@ class semantikClass:
         for scope in self.scopes:
             # scope.printDatas()
             print(json.dumps(scope.printDatas(), indent=2))
+            pass
             # print(json.dumps(json.dumps(scope.printDatas())))
         pass
