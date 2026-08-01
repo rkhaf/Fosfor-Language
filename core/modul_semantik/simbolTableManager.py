@@ -12,6 +12,17 @@ class scopeContainer:
         self.mappingVariabel : dict[str, varibelObjek] = {}
         self.mappingFungsi : dict[str, fungsiObjek] = {}
     
+    def cekVariabel(self, p_nama : str)->bool:
+        if(self.scopeParent is None):
+            return p_nama in self.mappingVariabel.keys()
+        else:
+            percobaanCari : bool = p_nama in self.mappingVariabel.keys()
+            if(percobaanCari):
+                return True
+            else:
+                return self.scopeParent.cekVariabel(p_nama)
+            
+    
     def printDatas(self) -> dict[str, Any]:
         temp : list[dict[str, Any]] = []
         tempMappFungsi : list[dict[str, Any]] = []
@@ -58,4 +69,4 @@ class fungsiObjek:
         # else:
         #     print("      kosong") 
         
-        return {"tipe":"fungsi", "nama":self.nama, "tipedata":self.type, "parameter":temp}
+        return {"tipe":"fungsi", "nama":self.nama, "tipedata":str(self.type), "parameter":temp}

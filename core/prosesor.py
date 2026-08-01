@@ -26,6 +26,8 @@ def run(fileOriginal : str) -> None:
     else:
         # parserObjek.getTree().printTree()
         semantikProsesing : None = semantikObjek.proses(parserObjek.getTree())
+        if(errorHandlerObjek.adaError()):
+            errorHandlerObjek.displayError()
         pass
     
     # if(lekserProsesing is None):

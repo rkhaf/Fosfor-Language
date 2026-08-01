@@ -1,4 +1,10 @@
-bikin fungsi tipenya integer namanya kuadrat parameternya (p_nilai:integer, skrr_pop_pop:string) isinya
+bikin fungsi tipenya integer namanya kuadrat parameternya (p_nilai1:integer, p_nilai2:string) isinya
+    bikin variabel namanya varr1 tipenya integer nilainya 30;
+    bikin variabel namanya varr2 tipenya integer nilainya 40;
+    bikin variabel namanya varr3 tipenya string nilainya varr2;
+    bikin variabel namanya varr3 tipenya string nilainya varr1;
+    bikin variabel namanya varr3 tipenya string nilainya heinkell;
+    bikin variabel namanya varr3 tipenya string nilainya heinkell;
     balikin (p_nilai*p_nilai);
 akhir;
 

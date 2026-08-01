@@ -20,48 +20,79 @@ class semantikClass:
     
     def cekScope(self, p_node: node.nodeClass, p_scope: scopeContainer)->None:
         match p_node:
-            
             case node.nodeBikinFungsi():
-                # if p_scope is None:
                 newScope : scopeContainer = scopeContainer()
                 newScope.scopeParent=p_scope
                 
-                # print("iyh ini fungsi",p_node.getDatas())
-                nodeDatas = p_node.getRealDatas()
-                
-                #ngeparse bagian parameter
-                bikinFungsiParameters : list[dict[str, Any]] = nodeDatas["parameter"]
-                for parameter in bikinFungsiParameters:
-                    
-                    namaParameter : str = parameter["nama"]
-                    tipeParameter : datatypes = parameter["tipeParam"]
-                
-                    newVarObj : varibelObjek = varibelObjek(namaParameter, tipeParameter)
-                    newScope.mappingVariabel.setdefault(namaParameter, newVarObj)
-                    # print(namaParameter, tipeParameter)
-                    # print(type(namaParameter), type(tipeParameter))
-                
-                #ngeparse bagian isi fungsi
-                bikinFungsiBadan : list[dict[str, Any]] = nodeDatas["badan"]
-                for nodeKode in bikinFungsiBadan:
-                    print(nodeKode)
-                    # self.cekScope(nodeKode, newScope)
-                    pass
-                
                 self.scopes.append(newScope)
-                # for label, val in nodeDatas.items():
-                #     if(label=="parameter"):
-                #         print(val)
                 
-                # self.scopes.append(newScope)
-                pass
+                for param in p_node.parameterFungsi:
+                    newVrblObj : varibelObjek = varibelObjek(param.nama, param.tipedata)
+                    newScope.mappingVariabel.setdefault(param.nama, newVrblObj)
+                
+                for nodeKode in p_node.isiFungsi:
+                    self.cekScope(nodeKode, newScope)
+                    
             
-            case node.nodeBalikin():
-                print("iya knp?")
-                pass
+            case node.nodeBikinVariabel():
+                newVariabelObj : varibelObjek = varibelObjek(p_node.namaVariabel, p_node.tipedataVariabel)
+                # print(p_node.nilaiVariabel)
+                if(isinstance(p_node.nilaiVariabel, node.nodeIdentifier)):
+                    if(not p_scope.cekVariabel(p_node.nilaiVariabel.identifierToken)):
+                        self.errorHandlerObjek.tambahinError(__name__, 1, p_node.nilaiVariabel.baris, p_node.nilaiVariabel.kolom, p_node.nilaiVariabel.identifierToken)
+                p_scope.mappingVariabel.setdefault(p_node.namaVariabel, newVariabelObj)
+    #         case node.nodeBikinFungsi():
+    #             # if p_scope is None:
+    #             newScope : scopeContainer = scopeContainer()
+    #             newScope.scopeParent=p_scope
+                
+    #             # print("iyh ini fungsi",p_node.getDatas())
+    #             nodeDatas = p_node.getRealDatas()
+                
+    #             #ngeparse bagian parameter
+    #             bikinFungsiParameters : list[dict[str, Any]] = nodeDatas["parameter"]
+    #             for parameter in bikinFungsiParameters:
+                    
+    #                 namaParameter : str = parameter["nama"]
+    #                 tipeParameter : datatypes = parameter["tipeParam"]
+                
+    #                 newVarObj : varibelObjek = varibelObjek(namaParameter, tipeParameter)
+    #                 newScope.mappingVariabel.setdefault(namaParameter, newVarObj)
+    #                 # print(namaParameter, tipeParameter)
+    #                 # print(type(namaParameter), type(tipeParameter))
+                
+    #             #ngeparse bagian isi fungsi
+    #             bikinFungsiBadan : list[dict[str, Any]] = nodeDatas["badan"]
+    #             for nodeKode in bikinFungsiBadan:
+    #                 print(nodeKode)
+    #                 # self.cekScope(nodeKode, newScope)
+    #                 pass
+                
+    #             self.scopes.append(newScope)
+    #             # for label, val in nodeDatas.items():
+    #             #     if(label=="parameter"):
+    #             #         print(val)
+                
+    #             # self.scopes.append(newScope)
+    #             pass
+            
+    #         case node.nodeBalikin():
+    #             print("iya knp?")
+    #             pass
             
             case _:
                 pass
+        pass
+
+    def registerFungsi(self, p_node : node.nodeBikinFungsi, p_rootScope: scopeContainer)->None:
+        listParams : list[varibelObjek] = []
+        for params in p_node.parameterFungsi:
+            newVariabelObj : varibelObjek = varibelObjek(params.nama, params.tipedata)
+            listParams.append(newVariabelObj)
+        
+        newFungsiObj : fungsiObjek = fungsiObjek(p_node.namaFungsi, p_node.tipedataFungsi, listParams, p_node)
+        p_rootScope.mappingFungsi.setdefault(p_node.namaFungsi, newFungsiObj)
+        pass
 
     def proses(self, p_tree : ASTClass)->None:
         counterMainLoop : int = 0
@@ -78,44 +109,47 @@ class semantikClass:
                 #loop pertama buat ngeregister fungsi
                 case 0:
                     while counterFungsi<totalNode:
+                        
                         getNode = getTree[counterFungsi]
-                        getAttr = getattr(getNode, "registerFungsi")()
+                        if(isinstance(getNode, node.nodeBikinFungsi)):
+                            self.registerFungsi(getNode, rootScope)
+                        # getAttr = getattr(getNode, "registerFungsi")()
                         
-                        tempNamaFungsi : str = ""
-                        tempTipeReturnFungsi : datatypes = TIPEDATA_NULL
-                        tempParameterFungsi : list[varibelObjek] = []
+                        # tempNamaFungsi : str = ""
+                        # tempTipeReturnFungsi : datatypes = TIPEDATA_NULL
+                        # tempParameterFungsi : list[varibelObjek] = []
                         
-                        for key, val in getAttr.items():
-                            match key:
-                                case "nama":
-                                    tempNamaFungsi = val
+                        # for key, val in getAttr.items():
+                        #     match key:
+                        #         case "nama":
+                        #             tempNamaFungsi = val
                                 
-                                case "tipeReturn":
-                                    tempTipeReturnFungsi = val
+                        #         case "tipeReturn":
+                        #             tempTipeReturnFungsi = val
                                 
-                                case "parameter":
-                                    if(len(val)>0):
-                                        tempNamaParam : str = ""
-                                        tempTipeParam : datatypes = TIPEDATA_NULL
-                                        for indeks in range(0,len(val)):
-                                            pass
-                                            for keyParam, valParam in val[indeks].items():
-                                                if(keyParam=="nama"):
-                                                    tempNamaParam = valParam
+                        #         case "parameter":
+                        #             if(len(val)>0):
+                        #                 tempNamaParam : str = ""
+                        #                 tempTipeParam : datatypes = TIPEDATA_NULL
+                        #                 for indeks in range(0,len(val)):
+                        #                     pass
+                        #                     for keyParam, valParam in val[indeks].items():
+                        #                         if(keyParam=="nama"):
+                        #                             tempNamaParam = valParam
                                                     
-                                                elif(keyParam=="tipeParam"):
-                                                    tempTipeParam = valParam
+                        #                         elif(keyParam=="tipeParam"):
+                        #                             tempTipeParam = valParam
                                                 
-                                            tempVariabelObjek : varibelObjek = varibelObjek(tempNamaParam, tempTipeParam)
-                                            tempParameterFungsi.append(tempVariabelObjek)
-                                        # rootScope.mappingVariabel.setdefault(tempNamaParam, tempVariabelObjek)
-                                        pass
-                                case _:
-                                    pass
+                        #                     tempVariabelObjek : varibelObjek = varibelObjek(tempNamaParam, tempTipeParam)
+                        #                     tempParameterFungsi.append(tempVariabelObjek)
+                        #                 # rootScope.mappingVariabel.setdefault(tempNamaParam, tempVariabelObjek)
+                        #                 pass
+                        #         case _:
+                        #             pass
                                     
                             
-                        newFungsiObjek : fungsiObjek = fungsiObjek(tempNamaFungsi, tempTipeReturnFungsi, tempParameterFungsi, getNode)
-                        rootScope.mappingFungsi.setdefault(tempNamaFungsi, newFungsiObjek)
+                        # newFungsiObjek : fungsiObjek = fungsiObjek(tempNamaFungsi, tempTipeReturnFungsi, tempParameterFungsi, getNode)
+                        # rootScope.mappingFungsi.setdefault(tempNamaFungsi, newFungsiObjek)
                         
                         counterFungsi+=1
                     counterFungsi=0
@@ -123,14 +157,14 @@ class semantikClass:
                 case 1:
                     while counterFungsi<totalNode:
                         getNode = getTree[counterFungsi]
-                        # newScope : scopeContainer = scopeContainer()
-                        # newScope.scopeParent = rootScope
+                #         # newScope : scopeContainer = scopeContainer()
+                #         # newScope.scopeParent = rootScope
                         
-                        # getAttr = getattr(getNode, "evaluasi")()
+                #         # getAttr = getattr(getNode, "evaluasi")()
                         
                         self.cekScope(getNode, rootScope)
                         
-                        # self.scopes.append(newScope)
+                #         # self.scopes.append(newScope)
                         counterFungsi+=1
                     counterFungsi=0
                     pass
@@ -139,9 +173,7 @@ class semantikClass:
                     pass
                 
             counterMainLoop+=1
-        for scope in self.scopes:
-            # scope.printDatas()
-            print(json.dumps(scope.printDatas(), indent=2))
-            pass
-            # print(json.dumps(json.dumps(scope.printDatas())))
+        # for scope in self.scopes:
+        #     print(json.dumps(scope.printDatas(), indent=2))
+        #     pass
         pass

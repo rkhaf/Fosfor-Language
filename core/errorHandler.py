@@ -52,6 +52,9 @@ class errorHandlerClass:
                 14 : "ngodonf nya didlm fungsi loh yh, jgn ditaroh diluar gtu",
                 15 : "kodenya gaada entry point, nambahin fungsi main dulu dh",
             },
+            grammar.MODUL_PATH_SMTK : {
+                1 : "variabelnya ga ketemu, coba cek lagi udh dibikin apa blom"
+            }
         }
     
     def errorHeader(self)->None:
