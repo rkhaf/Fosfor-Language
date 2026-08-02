@@ -8,6 +8,7 @@ class jenisPrimitive(Enum):
     PRIM_BOOL = 3
     PRIM_STR = 4
     PRIM_VOID = 5
+    PRIM_ANY = 6
 
 
 class datatypes:
@@ -65,6 +66,12 @@ class primitiveDatatype(datatypes):
     
     def __repr__(self):
         return self.namaPrimitive
+    
+    def __eq__(self, value: object) -> bool:
+        if(isinstance(value, primitiveDatatype)):
+            return self.jenisPrimitive == value.jenisPrimitive
+        # return super().__eq__(value)
+        return False
 
 TIPEDATA_INTEGER : primitiveDatatype = primitiveDatatype(jenisPrimitive.PRIM_INT, "integer")
 """representasi tipedata integer dlm bentuk kelas
@@ -80,6 +87,10 @@ TIPEDATA_STRING : primitiveDatatype = primitiveDatatype(jenisPrimitive.PRIM_STR,
 """
 TIPEDATA_VOID : primitiveDatatype = primitiveDatatype(jenisPrimitive.PRIM_VOID, "void")
 """representasi void dlm bentuk kelas
+"""
+
+TIPEDATA_ANY : primitiveDatatype = primitiveDatatype(jenisPrimitive.PRIM_ANY, "any")
+"""representasi bentuk any dlm bentuk kelas (dipake khusus sistem)
 """
 
 TIPEDATA_NULL : nullDatatype = nullDatatype()

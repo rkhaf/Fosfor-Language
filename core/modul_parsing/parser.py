@@ -324,19 +324,20 @@ class parserClass:
                         self.maju()
                     
                     else:
-                        print(self.tokenSkrg.nilai)
-                        raise Exception("stopper")
+                        state=1
+                        self.errorHandlerObjek.tambahinError(__name__, 3, self.tokenSkrg.baris, self.tokenSkrg.kolom, self.tokenSkrg.nilai)
+                        # print(self.tokenSkrg.nilai)
+                        # raise Exception("stopper")
                     
                 #ngepick identifier
                 elif(state==1):
-                    tempNodePanggilFungsi.namaFungsi = self.tokenSkrg
+                    if(self.tokenSkrg.tipe==tokenType.T_IDTF):
+                        tempNodePanggilFungsi.namaFungsi = self.tokenSkrg
                     self.maju()
                     state=0
                     
                 elif(state==2):
                     temp : node.nodeEkspresi | None = self.parseEkspresi()
-                    # if(isinstance(temp,node.nodePanggilFungsi)):
-                    # if(temp.tipe!=Ttype.T_NULL or isinstance(temp,node.nodePanggilFungsi)):
                     if(not temp is None):
                         tempNodePanggilFungsi.parameterInput.append(temp)
 

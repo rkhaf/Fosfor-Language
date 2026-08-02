@@ -128,13 +128,10 @@ class nodeIdentifier(nodeEkspresi):
     node buat ngecontain identifier
     """
     def __init__(self, p_token : tokenClass) -> None:
-    # def __init__(self, p_token : tokenClass, p_tipedata : datatypes, p_tipe: str="") -> None:
         self.identifierToken : str = p_token.nilai
         super().__init__(p_token.baris, p_token.kolom, TIPEDATA_NULL)
     
     def getDatas(self) -> dict[Any, Any]:
-        # return {"tipe numerik" : self.tipe, "nilai numerik" : self.nilai}
-        # return {self.identifierToken.tipe.name : self.identifierToken.nilai}
         return {"tipe" : "identifier", "nama" : self.identifierToken}
         
 class nodeBoolean(nodeEkspresi):
@@ -194,13 +191,13 @@ class nodeBiner(nodeEkspresi):
         self.operand1 : nodeEkspresi = p_operand1
         self.operator : str = p_operatorToken.nilai
         self.operand2 : nodeEkspresi = p_operand2
-        self.tipeData : datatypes 
+        self.tipeData : datatypes = self.operand1.tipe
     
-        if(self.operand1.tipe==self.operand2.tipe or (self.operand1.tipe==TIPEDATA_NULL or self.operand2.tipe==TIPEDATA_NULL)):
-            self.tipeData = self.operand1.tipe
+        # if(self.operand1.tipe==self.operand2.tipe or (self.operand1.tipe==TIPEDATA_NULL or self.operand2.tipe==TIPEDATA_NULL)):
+        #     self.tipeData = self.operand1.tipe
             
-        else:
-            raise Exception("ngejumlahin tpi tipedatanya beda")
+        # else:
+        #     raise Exception("ngejumlahin tpi tipedatanya beda")
         
         super().__init__(p_operatorToken.baris, p_operatorToken.kolom, self.tipeData)
     

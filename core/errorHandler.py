@@ -1,5 +1,6 @@
 from __future__ import annotations
 # import grammar.
+from collections import defaultdict
 from data_language import grammar
 
 class errorFormat:
@@ -20,10 +21,10 @@ class errorFormat:
 
 class errorHandlerClass:
     def __init__(self) -> None:
-        # self.errors : list[errorFormat] = []
-        # self.errors : list[list[errorFormat]] = []
         self.errors : dict[int, set[errorFormat]] = {}
-        # self.errors : set[errorFormat] = set()
+        # self.multilineErrors : dict[int, set[errorFormat]] = {}
+        self.multilineErrors : defaultdict[tuple[str, str, int], list[tuple[int, int]]] = defaultdict(list)
+
         self.panjangGarisHeader : int = 100
         
         self.errorTerdaftar : dict[str, dict[int, str]] = {
@@ -50,10 +51,15 @@ class errorHandlerClass:
                 12 : "ekspresinya invalid",
                 13 : "operand kanan invalid",
                 14 : "ngodonf nya didlm fungsi loh yh, jgn ditaroh diluar gtu",
-                15 : "kodenya gaada entry point, nambahin fungsi main dulu dh",
+                15 : "kodenya gaada entry point, nambahin fungsi main dulu sana",
             },
             grammar.MODUL_PATH_SMTK : {
-                1 : "variabelnya ga ketemu, coba cek lagi udh dibikin apa blom"
+                1 : "variabelnya ga ketemu, coba cek lagi udh dibikin apa blom",
+                2 : "value yg dimasukin utk variabel tsb gacocok tipedatanya, coba cek lagi dh",
+                3 : "operasi biner tpi tipedatanya gasama",
+                4 : "parameter utk fungsi tsb inputnya kebanyakan, tolong sesuaiin lagi dh",
+                5 : "variabel tsb tipedatanya gacocok sma parameter fungsi",
+                6 : "fungsinya ga ketemu, coba cek lagi udh dibikin apa blom",
             }
         }
     
@@ -69,36 +75,19 @@ class errorHandlerClass:
         print("*"*self.panjangGarisHeader)
         print(msg)
         print("*"*self.panjangGarisHeader)
-        # print("\n")
     
     def kirimError(self, p_kelas:str, p_kodeError:int, p_baris:int=-1, p_kolom:int=-1, p_bagian:str="") -> None:
         self.tambahinError(p_kelas, p_kodeError, p_baris, p_kolom, p_bagian)
         self.displayError()
-        # self.errorHeader()
-        # # baris+=1
-        # # kolom+=1
-        # pesanTemplate : str = "ada error dibaris: "+str(p_baris)+", kolom: "+str(p_kolom)+", dibagian: -> "+p_bagian+" <-'. erornya krna:"
-        # pesanError : str = ""
-
-        # getKelasError : dict[int, str] = self.errorTerdaftar.get(kelas, {})
-        # if(len(getKelasError)!=0):
-        #     getPesanError : str = getKelasError.get(kodeError, "ERROR")
-            
-        #     # pesanError
-        #     pesanError+=getPesanError
-            
-        #     return pesanTemplate+"\n"+pesanError
-        # else:
-        #     # raise Exception("[ErrorHandlerClass] : errorcodenya gak sesuai, harap cek lagi pls "+str(baris)+str(kolom)+str(kelas))
-        #     return "[ErrorHandlerClass] : errorcodenya gak sesuai, harap cek lagi pls "+str(baris)+", "+str(kolom)+", "+str(kelas)+", "+str(kodeError)
-
+        
     def tambahinError(self, p_kelas:str, p_kodeError:int, p_baris:int=-1, p_kolom:int=-1, p_bagian:str="")->None:
-        # if(not p_baris in self.errors.keys())
-        # self.errors[p_baris].append(errorFormat(p_baris, p_kolom, p_kelas, p_bagian, p_kodeError))
         self.errors.setdefault(p_baris, set()).add(errorFormat(p_baris, p_kolom, p_kelas, p_bagian, p_kodeError))
-        # self.errors.setdefault(p_baris, )
-        pass
-        # self.errors.add(errorFormat(p_baris, p_kolom, p_kelas, p_bagian, p_kodeError))
+
+    def tambahinErrorMultibaris(self, p_kelas:str, p_kodeError:int, p_baris:int=-1, p_kolom:int=-1, p_bagian:str="")->None:
+        key_error : tuple[str, str, int] = (p_bagian, p_kelas, p_kodeError)
+        
+        self.multilineErrors[key_error].append((p_baris, p_kolom))
+
         
     def displayError(self)->None:
         self.errorHeader()
@@ -137,6 +126,29 @@ class errorHandlerClass:
                     else:
                         raise Exception("[ErrorHandlerClass] : errorcodenya gak sesuai, harap cek lagi pls "+str(eror.baris)+str(eror.kolom)+str(eror.kelas))
                 print("\n")
+
+        if(len(self.multilineErrors)>0):
+            
+            for (bagian, kelas, kodeError), posisi in self.multilineErrors.items():
+                print(f"ada error utk identifier -> {bagian} <- yang ada diposisi:")
+                listBaris : list[int] = []
+                for baris, kolom in posisi:
+                    # if(kolom!=-1):
+                    listBaris.append(baris)
+                    # print(f"    baris: {baris} kolom: {kolom}")
+                    # else:
+                    #     print(f"    baris: {baris}")
+                        
+                
+                print(f"    baris: {listBaris}")
+                # print("ada error krna:")
+                getKelasError : dict[int, str] = self.errorTerdaftar.get(kelas, {})
+                if(len(getKelasError)!=0):
+                    getPesanError : str = getKelasError.get(kodeError, "ERROR")
+                    
+                    print("errornya krna:",getPesanError)
+                    print("\n")
         pass
+    
     def adaError(self)->bool:
-        return len(self.errors)>0
+        return len(self.errors)>0 or len(self.multilineErrors)>0
