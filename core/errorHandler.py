@@ -61,6 +61,8 @@ class errorHandlerClass:
                 5 : "variabel tsb tipedatanya gacocok sma parameter fungsi",
                 6 : "fungsinya ga ketemu, coba cek lagi udh dibikin apa blom",
                 7 : "utk parameter tsb harap langsung isi valuenya, jgn ngecalling variable / fungsi",
+                8 : "klo ngisi parameter opsional (param yg punya nilai default) narohnya disebelah kanan parameter wajib, cb benerin lagi ",
+                9 : "ada parameter yg harus diisi di fungsi tsb",
             }
         }
     

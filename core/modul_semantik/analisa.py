@@ -91,37 +91,80 @@ class semantikClass:
                 if(p_scope.cekFungsi(p_node.namaFungsi.nilai)):
                     getFungsi : fungsiObjek = p_scope.getFungsi(p_node.namaFungsi.nilai)
                     
+                    tipedataParameterInput : datatypes | None = None
+                    tipedataParameterFungsi : datatypes | None = None
+                    
                     #mastiin klo input paramnya sesuai
                     if(len(p_node.parameterInput)<=len(getFungsi.parameters)):
                         for paramIndeks in range(0,len(getFungsi.parameters)):
-                            # print("bernilai default:",getFungsi.parameters[paramIndeks].nama,getFungsi.parameters[paramIndeks].bernilai)
-                            if(getFungsi.parameters[paramIndeks].bernilai):
-                                tipeParam : datatypes | None = None
+                            tipedataParameterFungsi = getFungsi.parameters[paramIndeks].type
+                            if(paramIndeks<len(p_node.parameterInput)):
                                 paramSkrg : node.nodeEkspresi = p_node.parameterInput[paramIndeks]
-                                
-                                if(isinstance(paramSkrg, node.nodePanggilFungsi)):
-                                    self.cekScope(paramSkrg, p_scope)
-                                else:
-                                    if(isinstance(paramSkrg, node.nodeIdentifier)):
-                                        if(p_scope.cekVariabel(paramSkrg.identifierToken)):
-                                            getVariabelDriScope : varibelObjek = p_scope.getVariabel(paramSkrg.identifierToken)
-                                            # print("ada",getVariabelDriScope.type)
-                                            tipeParam = getVariabelDriScope.type
-                                        else:
-                                            self.errorHandlerObjek.tambahinError(__name__, 1, p_node.baris, -1, paramSkrg.identifierToken)
-                                    else:
-                                        tipeParam = p_node.parameterInput[paramIndeks].tipe
-                                    
-                                    if(not tipeParam is None):
-                                        if(tipeParam != getFungsi.parameters[paramIndeks].type):
-                                            if(type(paramSkrg) in [node.nodeString, node.nodeNomor]):
-                                                print("DEBUG1")
-                                                self.errorHandlerObjek.tambahinError(__name__, 5, p_node.baris, -1, paramSkrg.nilai) #type: ignore
-
-                                            elif(isinstance(paramSkrg, node.nodeIdentifier)):
-                                                print("DEBUG2",tipeParam, getFungsi.parameters[paramIndeks].type)
-                                                self.errorHandlerObjek.tambahinError(__name__, 5, p_node.baris, -1, paramSkrg.identifierToken)
+                                if(isinstance(paramSkrg, node.nodeIdentifier)):
+                                    if(p_scope.cekVariabel(paramSkrg.identifierToken)):
+                                        tipedataParameterInput = p_scope.getVariabel(paramSkrg.identifierToken).type
                                         
+                                    else:
+                                        # print("GK KETEMU VARIABELNYA")
+                                        self.errorHandlerObjek.tambahinError(__name__, 1, paramSkrg.baris, paramSkrg.kolom, paramSkrg.identifierToken)
+                                
+                                elif(type(paramSkrg) in [node.nodeString, node.nodeNomor, node.nodeBoolean]):
+                                    tipedataParameterInput = paramSkrg.tipe
+                                
+                                elif(isinstance(paramSkrg, node.nodePanggilFungsi)):
+                                    if(p_scope.cekFungsi(paramSkrg.namaFungsi.nilai)):
+                                        tipedataParameterInput = p_scope.getFungsi(paramSkrg.namaFungsi.nilai).type
+                                        self.cekScope(paramSkrg, p_scope)
+                                    else:
+                                        self.errorHandlerObjek.tambahinError(__name__, 6, paramSkrg.baris, paramSkrg.kolom, paramSkrg.namaFungsi.nilai)
+                                        # print("FUNGSI GA NEMU")
+                                
+                                else:
+                                    raise Exception(f"ada input yg ga diinginkan : {paramSkrg}")
+                            else:
+                                #kondisi parameter opsional yg blm diisi
+                                if(getFungsi.parameters[paramIndeks].bernilai):
+                                    # print("input kurang tpi gpp")
+                                    pass
+                                else:
+                                    #kondisi parameter wajib yg blm diisi
+                                    self.errorHandlerObjek.tambahinError(__name__, 9, p_node.baris, p_node.kolom, p_bagian=p_node.namaFungsi.nilai)
+                                    # print("input kurang hrs diisi")
+                            if(not tipedataParameterFungsi is None and not tipedataParameterInput is None):
+                                print(tipedataParameterFungsi,"=",tipedataParameterInput)
+                                
+                            # if(not getFungsi.parameters[paramIndeks].bernilai):
+                            #     if(paramIndeks<len(p_node.parameterInput)):
+                            #         print(p_node.parameterInput[paramIndeks])
+                            #         tipeParam : datatypes | None = None
+                            #         paramSkrg : node.nodeEkspresi = p_node.parameterInput[paramIndeks]
+                                    
+                            #         if(isinstance(paramSkrg, node.nodePanggilFungsi)):
+                            #             self.cekScope(paramSkrg, p_scope)
+                            #         else:
+                            #             if(isinstance(paramSkrg, node.nodeIdentifier)):
+                            #                 if(p_scope.cekVariabel(paramSkrg.identifierToken)):
+                            #                     getVariabelDriScope : varibelObjek = p_scope.getVariabel(paramSkrg.identifierToken)
+                            #                     # print("ada",getVariabelDriScope.type)
+                            #                     tipeParam = getVariabelDriScope.type
+                            #                 else:
+                            #                     self.errorHandlerObjek.tambahinError(__name__, 1, p_node.baris, -1, paramSkrg.identifierToken)
+                            #             else:
+                            #                 tipeParam = p_node.parameterInput[paramIndeks].tipe
+                                        
+                            #             if(not tipeParam is None):
+                            #                 if(tipeParam != getFungsi.parameters[paramIndeks].type):
+                            #                     if(type(paramSkrg) in [node.nodeString, node.nodeNomor]):
+                            #                         print("DEBUG1")
+                            #                         self.errorHandlerObjek.tambahinError(__name__, 5, p_node.baris, -1, paramSkrg.nilai) #type: ignore
+
+                            #                     elif(isinstance(paramSkrg, node.nodeIdentifier)):
+                            #                         print("DEBUG2",tipeParam, getFungsi.parameters[paramIndeks].type)
+                            #                         self.errorHandlerObjek.tambahinError(__name__, 5, p_node.baris, -1, paramSkrg.identifierToken)
+                            #     else:
+                            #         print("inputnya kurang")
+                            # else:
+                            #     print("input opsional", paramSkrg.getDatas())
                     else:
                         print("DEBUG3")
                         self.errorHandlerObjek.tambahinError(__name__, 4, p_node.baris, -1, p_node.namaFungsi.nilai)
@@ -137,8 +180,22 @@ class semantikClass:
 
     def registerFungsi(self, p_node : node.nodeBikinFungsi, p_rootScope: scopeContainer)->None:
         listParams : list[varibelObjek] = []
+        bagianParameterWajib : bool = True
         for params in p_node.parameterFungsi:
-            if(not params.nilaiDefault is None):
+            newVariabelObj : varibelObjek
+            if(params.nilaiDefault is None):
+                newVariabelObj = varibelObjek(False, params.nama, params.tipedata)
+                if(not bagianParameterWajib):
+                    # print("INVALID",params.nama)
+                    newVariabelObj.invalid = True
+                    self.errorHandlerObjek.tambahinError(__name__, 8, params.baris, p_bagian=params.nama)
+                else:
+                    bagianParameterWajib=True
+                listParams.append(newVariabelObj)
+
+            else:
+                # if(bagianParameterWajib)
+                bagianParameterWajib=False
                 if(type(params.nilaiDefault) in [node.nodeString, node.nodeNomor, node.nodeBoolean]):
                     if(params.tipedata==params.nilaiDefault.tipe):
                         # print(params.nama,params.tipedata,params.nilaiDefault.tipe)
@@ -149,9 +206,7 @@ class semantikClass:
                         
                 else:
                     self.errorHandlerObjek.tambahinError(__name__, 7, params.baris, p_bagian=params.nama)
-            else:
-                newVariabelObj : varibelObjek = varibelObjek(False, params.nama, params.tipedata)
-                listParams.append(newVariabelObj)
+
                 
         newFungsiObj : fungsiObjek = fungsiObjek(p_node.namaFungsi, p_node.tipedataFungsi, listParams, p_node)
         p_rootScope.mappingFungsi.setdefault(p_node.namaFungsi, newFungsiObj)

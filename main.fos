@@ -1,7 +1,11 @@
-bikin fungsi tipenya integer namanya kuadrat parameternya (p_nilai1:integer=67, p_nilai2:string) isinya
+bikin fungsi tipenya integer namanya kuadrat parameternya (p_nilai1:integer, p_nilai2:string="s") isinya
     bikin variabel namanya varr1 tipenya float nilainya 2.3;
 
     balikin (varr1*varr1);
+akhir;
+
+bikin fungsi tipenya integer namanya kuadrat2 parameternya () isinya
+    balikin 1;
 akhir;
 
 fungsi main isinya
@@ -9,6 +13,6 @@ fungsi main isinya
     bikin variabel namanya varrheim tipenya integer;
     // tampilin(kuadrat(varrh))
     // tampilin(asd);
-    kuadrat(varr);
-    // kuadrat(123,1.2,"fiona",benar,varr);
+    kuadrat(varr, varrheim);
+    // kuadrat(123,1.2,"fiona"` ,benar,varr);
 akhir;

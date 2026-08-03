@@ -25,6 +25,7 @@ class fungsiObjek:
         self.type : datatypes = p_type
         self.parameters : list[varibelObjek] = p_parameters
         self.nodeRef : nodeClass = p_nodeRef
+        self.invalid : bool = False
         
     def printDatas(self)->dict[str, Any]:
         temp : list[Any] = []
