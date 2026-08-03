@@ -8,11 +8,12 @@ from modul_semantik.simbolTableManager import varibelObjek
 from modul_semantik.simbolTableManager import fungsiObjek
 from metadata.datatypeClass import datatypes
 from metadata.datatypeClass import TIPEDATA_VOID
+from metadata.datatypeClass import TIPEDATA_NULL
 from metadata.datatypeClass import TIPEDATA_ANY
 # from typing import Any
 import json
 
-fungsi_builtin : list[fungsiObjek] = [fungsiObjek("tampilin", TIPEDATA_VOID, [varibelObjek("p_inputCout", TIPEDATA_ANY)], node.nodeClass(-1, -1))]
+fungsi_builtin : list[fungsiObjek] = [fungsiObjek("tampilin", TIPEDATA_VOID, [varibelObjek(False,"p_inputCout", TIPEDATA_ANY)], node.nodeClass(-1, -1))]
 
 class semantikClass:
     def __init__(self, p_errorHandlerRef : errorHandlerClass) -> None:
@@ -28,14 +29,19 @@ class semantikClass:
                 self.scopes.append(newScope)
                 
                 for param in p_node.parameterFungsi:
-                    newVrblObj : varibelObjek = varibelObjek(param.nama, param.tipedata)
+                    newVrblObj : varibelObjek = varibelObjek(False, param.nama, param.tipedata)
                     newScope.mappingVariabel.setdefault(param.nama, newVrblObj)
                 
                 for nodeKode in p_node.isiFungsi:
                     self.cekScope(nodeKode, newScope)
             
             case node.nodeBikinVariabel():
-                newVariabelObj : varibelObjek = varibelObjek(p_node.namaVariabel, p_node.tipedataVariabel, p_node.baris)
+                # print(p_node.namaVariabel,p_node.nilaiVariabel, p_node.nilaiVariabel.tipe)
+                newVariabelObj : varibelObjek
+                if(p_node.nilaiVariabel.tipe!=TIPEDATA_NULL):
+                    newVariabelObj = varibelObjek(True, p_node.namaVariabel, p_node.tipedataVariabel, p_node.baris)
+                else:
+                    newVariabelObj = varibelObjek(False, p_node.namaVariabel, p_node.tipedataVariabel, p_node.baris)
                 if(isinstance(p_node.nilaiVariabel, node.nodeIdentifier)):
                     
                     #ngecek apkh variabelnya ada discope
@@ -87,32 +93,42 @@ class semantikClass:
                     
                     #mastiin klo input paramnya sesuai
                     if(len(p_node.parameterInput)<=len(getFungsi.parameters)):
-                        for paramIndeks in range(0,len(p_node.parameterInput)):
-                            tipeParam : datatypes = TIPEDATA_ANY
-                            paramSkrg : node.nodeEkspresi = p_node.parameterInput[paramIndeks]
-                            
-                            if(isinstance(paramSkrg, node.nodeIdentifier)):
-                                if(p_scope.cekVariabel(paramSkrg.identifierToken)):
-                                    getVariabelDriScope : varibelObjek = p_scope.getVariabel(paramSkrg.identifierToken)
-                                    # print("ada",getVariabelDriScope.type)
-                                    tipeParam = getVariabelDriScope.type
-                                else:
-                                    print("gaada")
-                            else:
-                                tipeParam = p_node.parameterInput[paramIndeks].tipe
+                        for paramIndeks in range(0,len(getFungsi.parameters)):
+                            # print("bernilai default:",getFungsi.parameters[paramIndeks].nama,getFungsi.parameters[paramIndeks].bernilai)
+                            if(getFungsi.parameters[paramIndeks].bernilai):
+                                tipeParam : datatypes | None = None
+                                paramSkrg : node.nodeEkspresi = p_node.parameterInput[paramIndeks]
                                 
-                            if(tipeParam != getFungsi.parameters[paramIndeks].type):
-                                if(type(paramSkrg) in [node.nodeString, node.nodeNomor]):
-                                    self.errorHandlerObjek.tambahinError(__name__, 5, p_node.baris, -1, paramSkrg.nilai) #type: ignore
-
-                                elif(isinstance(paramSkrg, node.nodeIdentifier)):
-                                    self.errorHandlerObjek.tambahinError(__name__, 5, p_node.baris, -1, paramSkrg.identifierToken)
+                                if(isinstance(paramSkrg, node.nodePanggilFungsi)):
+                                    self.cekScope(paramSkrg, p_scope)
+                                else:
+                                    if(isinstance(paramSkrg, node.nodeIdentifier)):
+                                        if(p_scope.cekVariabel(paramSkrg.identifierToken)):
+                                            getVariabelDriScope : varibelObjek = p_scope.getVariabel(paramSkrg.identifierToken)
+                                            # print("ada",getVariabelDriScope.type)
+                                            tipeParam = getVariabelDriScope.type
+                                        else:
+                                            self.errorHandlerObjek.tambahinError(__name__, 1, p_node.baris, -1, paramSkrg.identifierToken)
+                                    else:
+                                        tipeParam = p_node.parameterInput[paramIndeks].tipe
                                     
+                                    if(not tipeParam is None):
+                                        if(tipeParam != getFungsi.parameters[paramIndeks].type):
+                                            if(type(paramSkrg) in [node.nodeString, node.nodeNomor]):
+                                                print("DEBUG1")
+                                                self.errorHandlerObjek.tambahinError(__name__, 5, p_node.baris, -1, paramSkrg.nilai) #type: ignore
+
+                                            elif(isinstance(paramSkrg, node.nodeIdentifier)):
+                                                print("DEBUG2",tipeParam, getFungsi.parameters[paramIndeks].type)
+                                                self.errorHandlerObjek.tambahinError(__name__, 5, p_node.baris, -1, paramSkrg.identifierToken)
+                                        
                     else:
+                        print("DEBUG3")
                         self.errorHandlerObjek.tambahinError(__name__, 4, p_node.baris, -1, p_node.namaFungsi.nilai)
                 else:
+                    print("DEBUG4")
                     # print(p_node.namaFungsi,"gaada")
-                    self.errorHandlerObjek.tambahinError(__name__, 1, p_node.baris, -1, p_node.namaFungsi.nilai)
+                    self.errorHandlerObjek.tambahinError(__name__, 6, p_node.baris, -1, p_node.namaFungsi.nilai)
                     
                 
             case _:
@@ -122,9 +138,21 @@ class semantikClass:
     def registerFungsi(self, p_node : node.nodeBikinFungsi, p_rootScope: scopeContainer)->None:
         listParams : list[varibelObjek] = []
         for params in p_node.parameterFungsi:
-            newVariabelObj : varibelObjek = varibelObjek(params.nama, params.tipedata)
-            listParams.append(newVariabelObj)
-        
+            if(not params.nilaiDefault is None):
+                if(type(params.nilaiDefault) in [node.nodeString, node.nodeNomor, node.nodeBoolean]):
+                    if(params.tipedata==params.nilaiDefault.tipe):
+                        # print(params.nama,params.tipedata,params.nilaiDefault.tipe)
+                        newVariabelObj : varibelObjek = varibelObjek(True, params.nama, params.tipedata)
+                        listParams.append(newVariabelObj)
+                    else:
+                        self.errorHandlerObjek.tambahinError(__name__, 2, params.baris, p_bagian=params.nama)
+                        
+                else:
+                    self.errorHandlerObjek.tambahinError(__name__, 7, params.baris, p_bagian=params.nama)
+            else:
+                newVariabelObj : varibelObjek = varibelObjek(False, params.nama, params.tipedata)
+                listParams.append(newVariabelObj)
+                
         newFungsiObj : fungsiObjek = fungsiObjek(p_node.namaFungsi, p_node.tipedataFungsi, listParams, p_node)
         p_rootScope.mappingFungsi.setdefault(p_node.namaFungsi, newFungsiObj)
         pass

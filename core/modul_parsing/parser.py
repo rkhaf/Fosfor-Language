@@ -275,7 +275,8 @@ class parserClass:
                             else:
                                 raise Exception("INVALID EKSPRESI")
                             if(self.tokenSkrg.tipe==Ttype.T_SYMBOL_KOMA):
-                                self.maju()
+                                state=0
+                                # self.maju()
                                 
                     #state save ke node parameter
                     elif(state==12):

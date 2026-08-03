@@ -60,6 +60,7 @@ class errorHandlerClass:
                 4 : "parameter utk fungsi tsb inputnya kebanyakan, tolong sesuaiin lagi dh",
                 5 : "variabel tsb tipedatanya gacocok sma parameter fungsi",
                 6 : "fungsinya ga ketemu, coba cek lagi udh dibikin apa blom",
+                7 : "utk parameter tsb harap langsung isi valuenya, jgn ngecalling variable / fungsi",
             }
         }
     

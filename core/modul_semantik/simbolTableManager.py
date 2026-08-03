@@ -9,14 +9,15 @@ from pohon.node import nodeClass
 from typing import Any
 
 class varibelObjek:
-    def __init__(self, p_nama : str, p_type : datatypes, p_baris : int =-1) -> None:
+    def __init__(self, p_bernilai : bool, p_nama : str, p_type : datatypes, p_baris : int =-1) -> None:
         self.nama : str = p_nama
         self.type : datatypes = p_type
         self.invalid : bool = False
+        self.bernilai : bool = p_bernilai
         self.baris : int = p_baris
     
     def printDatas(self)->dict[str, Any]:
-        return {"nama":self.nama, "tipe":self.type.__repr__()}
+        return {"nama":self.nama, "tipe":self.type.__repr__(), "bernilai":self.bernilai}
 
 class fungsiObjek:
     def __init__(self, p_namaFungsi : str, p_type : datatypes, p_parameters : list[varibelObjek], p_nodeRef : nodeClass) -> None:
@@ -40,7 +41,7 @@ class scopeContainer:
         self.scopeParent : scopeContainer | None = None
         self.mappingVariabel : dict[str, varibelObjek] = {}
         self.mappingFungsi : dict[str, fungsiObjek] = {}
-        self._dummyVariabel : varibelObjek = varibelObjek("ERROR", TIPEDATA_NULL)
+        self._dummyVariabel : varibelObjek = varibelObjek(True, "ERROR", TIPEDATA_NULL)
         self._dummyFungsi : fungsiObjek = fungsiObjek("ERROR", TIPEDATA_NULL, [], nodeClass(-1, -1))
     
     def cekVariabel(self, p_nama : str)->bool:
