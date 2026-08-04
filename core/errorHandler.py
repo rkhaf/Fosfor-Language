@@ -63,6 +63,7 @@ class errorHandlerClass:
                 7 : "utk parameter tsb harap langsung isi valuenya, jgn ngecalling variable / fungsi",
                 8 : "klo ngisi parameter opsional (param yg punya nilai default) narohnya disebelah kanan parameter wajib, cb benerin lagi ",
                 9 : "ada parameter yg harus diisi di fungsi tsb",
+                10 : "value tsb tipedatanya gacocok sama parameter fungsi",
             }
         }
     
