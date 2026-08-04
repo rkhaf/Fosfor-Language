@@ -66,6 +66,12 @@ class errorHandlerClass:
                 10 : "value tsb tipedatanya gacocok sama parameter fungsi",
                 11 : "value dri fungsi tsb tipedatanya gacocok sama parameter fungsi",
                 12 : "fungsi tsb gak ngereturn apa apa (bertipedata void)",
+                13 : "variabel tsb tipedatanya invalid",
+                14 : "namanya udh kepake, ganti pke nama lain",
+                15 : "value yg direturn ga sesuai sma tipedata fungsinya",
+                16 : "fungsi tsb tipenya void, hrusnya ga ngebalikin apa apa",
+                17 : "fungsi tsb gak ngereturn apa apa, coba balikin sesuatu di fungsi tsb",
+                18 : "return fungsi tsb gak sesuai sama tipedatanya le, cek lg dh",
             }
         }
     

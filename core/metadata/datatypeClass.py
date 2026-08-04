@@ -37,9 +37,9 @@ class datatypesFactory:
             if(not test is None):
                 return test
             
-            else:return errorDatatype()
+            else:return TIPEDATA_EROR
             
-        else:return errorDatatype()
+        else:return TIPEDATA_EROR
         
             
 
@@ -95,6 +95,10 @@ TIPEDATA_ANY : primitiveDatatype = primitiveDatatype(jenisPrimitive.PRIM_ANY, "a
 
 TIPEDATA_NULL : nullDatatype = nullDatatype()
 """representasi null dlm bentuk kelas
+"""
+
+TIPEDATA_EROR : errorDatatype = errorDatatype()
+"""representasi error dlm bentuk kelas
 """
 
 PRIMITIVE_TIPEDATA_MAPPING : dict[str, primitiveDatatype] = {
