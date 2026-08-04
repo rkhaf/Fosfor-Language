@@ -10,6 +10,7 @@ from data_language.tokens import tokenType as Ttype
 from enum import Enum
 from metadata.datatypeClass import datatypesFactory
 from metadata.datatypeClass import TIPEDATA_NULL
+from metadata.datatypeClass import TIPEDATA_VOID
 import copy
 
 class states(Enum):
@@ -122,7 +123,8 @@ class parserClass:
                 self.maju()
                 nodee = self.parseEkspresi()
                 if(self.tokenSkrg.tipe==Ttype.T_PRTS_KNAN): #type: ignore
-                    if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
+                    # if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
+                    if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys()):
                         self.maju()
                     return nodee
                 elif(self.tokenSkrg.tipe==Ttype.T_SYMBOL_KOMA): #type: ignore
@@ -274,7 +276,8 @@ class parserClass:
                             else:
                                 raise Exception("INVALID EKSPRESI")
                             if(self.tokenSkrg.tipe==Ttype.T_SYMBOL_KOMA):
-                                self.maju()
+                                state=0
+                                # self.maju()
                                 
                     #state save ke node parameter
                     elif(state==12):
@@ -316,6 +319,9 @@ class parserClass:
                         state=2
                     
                     elif(self.tokenSkrg.tipe==Ttype.T_PRTS_KNAN):
+                        if(self.tokenDepan.tipe!=Ttype.T_PRTS_KNAN):
+                            self.maju()
+                        # self.maju()
                         break
                     
                     elif(self.tokenSkrg.tipe==Ttype.T_SYMBOL_KOMA):
@@ -323,19 +329,20 @@ class parserClass:
                         self.maju()
                     
                     else:
-                        print(self.tokenSkrg.nilai)
-                        raise Exception("stopper")
+                        state=1
+                        self.errorHandlerObjek.tambahinError(__name__, 3, self.tokenSkrg.baris, self.tokenSkrg.kolom, self.tokenSkrg.nilai)
+                        # print(self.tokenSkrg.nilai)
+                        # raise Exception("stopper")
                     
                 #ngepick identifier
                 elif(state==1):
-                    tempNodePanggilFungsi.namaFungsi = self.tokenSkrg
+                    if(self.tokenSkrg.tipe==tokenType.T_IDTF):
+                        tempNodePanggilFungsi.namaFungsi = self.tokenSkrg
                     self.maju()
                     state=0
                     
                 elif(state==2):
                     temp : node.nodeEkspresi | None = self.parseEkspresi()
-                    # if(isinstance(temp,node.nodePanggilFungsi)):
-                    # if(temp.tipe!=Ttype.T_NULL or isinstance(temp,node.nodePanggilFungsi)):
                     if(not temp is None):
                         tempNodePanggilFungsi.parameterInput.append(temp)
 
@@ -349,7 +356,7 @@ class parserClass:
         """fungsi ini buat ngehandle sintaks bikin fungsi, returnnya objek node bikin fungsi dgn data isian dri token yg udh dibaca
         """
         self.maju(2)
-        tempNode : node.nodeBikinFungsi = node.nodeBikinFungsi(self.tokenSkrg.baris, self.tokenSkrg.kolom)
+        tempNode : node.nodeBikinFungsi = node.nodeBikinFungsi(self.tokenSkrg.baris, self.tokenSkrg.kolom,"", TIPEDATA_VOID)
         state : int = 0
         tempLastValidToken : tokenClass = tokenClass(-1,-1,Ttype.T_NULL,"NULL")
         while self.idxIterator<len(self.fullToken):
@@ -419,7 +426,8 @@ class parserClass:
                         state=0
                         
                     else:
-                        tempNode.tipedataFungsi = self.tokenSkrg.nilai
+                        tempNode.tipedataFungsi = datatypesFactory.konversi(self.tokenSkrg.tipe)
+                        # tempNode.tipedataFungsi = self.tokenSkrg.nilai
                         state=0
                         
                     if(self.idxIterator==len(self.fullToken)-1):
@@ -628,7 +636,7 @@ class parserClass:
                     if(self.tokenDepan.nilai==grammar.KEYWORD_ENTRY_POINT):
                         
                         self.punyaEntryPoint=True
-                        tempNode = node.nodeBikinFungsi(self.tokenDepan.baris, self.tokenDepan.kolom, self.tokenDepan.nilai, grammar.KEYWORD_VOID)
+                        tempNode = node.nodeBikinFungsi(self.tokenDepan.baris, self.tokenDepan.kolom, self.tokenDepan.nilai, TIPEDATA_VOID)
                         self.maju(3)
                         pass
                         tempNode.isiFungsi = self.parseCodeContainer()
@@ -659,7 +667,7 @@ class parserClass:
                         p_kodeError=14, p_baris=outerScopePiece[0].baris, p_bagian=f"mulai dari ({outerScopePiece[0].nilai}) sampe ({outerScopePiece[-1].nilai}) baris : {outerScopePiece[-1].baris} kolom : "+str(outerScopePiece[-1].kolom-(outerScopePiece[-1].getValueLength() if outerScopePiece[-1].getValueLength()>1 else 0)))
                 else:
                     self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=14, p_baris=outerScopePiece[0].baris, p_bagian=f"mulai dari ({outerScopePiece[0].nilai}) sampe ({outerScopePiece[-1].nilai})")
-
+        pass
     def proses(self, p_tokens : list[tokenClass])->None:
         """klo fungsi ini fungsinya sbg gerbang masuk sma pengecekan entry point
         """
@@ -669,5 +677,6 @@ class parserClass:
         if(not self.punyaEntryPoint):
             self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=15)
         
+        pass
     def getTree(self)->ASTClass:
         return self.ASTObjek

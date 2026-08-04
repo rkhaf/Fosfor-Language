@@ -11,26 +11,14 @@ import json
 
 class ASTClass:
     def __init__(self)->None:
-        # self.scope : scopes = scopes.globalScope
-        # self.state : states = states.default
         self.nodeRoot : node.nodeRoot = node.nodeRoot()
-        # self.nodeContext : node.nodeClass
         self.context : list[node.nodeClass] = [self.nodeRoot]
-        # self.nodes : list[node.nodeClass] = [self.nodeRoot]
-        # self.nodeRoot : 
     
     def printTree(self)->None:
         print("[GLOBAL]")
-        # print("HANS :",json.dumps(self.nodeRoot.getDatas(), indent=2))
         for node in self.nodeRoot.nodeContainer:
-            # print("  ",node.getDatas())
             pass
             print(json.dumps(node.getDatas(), indent=2))
-            pass
-        # if(len(self.nodes)!=0):
-        #     for node in self.nodes:
-        #         # print("  ",node.getDatas())
-        #         print(json.dumps(node.getDatas(), indent=2))
     
     def addNode(self, p_node : node.nodeClass)->None:
         pass
@@ -40,3 +28,6 @@ class ASTClass:
     
     def popContext(self)->None:
         self.context.pop()
+    
+    def getTree(self)->list[node.nodeClass]:
+        return self.nodeRoot.nodeContainer

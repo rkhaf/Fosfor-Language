@@ -3,6 +3,7 @@ from data_language.tokens import tokenType
 MODUL_PATH_LEXR : str = "modul_baca.lekser"
 MODUL_PATH_TOKN : str = "modul_baca.tokenizer"
 MODUL_PATH_PRSR : str = "modul_parsing.parser"
+MODUL_PATH_SMTK : str = "modul_semantik.analisa"
 
 SYS_ERR : str = "ERROR"
 

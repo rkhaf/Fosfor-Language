@@ -1,8 +1,10 @@
-bikin fungsi tipenya integer namanya kuadrat parameternya (p_nilai:integer) isinya
-    balikin (p_nilai*p_nilai);
-akhir;
 
 fungsi main isinya
-    bikin variabel namanya varr tipenya integer nilainya 30;
-    tampilin(kuadrat(varr))
+    bikin variabel namanya nil1 tipenya integer nilainya 1;
+    bikin variabel namanya nil2 tipenya string nilainya "1";
+    bikin variabel namanya nil3 tipenya float nilainya 1.1;
+    // bikin variabel namanya varrheim tipenya integer nilainya 1;
+    tampilin(2*benar);
+    // bikin variabel namanya varryy tipenya integer nilainya varrheim;
+    // tampilin(varr)
 akhir;
