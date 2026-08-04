@@ -64,6 +64,8 @@ class errorHandlerClass:
                 8 : "klo ngisi parameter opsional (param yg punya nilai default) narohnya disebelah kanan parameter wajib, cb benerin lagi ",
                 9 : "ada parameter yg harus diisi di fungsi tsb",
                 10 : "value tsb tipedatanya gacocok sama parameter fungsi",
+                11 : "value dri fungsi tsb tipedatanya gacocok sama parameter fungsi",
+                12 : "fungsi tsb gak ngereturn apa apa (bertipedata void)",
             }
         }
     

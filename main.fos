@@ -1,30 +1,9 @@
-bikin fungsi tipenya integer namanya kuadrat parameternya (p_nilai1:integer, p_nilai2:string="s") isinya
-    bikin variabel namanya varr1 tipenya float nilainya 2.3;
-
-    balikin (varr1*varr1);
-akhir;
-
-bikin fungsi tipenya integer namanya kuadratik parameternya (p_nilai1:integer, p_nilai2:string="s") isinya
-    bikin variabel namanya varr1 tipenya float nilainya 2.3;
-
-    balikin (varr1*varr1);
-akhir;
-
-bikin fungsi tipenya integer namanya kuadratika parameternya (p_nilai1:integer, p_nilai2:string="s") isinya
-    bikin variabel namanya varr1 tipenya float nilainya 2.3;
-
-    balikin (varr1*varr1);
-akhir;
-
-bikin fungsi tipenya integer namanya kuadrat2 parameternya () isinya
+bikin fungsi namanya kuadrat tipenya integer parameternya(input:integer) isinya
     balikin 1;
 akhir;
 
 fungsi main isinya
     bikin variabel namanya varr tipenya string nilainya 30;
     bikin variabel namanya varrheim tipenya integer;
-    // tampilin(kuadrat(varrh))
-    // tampilin(asd);
-    kuadrat(kuadratik(kuadratika(varrheim, varr)));
-    // kuadrat(123,1.2,"fiona"` ,benar,varr);
+    kuadrat(varrheim);
 akhir;

@@ -123,7 +123,8 @@ class parserClass:
                 self.maju()
                 nodee = self.parseEkspresi()
                 if(self.tokenSkrg.tipe==Ttype.T_PRTS_KNAN): #type: ignore
-                    if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
+                    # if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
+                    if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys()):
                         self.maju()
                     return nodee
                 elif(self.tokenSkrg.tipe==Ttype.T_SYMBOL_KOMA): #type: ignore
@@ -318,6 +319,9 @@ class parserClass:
                         state=2
                     
                     elif(self.tokenSkrg.tipe==Ttype.T_PRTS_KNAN):
+                        if(self.tokenDepan.tipe!=Ttype.T_PRTS_KNAN):
+                            self.maju()
+                        # self.maju()
                         break
                     
                     elif(self.tokenSkrg.tipe==Ttype.T_SYMBOL_KOMA):
