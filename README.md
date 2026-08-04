@@ -1,2 +1,2 @@
 # Fosfor Language
-bikin bhs pemrograman gwh sendiri, dgn gaya gwh sendiri
+bikin bhs pemrograman gwh sendiri
