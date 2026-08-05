@@ -3,7 +3,8 @@ from modul_baca.lekser import lekserClass
 from modul_parsing.parser import parserClass
 # from data_language.tokens import tokenType
 from modul_semantik.analisa import semantikClass
-from modul_parsing.AST import ASTClass
+# from modul_parsing.AST import ASTClass
+from modul_translator.codeGenerator import codeGeneratorClass
 
 from data_language.tokens import tokenClass
 from errorHandler import errorHandlerClass
@@ -11,23 +12,29 @@ from errorHandler import errorHandlerClass
 
 def run(fileOriginal : str) -> None:
     errorHandlerObjek = errorHandlerClass()
-    lekserObjek = lekserClass(errorHandlerObjek)
-    parserObjek = parserClass(errorHandlerObjek)
-    semantikObjek = semantikClass(errorHandlerObjek)
+    lekserObjek : lekserClass = lekserClass(errorHandlerObjek)
+    parserObjek : parserClass = parserClass(errorHandlerObjek)
+    semantikObjek : semantikClass = semantikClass(errorHandlerObjek)
+    codegenObjek : codeGeneratorClass = codeGeneratorClass(errorHandlerObjek)
     # tokenizerObjek = tokenizerClass()
 
-    lekserProsesing : None = lekserObjek.proses(fileOriginal)
+    # codegenObjek.
+    lekserObjek.proses(fileOriginal)
     tokens : list[tokenClass] = lekserObjek.ambilTokens()
     # print(tokens)
-    parserProsesing : None = parserObjek.proses(tokens)
+    parserObjek.proses(tokens)
 
     if(errorHandlerObjek.adaError()):
         errorHandlerObjek.displayError()
     else:
         # parserObjek.getTree().printTree()
-        semantikProsesing : None = semantikObjek.proses(parserObjek.getTree())
+        semantikObjek.proses(parserObjek.getTree())
         if(errorHandlerObjek.adaError()):
             errorHandlerObjek.displayError()
+        else:
+            codegenObjek.proses(parserObjek.getTree())
+            if(errorHandlerObjek.adaError()):
+                errorHandlerObjek.displayError()
         pass
     
     # if(lekserProsesing is None):

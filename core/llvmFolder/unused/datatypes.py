@@ -1,5 +1,5 @@
-from library import LLVM_PRIMITIVE_TYPES
-from library import llvm_dataTypeClass
+from core.llvmFolder.unused.library import LLVM_PRIMITIVE_TYPES
+from core.llvmFolder.unused.library import llvm_dataTypeClass
 
 
 class llvm_primitiveDatatype(llvm_dataTypeClass):
