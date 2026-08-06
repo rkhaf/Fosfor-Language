@@ -8,14 +8,16 @@ from modul_translator.codeGenerator import codeGeneratorClass
 
 from data_language.tokens import tokenClass
 from errorHandler import errorHandlerClass
+from modul_translator.LLVMMerger import LLVMMergerClass
 # from tokenizer import tokenizerClass
 
-def run(fileOriginal : str) -> None:
+def run(fileOriginal : str, p_namaFile : str) -> None:
     errorHandlerObjek = errorHandlerClass()
     lekserObjek : lekserClass = lekserClass(errorHandlerObjek)
     parserObjek : parserClass = parserClass(errorHandlerObjek)
     semantikObjek : semantikClass = semantikClass(errorHandlerObjek)
     codegenObjek : codeGeneratorClass = codeGeneratorClass(errorHandlerObjek)
+    konverterObjek : LLVMMergerClass = LLVMMergerClass()
     # tokenizerObjek = tokenizerClass()
 
     # codegenObjek.
@@ -35,6 +37,8 @@ def run(fileOriginal : str) -> None:
             codegenObjek.proses(parserObjek.getTree())
             if(errorHandlerObjek.adaError()):
                 errorHandlerObjek.displayError()
+            else:
+                konverterObjek.proses(p_namaFile, codegenObjek.getModul(), "")
         pass
     
     # if(lekserProsesing is None):

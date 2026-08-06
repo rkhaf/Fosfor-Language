@@ -3,5 +3,6 @@
     "code-runner.executorMap": {
     "python": "\"${workspaceFolder}/.venv/Scripts/python.exe\" -u $fullFileName"
     },
+    "python.terminal.activateEnvironment": true,
     "code-runner.clearPreviousOutput": true
 }

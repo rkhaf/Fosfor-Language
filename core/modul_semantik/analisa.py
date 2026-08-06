@@ -20,6 +20,8 @@ class semantikClass:
     def __init__(self, p_errorHandlerRef : errorHandlerClass) -> None:
         self.errorHandlerObjek = p_errorHandlerRef
         self.scopes : list[scopeContainer] = []
+    
+    # def cekGetVariabel
 
     def cekScope(self, p_node: node.nodeClass, p_scope: scopeContainer)->None:
         match p_node:
@@ -86,7 +88,7 @@ class semantikClass:
                 else:
                     newVariabelObj : varibelObjek
                     
-                    tipedataValue : datatypes = TIPEDATA_VOID
+                    tipedataValue : datatypes | None = None
                     tipedataVariabel : datatypes = TIPEDATA_VOID
                     
                     if(p_node.nilaiVariabel.tipe!=TIPEDATA_NULL):
@@ -107,26 +109,19 @@ class semantikClass:
                             
                             getVariabel : varibelObjek = p_scope.getVariabel(p_node.nilaiVariabel.identifierToken)
                             tipedataValue = getVariabel.type
-                            # #yg ini buat ngecek tipedatanya
-                            # if(getVariabel.type != p_node.tipedataVariabel):
-                            #     newVariabelObj.invalid=True
-                            #     self.errorHandlerObjek.tambahinError(__name__, 2, p_node.baris, p_bagian=p_node.namaVariabel)
-
-                            # else:
-                            #     tipedataValue = getVariabel.type
+                            
                         else:
                             newVariabelObj.invalid = True
                             self.errorHandlerObjek.tambahinErrorMultibaris(p_kelas= __name__, p_kodeError=1, p_baris=p_node.nilaiVariabel.baris, p_bagian=p_node.nilaiVariabel.identifierToken)
-                            # raise Exception("STOPPER2")
                         
                     elif(type(p_node.nilaiVariabel) in [node.nodeNomor, node.nodeString, node.nodeBoolean]):
                         nilaiVar : node.nodeNomor | node.nodeString | node.nodeBoolean = p_node.nilaiVariabel
                         tipedataValue = nilaiVar.tipe
                         
-                    # print(tipedataVariabel,":",tipedataValue)
-                    if(tipedataVariabel!=tipedataValue):
-                        self.errorHandlerObjek.tambahinError(__name__, 2, p_node.baris, p_bagian=p_node.namaVariabel)
-                    p_scope.mappingVariabel.setdefault(p_node.namaVariabel, newVariabelObj)
+                    if(not tipedataValue is None):
+                        if(tipedataVariabel!=tipedataValue):
+                            self.errorHandlerObjek.tambahinError(__name__, 2, p_node.baris, p_bagian=p_node.namaVariabel)
+                        p_scope.mappingVariabel.setdefault(p_node.namaVariabel, newVariabelObj)
 
             case node.nodeBalikin():
                 self.cekScope(p_node.returnEkspresi, p_scope)
@@ -179,8 +174,6 @@ class semantikClass:
                             paramSkrg : node.nodeEkspresi | None = None
                             if(paramIndeks<len(p_node.parameterInput)):
                                 paramSkrg = p_node.parameterInput[paramIndeks]
-                                # paramSkrg : node.nodeEkspresi = p_node.parameterInput[paramIndeks]
-                                # print("paramSkrg:",paramSkrg.getDatas())
                                 if(isinstance(paramSkrg, node.nodeIdentifier)):
                                     #ketemu parameter variabel
                                     if(p_scope.cekVariabel(paramSkrg.identifierToken)):
@@ -220,29 +213,24 @@ class semantikClass:
                                     #ada kekosongan input di parameter wajib
                                     self.errorHandlerObjek.tambahinError(__name__, 9, p_node.baris, p_node.kolom, p_bagian=p_node.namaFungsi.nilai)
 
-                            # print(tipedataParameterFungsi, "==", tipedataParameterInput)
                             if(paramIndeks<len(p_node.parameterInput)):
                                 if(not tipedataParameterFungsi is None and not tipedataParameterInput is None):
-                                    # print(tipedataParameterFungsi,"=",tipedataParameterInput)
-                                    # print(getFungsi.parameters[paramIndeks].nama,"=",p_node.parameterInput[paramIndeks].getDatas())
-                                    # print(getFungsi.parameters[paramIndeks].nama, ":", tipedataParameterFungsi, "=", p_node.parameterInput[paramIndeks].getDatas(), ":", tipedataParameterInput)
                                     if(tipedataParameterInput!=tipedataParameterFungsi and not (tipedataParameterInput==TIPEDATA_ANY or tipedataParameterFungsi==TIPEDATA_ANY)):
-                                        # print("GK SAMA",tipedataParameterFungsi,tipedataParameterInput)
                                         if(tipedataParameterInput==TIPEDATA_VOID):
                                             self.errorHandlerObjek.tambahinError(__name__, 12, p_node.baris, -1, paramSkrg.namaFungsi.nilai)
                                         else:
                                             if(isinstance(paramSkrg, node.nodeIdentifier)):
                                                 self.errorHandlerObjek.tambahinError(__name__, 5, p_node.baris, -1, f"{p_node.namaFungsi.nilai}({getFungsi.parameters[paramIndeks].nama} = {paramSkrg.identifierToken})")
-                                                # self.errorHandlerObjek.tambahinError(__name__, 5, p_node.baris, -1, str(p_node.namaFungsi.nilai+"."+getFungsi.parameters[paramIndeks].nama)+" = "+str(paramSkrg.identifierToken))
+
                                             elif(type(paramSkrg) in [node.nodeString, node.nodeNomor, node.nodeBoolean]):
                                                 self.errorHandlerObjek.tambahinError(__name__, 10, p_node.baris, -1, f"{p_node.namaFungsi.nilai}({getFungsi.parameters[paramIndeks].nama} = '{paramSkrg.nilai}')")
                                                 
                                             elif(isinstance(paramSkrg, node.nodePanggilFungsi)):
                                                 self.errorHandlerObjek.tambahinError(__name__, 11, p_node.baris, -1, f"{p_node.namaFungsi.nilai}({getFungsi.parameters[paramIndeks].nama} = '{paramSkrg.namaFungsi.nilai}')")
                                                 
-                                            # print("gk sama =",getFungsi.nama,":",getFungsi.parameters[paramIndeks].nama, ":", tipedataParameterFungsi, "=", p_node.parameterInput[paramIndeks].getDatas(), ":", tipedataParameterInput)
+                                            
                                     else:
-                                        # print("sama =",getFungsi.nama,":",getFungsi.parameters[paramIndeks].nama, ":", tipedataParameterFungsi, "=", p_node.parameterInput[paramIndeks].getDatas(), ":", tipedataParameterInput)
+                                        
                                         pass
                                 
                     else:

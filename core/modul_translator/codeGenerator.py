@@ -2,6 +2,7 @@ from __future__ import annotations
 from llvmlite import ir
 from typing import Optional, Union
 from typing import cast
+from typing import Any, Callable
 from errorHandler import errorHandlerClass
 from modul_parsing.AST import ASTClass
 from pohon import node
@@ -50,6 +51,14 @@ class scopeClass:
         else:
             raise Exception("ERROR")
 
+fungsiBuiltin : dict[str, dict[str, list[ir.Type] | str | ir.Type]] = {
+    "tampilin" : {
+        "namaDiCPP" : "fosfor_tampilin_int",
+        "parameter" : [ir.IntType(32)],
+        "tipeReturn" : ir.VoidType()
+    }
+}
+
 class codeGeneratorClass:
     def __init__(self, p_errorHandlerRef : errorHandlerClass) -> None:
         self.modul : ir.Module = ir.Module(name="FOSFOR CODEGEN")
@@ -57,21 +66,29 @@ class codeGeneratorClass:
         self.errorHandlerObjek = p_errorHandlerRef
         self.rootScope : scopeClass = scopeClass()
         self.builder : ir.IRBuilder | None = None
+        self.fungsiExtern : dict[str, ir.Function] = {}
         pass
+    
+    def setupBuiltin(self, p_namaFungsi : str)->ir.Function:
+        namaBuiltin : str = cast(str, fungsiBuiltin[p_namaFungsi]["namaDiCPP"])
+        
+        if(not p_namaFungsi in self.fungsiExtern.keys()):
+            parameterBuiltin : list[ir.Type] = cast(list[ir.Type], fungsiBuiltin[p_namaFungsi]["parameter"])
+            tipeReturnBuiltin : ir.Type = cast(ir.Type, fungsiBuiltin[p_namaFungsi]["tipeReturn"])
+            
+            llvm_tipeFungsi : ir.FunctionType = ir.FunctionType(tipeReturnBuiltin, parameterBuiltin)
+            llvm_fungsi : ir.Function = ir.Function(self.modul, llvm_tipeFungsi, namaBuiltin)
+            
+            self.fungsiExtern[namaBuiltin] = llvm_fungsi
+        
+        return self.fungsiExtern[namaBuiltin]
     
     def visit(self, p_node : node.nodeClass, p_scope : scopeClass)->ir.Value | None:
-        match p_node:
-            case node.nodeBikinVariabel():
-                self.bacaVariabel(p_node, p_scope)
-            
-            case node.nodeBikinFungsi():
-                self.bacaFungsi(p_node)
-                    
-            case _:
-                pass
-        pass
+        namaFungsi : str =f"baca_{type(p_node).__name__}"
+        fungsiTujuan : Callable[[Any, Any], Any] = getattr(self, namaFungsi)
+        return fungsiTujuan(p_node, p_scope)
     
-    def bacaVariabel(self, p_nodeBikinVariabel : node.nodeBikinVariabel, p_scope : scopeClass)->None:
+    def baca_nodeBikinVariabel(self, p_nodeBikinVariabel : node.nodeBikinVariabel, p_scope : scopeClass)->None:
         if(not self.builder is None):
             # if(p_nodeBikinVariabel.tipedataVariabel in [TIPEDATA_BOOLEAN, TIPEDATA_FLOAT, TIPEDATA_INTEGER, TIPEDATA_STRING])
             konversiTipedataVariabel : ir.Type = konvertClass.konversiTipedata(p_nodeBikinVariabel.tipedataVariabel)
@@ -87,9 +104,9 @@ class codeGeneratorClass:
             p_scope.addVariabel(p_nodeBikinVariabel.namaVariabel, llvm_varRef)
         pass
     
-    def bacaFungsi(self, p_nodeBikinFungsi : node.nodeBikinFungsi)->None:
+    def baca_nodeBikinFungsi(self, p_nodeBikinFungsi : node.nodeBikinFungsi, p_scope : scopeClass)->None:
         if(p_nodeBikinFungsi.namaFungsi=="main"):
-            newScope : scopeClass = scopeClass(self.rootScope)
+            newScope : scopeClass = scopeClass(p_scope)
             
             llvm_tipeFungsi : ir.FunctionType = ir.FunctionType(ir.IntType(32), [])
             llvm_fungsiBaru : ir.Function = ir.Function(self.modul, llvm_tipeFungsi, p_nodeBikinFungsi.namaFungsi)
@@ -99,51 +116,39 @@ class codeGeneratorClass:
             self.builder = ir.IRBuilder(llvm_entryBlock)
             
             zeroExitCode : ir.Constant = ir.Constant(ir.IntType(32), 0)
-            # a = ir.Constant(ir.IntType(32), 6)
-            # b = ir.Constant(ir.IntType(32), 7)
-            # hasil = cast(ir.Value, self.builder.add(a, b, name="hasilTambah"))
             
             for nodeKode in p_nodeBikinFungsi.isiFungsi:
                 self.visit(nodeKode, newScope)
                 pass
             # pass
             self.builder.ret(zeroExitCode)
+
+    def baca_nodePanggilFungsi(self, p_nodePanggilFungsi : node.nodePanggilFungsi, p_scope : scopeClass)->None | ir.Value:
+        if(p_nodePanggilFungsi.namaFungsi.nilai in fungsiBuiltin.keys()):
+            llvm_fungsi : ir.Function = self.setupBuiltin(p_nodePanggilFungsi.namaFungsi.nilai)
+            # self.builder.
+            # print("param input:", self.visit(p_nodePanggilFungsi.parameterInput[0], p_scope))
+            getVariabel : ir.Value | None = self.visit(p_nodePanggilFungsi.parameterInput[0], p_scope)
+            if(getVariabel is None):raise Exception("VARIABEL GAK KETEMU, SAFEGUARD JEBOL")
+            else:
+                llvm_parameterInput : ir.Value = getVariabel
                 
-    # def bacaFungsi(self, p_nodeBikinFungsi : node.nodeBikinFungsi)->None:
-    #     if(p_nodeBikinFungsi.namaFungsi=="main"):
-    #         # llvm_tipedataFungsi : ir.Type = konvertClass.konversiTipedata(p_nodeBikinFungsi.tipedataFungsi)
-    #         # llvm_parameterFungsi : list[ir.Type] = []
-    #         # llvm_tipeFungsi : ir.FunctionType = ir.FunctionType(llvm_tipedataFungsi, llvm_parameterFungsi)
-    #         # llvm_fungsiBaru : ir.Function = ir.Function(self.modul, llvm_tipeFungsi, p_nodeBikinFungsi.namaFungsi)
-            
-    #         llvm_tipeFungsi : ir.FunctionType = ir.FunctionType(ir.IntType(32), [])
-    #         llvm_fungsiBaru : ir.Function = ir.Function(self.modul, llvm_tipeFungsi, p_nodeBikinFungsi.namaFungsi)
-            
-    #         # #ngeappend parameter ke fungsi
-    #         # for paramFungsi in p_nodeBikinFungsi.parameterFungsi:
-    #         #     llvm_parameterFungsi.append(konvertClass.konversiTipedata(paramFungsi.tipedata))
-            
-    #         # #ngasi nama ke param fungsi llvm
-    #         # for indeks in range(0, len(p_nodeBikinFungsi.parameterFungsi)):
-    #         #     llvm_fungsiBaru.args[indeks].name = p_nodeBikinFungsi.parameterFungsi[indeks].nama
-            
-    #         llvm_entryBlock : ir.Block = ir.Block(llvm_fungsiBaru.append_basic_block(name="entry"))
-            
-    #         llvm_builder : ir.IRBuilder = ir.IRBuilder(llvm_entryBlock)
-            
-    #         zeroExitCode : ir.Constant = ir.Constant(ir.IntType(32), 0)
-    #         llvm_builder.ret(zeroExitCode)
-            
-    #         for nodeKode in p_nodeBikinFungsi.isiFungsi:
-    #             self.bacaApapun(nodeKode)
-    #             pass
-    #         # pass
+                return self.builder.call(llvm_fungsi, [self.builder.load(llvm_parameterInput)])
+    
+    def baca_nodeIdentifier(self, p_nodeIdentifier : node.nodeIdentifier, p_scope : scopeClass)-> ir.Value:
+        # print("valuenya:",p_nodeIdentifier.identifierToken)
+        # print("ada di scope", p_scope.getVariabel(p_nodeIdentifier.identifierToken))
+        return p_scope.getVariabel(p_nodeIdentifier.identifierToken)
     
     def proses(self, p_astReferensi : ASTClass)->None:
         nodeList : list[node.nodeClass] = p_astReferensi.getTree()
         for fungsiNode in nodeList:
             if(isinstance(fungsiNode, node.nodeBikinFungsi)):
-                self.bacaFungsi(fungsiNode)
+                # self.bacaFungsi(fungsiNode)
+                self.visit(fungsiNode, self.rootScope)
             else:
                 raise Exception("ADA CODE DILUAR SCOPE")
-        print("FINAL:\n",str(self.modul))
+        # print("FINAL:\n",str(self.modul))
+    
+    def getModul(self)->ir.Module:
+        return self.modul
