@@ -59,6 +59,21 @@ fungsiBuiltin : dict[str, dict[str, list[ir.Type] | str | ir.Type]] = {
     }
 }
 
+mappingOpsInt : dict[str, str] = {
+    "+" : "add",
+    "-" : "sub",
+    "*" : "mul",
+    "/" : "sdiv",
+    "%" : "srem",
+}
+
+mappingOpsFlt : dict[str, str] = {
+    "+" : "fadd",
+    "-" : "fsub",
+    "*" : "fmul",
+    "/" : "fdiv",
+}
+
 class codeGeneratorClass:
     def __init__(self, p_errorHandlerRef : errorHandlerClass) -> None:
         self.modul : ir.Module = ir.Module(name="FOSFOR CODEGEN")
@@ -67,10 +82,15 @@ class codeGeneratorClass:
         self.rootScope : scopeClass = scopeClass()
         self.builder : ir.IRBuilder | None = None
         self.fungsiExtern : dict[str, ir.Function] = {}
+        
+
         pass
     
     def setupBuiltin(self, p_namaFungsi : str)->ir.Function:
         namaBuiltin : str = cast(str, fungsiBuiltin[p_namaFungsi]["namaDiCPP"])
+        
+        if(namaBuiltin in self.fungsiExtern):
+            return self.modul.globals[namaBuiltin]
         
         if(not p_namaFungsi in self.fungsiExtern.keys()):
             parameterBuiltin : list[ir.Type] = cast(list[ir.Type], fungsiBuiltin[p_namaFungsi]["parameter"])
@@ -92,16 +112,24 @@ class codeGeneratorClass:
         if(not self.builder is None):
             # if(p_nodeBikinVariabel.tipedataVariabel in [TIPEDATA_BOOLEAN, TIPEDATA_FLOAT, TIPEDATA_INTEGER, TIPEDATA_STRING])
             konversiTipedataVariabel : ir.Type = konvertClass.konversiTipedata(p_nodeBikinVariabel.tipedataVariabel)
-            llvm_varRef = cast(ir.AllocaInstr, self.builder.alloca(konversiTipedataVariabel, name=p_nodeBikinVariabel.namaVariabel))
+            # llvm_varRef = cast(ir.AllocaInstr, self.builder.alloca(konversiTipedataVariabel, name=p_nodeBikinVariabel.namaVariabel))
             # if(type(p_nodeBikinVariabel.nilaiVariabel) in [node.nodeNomor, node.nodeString, node.nodeBoolean]):
-            if(isinstance(p_nodeBikinVariabel.nilaiVariabel, node.nodeNomor)):
-                if(p_nodeBikinVariabel.tipedataVariabel==TIPEDATA_INTEGER):
-                    self.builder.store(ir.Constant(konversiTipedataVariabel, int(p_nodeBikinVariabel.nilaiVariabel.nilai)), llvm_varRef)
-                else:
-                    self.builder.store(ir.Constant(konversiTipedataVariabel, float(p_nodeBikinVariabel.nilaiVariabel.nilai)), llvm_varRef)
-            else:raise Exception("TIPEDATA BLM DISUPPORT")
+            
+            nilaiVariabel : ir.Value | None = self.visit(p_nodeBikinVariabel.nilaiVariabel, p_scope) 
+            
+            llvm_alokasi : ir.AllocaInstr = cast(ir.AllocaInstr, self.builder.alloca(konversiTipedataVariabel, name=p_nodeBikinVariabel.namaVariabel)) #type:ignore
+            
+            self.builder.store(nilaiVariabel, llvm_alokasi) #type:ignore
+            # self.builder.store(ir.Constant(konversiTipedataVariabel, int(p_nodeBikinVariabel.nilaiVariabel.nilai)), llvm_varRef)
+            
+            # if(isinstance(p_nodeBikinVariabel.nilaiVariabel, node.nodeNomor)):
+            #     if(p_nodeBikinVariabel.tipedataVariabel==TIPEDATA_INTEGER):
+            #         self.builder.store(ir.Constant(konversiTipedataVariabel, int(p_nodeBikinVariabel.nilaiVariabel.nilai)), llvm_varRef)
+            #     else:
+            #         self.builder.store(ir.Constant(konversiTipedataVariabel, float(p_nodeBikinVariabel.nilaiVariabel.nilai)), llvm_varRef)
+            # else:raise Exception("TIPEDATA BLM DISUPPORT")
             # print("nilai variabel: ",p_nodeBikinVariabel.nilaiVariabel)
-            p_scope.addVariabel(p_nodeBikinVariabel.namaVariabel, llvm_varRef)
+            p_scope.addVariabel(p_nodeBikinVariabel.namaVariabel, llvm_alokasi)
         pass
     
     def baca_nodeBikinFungsi(self, p_nodeBikinFungsi : node.nodeBikinFungsi, p_scope : scopeClass)->None:
@@ -111,7 +139,7 @@ class codeGeneratorClass:
             llvm_tipeFungsi : ir.FunctionType = ir.FunctionType(ir.IntType(32), [])
             llvm_fungsiBaru : ir.Function = ir.Function(self.modul, llvm_tipeFungsi, p_nodeBikinFungsi.namaFungsi)
             
-            llvm_entryBlock : ir.Block = llvm_fungsiBaru.append_basic_block(name="entry")
+            llvm_entryBlock : ir.Block = llvm_fungsiBaru.append_basic_block(name="entry") #type:ignore
             
             self.builder = ir.IRBuilder(llvm_entryBlock)
             
@@ -121,24 +149,106 @@ class codeGeneratorClass:
                 self.visit(nodeKode, newScope)
                 pass
             # pass
-            self.builder.ret(zeroExitCode)
+            self.builder.ret(zeroExitCode) #type:ignore
+        else:
+            newScope : scopeClass = scopeClass(p_scope)
+            
+            llvm_parameters : list[ir.Type] = []
+            llvm_tipedataFungsi : ir.Type = konvertClass.konversiTipedata(p_nodeBikinFungsi.tipedataFungsi)
+            
+            #ngeiterasi tipedata paramnbya dulu
+            for param in p_nodeBikinFungsi.parameterFungsi:
+                llvm_parameters.append(konvertClass.konversiTipedata(param.tipedata))
+            
+            llvm_tipeFungsi : ir.FunctionType = ir.FunctionType(llvm_tipedataFungsi, llvm_parameters)
+            llvm_fungsiBaru : ir.Function = ir.Function(self.modul, llvm_tipeFungsi, p_nodeBikinFungsi.namaFungsi)
+            
+            llvm_entryBlock : ir.Block = llvm_fungsiBaru.append_basic_block(name="entry") #type:ignore
+            self.builder = ir.IRBuilder(llvm_entryBlock)
+            
+            zeroExitCode : ir.Constant = ir.Constant(ir.IntType(32), 0)
+            
+            returnanFungsi : Any
+            
+            #ngisiin nama utk paramnya
+            for paramIdx in range(0, len(p_nodeBikinFungsi.parameterFungsi)):
+                namaParam : str = p_nodeBikinFungsi.parameterFungsi[paramIdx].nama
+                llvm_fungsiBaru.args[paramIdx].name = namaParam
+                
+                llvm_atomikParam : ir.AllocaInstr = self.builder.alloca(llvm_fungsiBaru.args[paramIdx].type, name=namaParam)
+                self.builder.store(llvm_fungsiBaru.args[paramIdx], llvm_atomikParam)
+                p_scope.addVariabel(namaParam, llvm_atomikParam)
+            
+            for nodeKode in p_nodeBikinFungsi.isiFungsi:
+                if(isinstance(nodeKode, node.nodeBalikin)):
+                    returnanFungsi = self.visit(nodeKode, newScope)
+                else:
+                    self.visit(nodeKode, newScope)
+                pass
+            # pass
+            self.builder.ret(returnanFungsi) #type:ignore
 
-    def baca_nodePanggilFungsi(self, p_nodePanggilFungsi : node.nodePanggilFungsi, p_scope : scopeClass)->None | ir.Value:
+    def baca_nodePanggilFungsi(self, p_nodePanggilFungsi : node.nodePanggilFungsi, p_scope : scopeClass)->ir.Value:
         if(p_nodePanggilFungsi.namaFungsi.nilai in fungsiBuiltin.keys()):
             llvm_fungsi : ir.Function = self.setupBuiltin(p_nodePanggilFungsi.namaFungsi.nilai)
-            # self.builder.
-            # print("param input:", self.visit(p_nodePanggilFungsi.parameterInput[0], p_scope))
             getVariabel : ir.Value | None = self.visit(p_nodePanggilFungsi.parameterInput[0], p_scope)
+            
             if(getVariabel is None):raise Exception("VARIABEL GAK KETEMU, SAFEGUARD JEBOL")
             else:
                 llvm_parameterInput : ir.Value = getVariabel
+                return self.builder.call(llvm_fungsi, [llvm_parameterInput]) #type:ignore
+            
+        elif(p_nodePanggilFungsi.namaFungsi.nilai in self.modul.globals):
+            llvm_fungsi : ir.Function = self.modul.globals[p_nodePanggilFungsi.namaFungsi.nilai]
+            llvm_params : list[ir.Value] = []
+            
+            for paramIdx in range(0, len(p_nodePanggilFungsi.parameterInput)):
+                paramInput : ir.Value = self.visit(p_nodePanggilFungsi.parameterInput[paramIdx], p_scope)
+                llvm_params.append(paramInput)
                 
-                return self.builder.call(llvm_fungsi, [self.builder.load(llvm_parameterInput)])
+            return self.builder.call(llvm_fungsi, llvm_params) #type:ignore 
+        # raise Exception("STOPPER")
     
     def baca_nodeIdentifier(self, p_nodeIdentifier : node.nodeIdentifier, p_scope : scopeClass)-> ir.Value:
-        # print("valuenya:",p_nodeIdentifier.identifierToken)
-        # print("ada di scope", p_scope.getVariabel(p_nodeIdentifier.identifierToken))
-        return p_scope.getVariabel(p_nodeIdentifier.identifierToken)
+        if(p_scope.cekVariabel(p_nodeIdentifier.identifierToken)):
+            getVar : ir.AllocaInstr = p_scope.getVariabel(p_nodeIdentifier.identifierToken)
+            return cast(ir.Value, self.builder.load(getVar, f"load_{p_nodeIdentifier.identifierToken}")) #type: ignore
+        else:
+            raise Exception("variable gak ketemu, semantik kebobolan / blm didaftarin discope table")
+            # self.errorHandlerObjek.tambahinError(__name__, 1, p_nodeIdentifier.baris, p_bagian=p_nodeIdentifier.identifierToken)
+            # return ir.Constant(ir.IntType(32), 67)
+    
+    def baca_nodeNomor(self, p_nodeNomor : node.nodeNomor, p_scope : scopeClass)->ir.Value:
+        if(p_nodeNomor.tipe==TIPEDATA_INTEGER):return ir.Constant(ir.IntType(32), int(p_nodeNomor.nilai))
+        else:return ir.Constant(ir.FloatType(), float(p_nodeNomor.nilai))
+    
+    def baca_nodeBiner(self, p_nodeBiner : node.nodeBiner, p_scope : scopeClass)->ir.Value:
+        kiri : ir.Value | None = self.visit(p_nodeBiner.operand1, p_scope)
+        kanan : ir.Value | None = self.visit(p_nodeBiner.operand2, p_scope)
+        
+        if(isinstance(kiri.type, ir.IntType)):
+            if(p_nodeBiner.operator in mappingOpsInt):
+                instruksi = getattr(self.builder, mappingOpsInt[p_nodeBiner.operator])
+                # instruksi = self.mappingOpsInt[p_nodeBiner.operator](kiri, kanan, name="operasi_biner_int")
+                return instruksi(kiri, kanan, name="operasi_biner_int")
+            else:raise Exception("operator gk tersedia")
+        
+        elif(isinstance(kiri.type, ir.FloatType)):
+            if(p_nodeBiner.operator in mappingOpsFlt):
+                instruksi = getattr(self.builder, mappingOpsFlt[p_nodeBiner.operator])
+                # instruksi = self.mappingOpsInt[p_nodeBiner.operator](kiri, kanan, name="operasi_biner_int")
+                return instruksi(kiri, kanan, name="operasi_biner_flt")
+            else:raise Exception("operator gk tersedia")
+        
+        else:
+            raise Exception("operasi invalid")
+        
+        # raise Exception("STOPPER")
+    
+    def baca_nodeBalikin(self, p_nodeBalikin : node.nodeBalikin, p_scope : scopeClass)->ir.Value | None:
+        # print(self.visit(p_nodeBalikin.returnEkspresi, p_scope))
+        # raise Exception("[baca_nodeBalikin] STOPPER")
+        return self.visit(p_nodeBalikin.returnEkspresi, p_scope)
     
     def proses(self, p_astReferensi : ASTClass)->None:
         nodeList : list[node.nodeClass] = p_astReferensi.getTree()

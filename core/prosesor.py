@@ -23,47 +23,21 @@ def run(fileOriginal : str, p_namaFile : str) -> None:
     # codegenObjek.
     lekserObjek.proses(fileOriginal)
     tokens : list[tokenClass] = lekserObjek.ambilTokens()
-    # print(tokens)
     parserObjek.proses(tokens)
 
+    # print(tokens)
     if(errorHandlerObjek.adaError()):
         errorHandlerObjek.displayError()
     else:
-        # parserObjek.getTree().printTree()
-        semantikObjek.proses(parserObjek.getTree())
+        parserObjek.getTree().printTree()
+        # semantikObjek.proses(parserObjek.getTree())
         if(errorHandlerObjek.adaError()):
             errorHandlerObjek.displayError()
-        else:
-            codegenObjek.proses(parserObjek.getTree())
-            if(errorHandlerObjek.adaError()):
-                errorHandlerObjek.displayError()
-            else:
-                konverterObjek.proses(p_namaFile, codegenObjek.getModul(), "")
-        pass
-    
-    # if(lekserProsesing is None):
-    #     tokens : list[Token] = lekserObjek.ambilTokens()
-    #     parserProsesing : str | None = parserObjek.proses(tokens)
-
-    #     if(parserProsesing is None):
-    #         pass
-        
-    #     else:
-    #         print(parserProsesing)
-    #         pass
-        
-    # #     # print("\n")
-    # for token in tokens:
-    #     print("[",token.tipe,":", token.nilai,"]")
-    #     if(token.tipe == tokenType.T_DLMR or token.tipe == tokenType.T_AKHR):
-    #         print("\n")
-    #         pass
-    #     # tokenizerProsesing : str|None = tokenizerObjek.proses(leksems)
-        
-    #     # if(tokenizerProsesing is None):
-    #     #     print(leksems)
-    #     #     print(tokenizerObjek.getTokens())
-            
-    #     # else:print(tokenizerProsesing)
-    
-    # else:print(lekserProsesing)
+        # else:
+        #     codegenObjek.proses(parserObjek.getTree())
+        #     if(errorHandlerObjek.adaError()):
+        #         errorHandlerObjek.displayError()
+        #     else:
+        #         # print(str(codegenObjek.modul))
+        #         konverterObjek.proses(p_namaFile, codegenObjek.getModul(), "")
+        # pass

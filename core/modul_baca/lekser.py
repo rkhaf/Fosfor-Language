@@ -72,9 +72,9 @@ class lekserClass:
         kedalamanMultiComment : int = 0
         invalidFlag : bool = False
         dotCount : int = 0
+        self.fileOriginal = p_fileMentahan #nyalin sourcecode
         
         while self.pointerIterator < len(p_fileMentahan):
-            self.fileOriginal = p_fileMentahan #nyalin sourcecode
             
             #ngesinkronin currentChar
             self.currentChar = self.fileOriginal[self.pointerIterator]
@@ -143,7 +143,7 @@ class lekserClass:
                     
                 else:
                     # selain elemen yg boleh dibaca berbarengan dgn numerik
-                    if(self.currentChar==" " or self.currentChar=="\n" or self.currentChar==grammar.KEYWORD_DLMR or self.currentChar in grammar.kurungList.keys() or self.currentChar in grammar.punctuationList.keys() or self.currentChar in grammar.operatorList.keys()):
+                    if(self.currentChar==" " or self.currentChar=="\n" or self.currentChar==grammar.KEYWORD_DLMR or self.currentChar in grammar.kurungList.keys() or self.currentChar in grammar.punctuationList.keys() or self.currentChar in grammar.operatorList.keys() or self.currentChar in grammar.perbandinganList.keys()):
                         # ngecek apkh udh diflag invalid apa nggk
                         if(invalidFlag):
                             # print("invld")
@@ -157,9 +157,10 @@ class lekserClass:
                             else:
                                 self.konversiDanPushKeToken(grammar.T_LITERAL_FLOAT)
                         self.gantiState(states.default)
-
+                    # elif(self.)
                     else:
                         # ngeflag token jdi invalid
+                        # self.gantiState(states.default)
                         invalidFlag=True
                         self.simpenCharKeTemp()
                         self.maju()

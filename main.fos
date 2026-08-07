@@ -1,12 +1,7 @@
 
 fungsi main isinya
-    bikin variabel namanya nil1 tipenya integer nilainya 1;
-    // bikin variabel namanya sixseven tipenya integer nilainya 67;
-    bikin variabel namanya nil2 tipenya integer nilainya 67;
-    // bikin variabel namanya nil2 tipenya string nilainya "1";
-    // bikin variabel namanya nil3 tipenya float nilainya 1.1;
-    // bikin variabel namanya varrheim tipenya integer nilainya 1;
-    // tampilin(2*2);
-    // bikin variabel namanya varryy tipenya integer nilainya varrheim;
-    tampilin(nil2);
+    tampilin(0>1);
+    // ngulangin selama (0<1) isinya
+    //     //PARSER GABISA BACA EKSPRESI PERBANDINGAN
+    // akhir
 akhir;

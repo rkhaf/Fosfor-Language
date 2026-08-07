@@ -564,6 +564,19 @@ class parserClass:
                 break
         return tempNode
     
+    def parsePerulanganSelama(self)->node.nodePerulanganSelama:
+        self.maju(2)
+        state : int = 0
+        while self.idxIterator<len(self.fullToken)-1:
+            if(state==0):
+                if(self.tokenSkrg.tipe==Ttype.T_PRTS_KIRI):
+                    state=1
+            
+            elif(state==1):
+                ekspresi = self.parseEkspresi()
+                pass
+            print(self.tokenSkrg)
+    
     def parseCodeContainer(self)->list[node.nodeClass]:
         """fungsi ini buat ngeparse barisan kode didalem scope (kyk isinya if, perulangan, fungsi, dll),
         returnnya sekumpulan node dari sekumpulan token yg udh dibaca
@@ -599,6 +612,9 @@ class parserClass:
                 
                 # case pola.POLA_KALAU_BRANCH:
                 #     temp : node.nodePanggilFungsi =
+                
+                case pola.POLA_PERULANGAN_SELAMA:
+                    temp : node.nodePerulanganSelama = self.parsePerulanganSelama()
                 
                 case [Ttype.T_AKHR,_]:
                     break
