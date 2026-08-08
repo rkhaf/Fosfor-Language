@@ -60,7 +60,6 @@ class LLVMMergerClass:
 
             # Eksekusi linker
             subprocess.run(cmd, check=True)
-            print(f"Berhasil nge-link! Executable terbuat di: {output_exe_path}")
 
         finally:
             # 5. BERSIH-BERSIH: Hapus file .o temporary biar gak nyampah di disk

@@ -110,25 +110,14 @@ class codeGeneratorClass:
     
     def baca_nodeBikinVariabel(self, p_nodeBikinVariabel : node.nodeBikinVariabel, p_scope : scopeClass)->None:
         if(not self.builder is None):
-            # if(p_nodeBikinVariabel.tipedataVariabel in [TIPEDATA_BOOLEAN, TIPEDATA_FLOAT, TIPEDATA_INTEGER, TIPEDATA_STRING])
             konversiTipedataVariabel : ir.Type = konvertClass.konversiTipedata(p_nodeBikinVariabel.tipedataVariabel)
-            # llvm_varRef = cast(ir.AllocaInstr, self.builder.alloca(konversiTipedataVariabel, name=p_nodeBikinVariabel.namaVariabel))
-            # if(type(p_nodeBikinVariabel.nilaiVariabel) in [node.nodeNomor, node.nodeString, node.nodeBoolean]):
-            
+
             nilaiVariabel : ir.Value | None = self.visit(p_nodeBikinVariabel.nilaiVariabel, p_scope) 
             
             llvm_alokasi : ir.AllocaInstr = cast(ir.AllocaInstr, self.builder.alloca(konversiTipedataVariabel, name=p_nodeBikinVariabel.namaVariabel)) #type:ignore
             
             self.builder.store(nilaiVariabel, llvm_alokasi) #type:ignore
-            # self.builder.store(ir.Constant(konversiTipedataVariabel, int(p_nodeBikinVariabel.nilaiVariabel.nilai)), llvm_varRef)
-            
-            # if(isinstance(p_nodeBikinVariabel.nilaiVariabel, node.nodeNomor)):
-            #     if(p_nodeBikinVariabel.tipedataVariabel==TIPEDATA_INTEGER):
-            #         self.builder.store(ir.Constant(konversiTipedataVariabel, int(p_nodeBikinVariabel.nilaiVariabel.nilai)), llvm_varRef)
-            #     else:
-            #         self.builder.store(ir.Constant(konversiTipedataVariabel, float(p_nodeBikinVariabel.nilaiVariabel.nilai)), llvm_varRef)
-            # else:raise Exception("TIPEDATA BLM DISUPPORT")
-            # print("nilai variabel: ",p_nodeBikinVariabel.nilaiVariabel)
+
             p_scope.addVariabel(p_nodeBikinVariabel.namaVariabel, llvm_alokasi)
         pass
     
@@ -245,10 +234,50 @@ class codeGeneratorClass:
         
         # raise Exception("STOPPER")
     
+    def baca_nodeBanding(self, p_nodeBanding : node.nodeBanding, p_scope : scopeClass)->ir.Value:
+        kiri = self.visit(p_nodeBanding.operand1, p_scope)
+        kanan = self.visit(p_nodeBanding.operand2, p_scope)
+        pass
+        return self.builder.icmp_signed(p_nodeBanding.operator.nilai, kiri, kanan, "opr_perbandingan")
+    
     def baca_nodeBalikin(self, p_nodeBalikin : node.nodeBalikin, p_scope : scopeClass)->ir.Value | None:
         # print(self.visit(p_nodeBalikin.returnEkspresi, p_scope))
         # raise Exception("[baca_nodeBalikin] STOPPER")
         return self.visit(p_nodeBalikin.returnEkspresi, p_scope)
+    
+    def baca_nodePenugasan(self, p_nodePenugasan : node.nodePenugasan, p_scope : scopeClass)->None:
+        llvm_nilai : ir.Instruction = self.visit(p_nodePenugasan.ekspresi, p_scope)
+        
+        if(isinstance(p_nodePenugasan.referensi, node.nodeIdentifier)):
+            namaIdtf : str = p_nodePenugasan.referensi.identifierToken
+            if(p_scope.cekVariabel(namaIdtf)):
+                llvm_alokaMem : ir.AllocaInstr = p_scope.getVariabel(namaIdtf)
+                self.builder.store(llvm_nilai, llvm_alokaMem)
+            else:
+                raise Exception("SAFEGUARD JEBOL, IDENTIFIER GK KETEMU")
+        else:
+            raise Exception("UNEXPECTED RESULT")
+    
+    def baca_nodePerulanganSelama(self, p_nodePerulanganSelama : node.nodePerulanganSelama, p_scope : scopeClass)->ir.Value | None:
+        if(not self.builder is None):
+            loop_cond = self.builder.function.append_basic_block("loop.cond") #type:ignore
+            loop_body = self.builder.function.append_basic_block("loop.body") #type:ignore
+            loop_end  = self.builder.function.append_basic_block("loop.end") #type:ignore
+            
+            self.builder.branch(loop_cond)
+            
+            self.builder.position_at_end(loop_cond)
+            cond_val = self.visit(p_nodePerulanganSelama.kondisi, p_scope)
+            self.builder.cbranch(cond_val, loop_body, loop_end)
+            
+            self.builder.position_at_end(loop_body)
+            for nodeKode in p_nodePerulanganSelama.isiLoop:
+                test = self.visit(nodeKode, p_scope)
+            
+            self.builder.branch(loop_cond)
+            self.builder.position_at_end(loop_end)
+
+        pass
     
     def proses(self, p_astReferensi : ASTClass)->None:
         nodeList : list[node.nodeClass] = p_astReferensi.getTree()

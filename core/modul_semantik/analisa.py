@@ -295,6 +295,12 @@ class semantikClass:
                 return TIPEDATA_EROR
         else:return TIPEDATA_EROR
 
+    def check_nodePenugasan(self, p_node: node.nodePenugasan, p_scope: scopeContainer)->None:
+        kanan = self.visit(p_node.ekspresi, p_scope)
+        kiri = self.visit(p_node.referensi, p_scope)
+        if(kiri!=kanan and not (kiri==TIPEDATA_EROR or kanan==TIPEDATA_EROR)):
+            self.errorHandlerObjek.tambahinError(__name__, 3, p_node.baris, p_bagian=f"{kiri} = {kanan}")
+        
     def registerFungsi(self, p_node : node.nodeBikinFungsi, p_rootScope: scopeContainer)->None:
         if(p_rootScope.cekFungsi(p_node.namaFungsi)):
             self.errorHandlerObjek.tambahinError(__name__, 14, p_node.baris, p_bagian=p_node.namaFungsi)

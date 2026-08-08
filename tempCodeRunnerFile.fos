@@ -1,1 +1,2 @@
-a
+abel namanya counter tipenya integer nilainya 0;
+    counter = 1;

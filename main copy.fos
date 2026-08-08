@@ -1,7 +1,7 @@
 
 fungsi main isinya
     bikin variabel namanya counter tipenya integer nilainya 0;
-    kalau (counter>10) isinya
-        tampilin(67);
+    ngulangin selama (counter<100000000) isinya
+        counter++;
     akhir
 akhir;

@@ -192,16 +192,16 @@ class nodeBanding(nodeEkspresi):
 class nodeAksesProperti(nodeEkspresi):
     def __init__(self, p_baris: int, p_kolom: int, p_tipe: datatypes) -> None:
         super().__init__(p_baris, p_kolom, p_tipe)
-        self.referensi : nodeIdentifier
+        self.objek : nodeIdentifier | nodeAksesProperti
         self.properti : nodeIdentifier
     
     def getDatas(self) -> dict[str, Any]:
-        return {"tipe" : "aksesProperti", "referensi" : self.referensi.identifierToken, "properti" : self.properti.identifierToken}
+        return {"tipe" : "aksesProperti", "properti" : self.properti.getDatas(), "objek" : self.objek.getDatas()}
 
 class nodePenugasan(nodeStatement):
     def __init__(self, p_baris: int, p_kolom: int) -> None:
         super().__init__(p_baris, p_kolom)
-        self.referensi : nodeIdentifier
+        self.referensi : nodeAksesProperti | nodeIdentifier
         self.ekspresi : nodeEkspresi
     
     def getDatas(self) -> dict[str, Any]:

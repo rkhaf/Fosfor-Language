@@ -640,33 +640,47 @@ class parserClass:
             # print(self.tokenSkrg)
         return tempNode
     
-    # def parseProperti(self)->node.nodeAksesProperti:
-        
-    
+    # def parseProperti(self, p_identifier : node.nodeIdentifier)->node.nodeAksesProperti:
+    #     # identifierParent : node.nodeIdentifier = node.nodeIdentifier(self.tokenSkrg)
+    #     # targetIdentifier : node.nodeIdentifier
+    #     self.maju(2)
+    #     tempNodeAkses : node.nodeAksesProperti = node.nodeAksesProperti(-1, -1, TIPEDATA_NULL)
+    #     tempNodeAkses.properti = node.nodeIdentifier(self.tokenSkrg)
+    #     tempNodeAkses.objek = p_identifier
+    #     # pass
+    #     while (self.tokenDepan.tipe in [Ttype.T_SYMBOL_TTIK, Ttype.T_SYMBOL_BRKT_KIRI]):
+    #         tempNodeAkses.objek = self.parseProperti(tempNodeAkses.properti)
+            
+    #     return tempNodeAkses
     def parseIdentifier(self)->node.nodePenugasan:
-        identifierReferensi : node.nodeIdentifier = node.nodeIdentifier(self.tokenSkrg)
-        tempNodePenugasan : node.nodePenugasan = node.nodePenugasan(self.tokenSkrg.baris, self.tokenSkrg.kolom)
-        tempNodePenugasan.referensi = identifierReferensi
+        parentIdentifier : node.nodeIdentifier = node.nodeIdentifier(self.tokenSkrg)
+
+        tempPenugasan : node.nodePenugasan = node.nodePenugasan(self.tokenSkrg.baris, self.tokenSkrg.kolom)
+        tempPenugasan.referensi = parentIdentifier
+        tempPenugasan.ekspresi = node.nodeEkspresi(-1, -1, TIPEDATA_NULL)
         
-        # temp : Any
-        # while (self.tokenDepan.tipe in [Ttype.T_SYMBOL_TTIK, Ttype.T_SYMBOL_BRKT_KIRI]):
-            # tempNodePenugasan.ekspresi = 
-            # if(self.tokenSkrg.tipe==Ttype.T_SYMBOL_TTIK):
-                # temp = self.parseIdentifier()
-        #     else:
-        #         self.maju()
+        test : node.nodeAksesProperti | node.nodeIdentifier = parentIdentifier
+        
+        while(self.tokenDepan.tipe in [Ttype.T_SYMBOL_TTIK]):
+            self.maju(2)
+            tempNodeAkses = node.nodeAksesProperti(self.tokenSkrg.baris, self.tokenSkrg.kolom, TIPEDATA_NULL)
+            tempNodeAkses.properti = node.nodeIdentifier(self.tokenSkrg)
+            tempNodeAkses.objek = test
+            test = tempNodeAkses
             
         self.maju()
         if(self.tokenSkrg.tipe==Ttype.T_SMDG):
-            self.maju()
-            getEkspr : node.nodeEkspresi | None = self.parseEkspresi()
-            if(not getEkspr is None):
-                tempNodePenugasan.ekspresi = getEkspr
-                
-            else:
-                raise Exception("STOPPER")
-        self.maju()
-        return tempNodePenugasan
+            self.maju(1)
+            tempPenugasan.referensi = test
+            getter : node.nodeEkspresi | None = self.parseEkspresi()
+            if(not getter is None):
+                tempPenugasan.ekspresi = getter
+        elif(self.tokenSkrg.tipe in [Ttype.T_ICRT, Ttype.T_DCRT]):
+            if(self.tokenSkrg.tipe==Ttype.T_ICRT):
+                tempPenugasan.ekspresi = node.nodeBiner(parentIdentifier, tokenClass(self.tokenSkrg.baris, self.tokenSkrg.kolom, Ttype.T_PLUS, "+"), node.nodeNomor(tokenClass(self.tokenSkrg.baris, self.tokenSkrg.kolom, Ttype.T_LITERAL_INT, "1"), TIPEDATA_INTEGER))
+            
+        self.maju(1)
+        return tempPenugasan
     
     def parseUnary(self)->node.nodeBiner:
         identifier : tokenClass = tokenClass(-1, -1, Ttype.T_EROR, "-1")
