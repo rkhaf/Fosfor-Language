@@ -37,12 +37,6 @@ class nodeRoot(nodeClass):
         self.nodeContainer : list[nodeClass] = []
         super().__init__(p_baris, p_kolom)
     
-    # def getDatas(self) -> dict[Any, Any]:
-    #     temp : dict[str, Any] = {}
-    #     for node in self.nodeContainer:
-    #             node.getDatas()
-        
-    #     return self.nodeContainer
 
 class nodeError(nodeClass):
     """
@@ -104,10 +98,6 @@ class nodeString(nodeEkspresi):
     
     def getDatas(self) -> dict[Any, Any]:
         return {"tipe" : "literal", "tipeNilai" : self.tipe.__repr__(), "nilai" : self.nilai}
-        # return {"tipe" : self.tipe.name, "nilai" : self.nilai}
-        
-    # def getRealDatas(self) -> dict[Any, Any]:
-    #     return {"tipe" : "literal", "tipeNilai" : self.tipe, "nilai" : self.nilai}
 
 class nodeBalikin(nodeStatement):
     def __init__(self, p_baris: int, p_kolom: int) -> None:
@@ -116,12 +106,6 @@ class nodeBalikin(nodeStatement):
     
     def getDatas(self) -> dict[Any, Any]:
         return {"tipe" : "pernyataanReturn", "nilai" : self.returnEkspresi.getDatas()}
-        # return {"ngereturn : " : self.returnEkspresi.getDatas()}
-        
-    # def getRealDatas(self) -> dict[str, nodeBalikin]:
-    # # def getRealDatas(self) -> dict[str, Any]:
-    #     return {"self":self}
-    #     # return {"tipe" : "pernyataanReturn", "nilai" : self.returnEkspresi.getRealDatas()}
 
 class nodeIdentifier(nodeEkspresi):
     """
@@ -157,7 +141,6 @@ class nodeInvalidEkspresi(nodeEkspresi):
     def __init__(self, p_token : tokenClass, p_tipedata : datatypes)->None:
         super().__init__(p_token.baris, p_token.kolom, p_tipedata)
 
-
 class nodeParameter(nodeEkspresi):
     """
     node buat ngecontain parameter
@@ -190,7 +173,40 @@ class nodeBiner(nodeEkspresi):
     
     def getDatas(self) -> dict[Any, Any]:
         return {"tipe" : "oprBiner", "operator" : self.operator, "kiri" : self.operand1.getDatas(), "kanan" : self.operand2.getDatas()}
+
+class nodeBanding(nodeEkspresi):
+    """
+    node buat ngecontain operasi biner
+    """
+    def __init__(self, p_operand1 : nodeEkspresi, p_operatorToken : tokenClass, p_operand2 : nodeEkspresi)->None:
+        self.operand1 : nodeEkspresi = p_operand1
+        self.operator : tokenClass = p_operatorToken
+        self.operand2 : nodeEkspresi = p_operand2
+        self.tipeData : datatypes = self.operand1.tipe
     
+        super().__init__(p_operatorToken.baris, p_operatorToken.kolom, self.tipeData)
+    
+    def getDatas(self) -> dict[Any, Any]:
+        return {"tipe" : "oprBanding", "operator" : self.operator.nilai, "kiri" : self.operand1.getDatas(), "kanan" : self.operand2.getDatas()}
+
+class nodeAksesProperti(nodeEkspresi):
+    def __init__(self, p_baris: int, p_kolom: int, p_tipe: datatypes) -> None:
+        super().__init__(p_baris, p_kolom, p_tipe)
+        self.referensi : nodeIdentifier
+        self.properti : nodeIdentifier
+    
+    def getDatas(self) -> dict[str, Any]:
+        return {"tipe" : "aksesProperti", "referensi" : self.referensi.identifierToken, "properti" : self.properti.identifierToken}
+
+class nodePenugasan(nodeStatement):
+    def __init__(self, p_baris: int, p_kolom: int) -> None:
+        super().__init__(p_baris, p_kolom)
+        self.referensi : nodeIdentifier
+        self.ekspresi : nodeEkspresi
+    
+    def getDatas(self) -> dict[str, Any]:
+        return {"tipe" : "statementPenugasan", "referensi" : self.referensi.getDatas(), "ekspresi" : self.ekspresi.getDatas()}
+
 class nodeBikinVariabel(nodeStatement):
     """
     node representasi utk bikin variabel
@@ -230,7 +246,6 @@ class nodePanggilFungsi(nodeEkspresi):
     
     def __repr__(self) -> str:
         return str(self.getDatas())
-        
 
 class nodeBikinFungsi(nodeStatement):
     """
@@ -273,4 +288,4 @@ class nodePerulanganSelama(nodeStatement):
         for node in self.isiLoop:
             temp1.append(node.getDatas())
             
-        return {"tipe" : "statementPerulangan", "kondisi" : self.kondisi.getDatas(), "badan" : temp1}
+        return {"tipe" : "statementPerulanganSelama", "kondisi" : self.kondisi.getDatas(), "badan" : temp1}

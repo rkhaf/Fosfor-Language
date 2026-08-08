@@ -11,6 +11,8 @@ from enum import Enum
 from metadata.datatypeClass import datatypesFactory
 from metadata.datatypeClass import TIPEDATA_NULL
 from metadata.datatypeClass import TIPEDATA_VOID
+from metadata.datatypeClass import TIPEDATA_INTEGER
+from typing import Any
 import copy
 
 class states(Enum):
@@ -61,7 +63,7 @@ class parserClass:
         if(self.tokenSkrg.tipe==Ttype.T_LITERAL_FLOAT or self.tokenSkrg.tipe==Ttype.T_LITERAL_INT):
             if(not self.parseEkspresiInvalidFlag):
                 tempToken = self.tokenSkrg
-                if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN, Ttype.T_SYMBOL_KOMA]):
+                if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.perbandinganList.values() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN, Ttype.T_SYMBOL_KOMA]):
                     if(self.idxIterator==len(self.fullToken)-1):
                         tempLastValidToken = self.fullToken[self.idxIterator]
                         self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=9, p_baris=tempLastValidToken.baris, p_kolom=tempLastValidToken.kolom)
@@ -87,7 +89,7 @@ class parserClass:
         elif(self.tokenSkrg.tipe==Ttype.T_LITERAL_STR):
             if(not self.parseEkspresiInvalidFlag):
                 tempToken = self.tokenSkrg
-                if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN, Ttype.T_SYMBOL_KOMA]):
+                if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.perbandinganList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN, Ttype.T_SYMBOL_KOMA]):
                     self.maju()
                 return node.nodeString(tempToken, datatypesFactory.konversi(tempToken.tipe))
                 # return node.nodeString(tempToken)
@@ -98,7 +100,7 @@ class parserClass:
         elif(self.tokenSkrg.tipe==Ttype.T_LITERAL_BOOL):
             if(not self.parseEkspresiInvalidFlag):
                 tempToken = self.tokenSkrg
-                if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN, Ttype.T_SYMBOL_KOMA]):
+                if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.perbandinganList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN, Ttype.T_SYMBOL_KOMA]):
                     self.maju()
                 return node.nodeBoolean(tempToken, datatypesFactory.konversi(tempToken.tipe))
                 # return node.nodeBoolean(tempToken)
@@ -109,7 +111,7 @@ class parserClass:
         elif(self.tokenSkrg.tipe==Ttype.T_IDTF):
             if(not self.parseEkspresiInvalidFlag):
                 tempToken = self.tokenSkrg
-                if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN, Ttype.T_SYMBOL_KOMA]):
+                if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.perbandinganList.values() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN, Ttype.T_SYMBOL_KOMA]):
                     self.maju()
                 # print("parseFaktor, identifier",datatypesFactory.konversi(tempToken.tipe))
                 return node.nodeIdentifier(tempToken)
@@ -171,6 +173,44 @@ class parserClass:
         if(not nodeKiri is None):
             return nodeKiri
         else:return None
+        
+    def parseAditif(self)->node.nodeEkspresi | None:
+        nodeKiri = self.parseTerm()
+        
+        while self.tokenSkrg.tipe==Ttype.T_PLUS or self.tokenSkrg.tipe==Ttype.T_MINS:
+            if(self.tokenDepan.tipe==Ttype.T_IDTF or self.tokenDepan.tipe in grammar.literalList.values() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
+                operator = self.tokenSkrg
+                self.maju()
+                nodeKanan = self.parseTerm()
+                if((not nodeKanan is None) and (not nodeKiri is None)):
+                    nodeKiri = node.nodeBiner(nodeKiri, operator, nodeKanan)
+            else:
+                self.parseEkspresiInvalidFlag=True
+                self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=13, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenDepan.nilai)
+                break
+        if(not nodeKiri is None):
+            return nodeKiri
+        else:
+            return None
+    
+    def parsePerbandingan(self)-> node.nodeEkspresi | None:
+        nodeKiri = self.parseAditif()
+        
+        while self.tokenSkrg.tipe in [Ttype.T_CMPR_KCIL, Ttype.T_CMPR_GSMA, Ttype.T_CMPR_BSAR, Ttype.T_CMPR_SAMA, Ttype.T_CMPR_SBSR, Ttype.T_CMPR_SKCL]:
+            if(self.tokenDepan.tipe==Ttype.T_IDTF or self.tokenDepan.tipe in grammar.literalList.values() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
+                operator = self.tokenSkrg
+                self.maju()
+                nodeKanan = self.parseAditif()
+                if((not nodeKanan is None) and (not nodeKiri is None)):
+                    nodeKiri = node.nodeBanding(nodeKiri, operator, nodeKanan)
+            else:
+                self.parseEkspresiInvalidFlag=True
+                self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=13, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenDepan.nilai)
+                break
+        if(not nodeKiri is None):
+            return nodeKiri
+        else:
+            return None
     
     def parseEkspresi(self)->node.nodeEkspresi | None:
         """fungsi ini buat ngeparse bentuk ekspresi apapun,
@@ -182,23 +222,8 @@ class parserClass:
                 return self.parsePanggilFungsi()
             
             case _:
-                nodeKiri = self.parseTerm()
-                
-                while self.tokenSkrg.tipe==Ttype.T_PLUS or self.tokenSkrg.tipe==Ttype.T_MINS:
-                    if(self.tokenDepan.tipe==Ttype.T_IDTF or self.tokenDepan.tipe in grammar.literalList.values() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
-                        operator = self.tokenSkrg
-                        self.maju()
-                        nodeKanan = self.parseTerm()
-                        if((not nodeKanan is None) and (not nodeKiri is None)):
-                            nodeKiri = node.nodeBiner(nodeKiri, operator, nodeKanan)
-                    else:
-                        self.parseEkspresiInvalidFlag=True
-                        self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=13, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenDepan.nilai)
-                        break
-                if(not nodeKiri is None):
-                    return nodeKiri
-                else:
-                    return None
+                return self.parsePerbandingan()
+
         
     def parseParameter(self)->list[node.nodeParameter]:
         """fungsi ini cmn ditujuin buat parameter bikin fungsi utk bagian pembacaan parameter
@@ -380,6 +405,7 @@ class parserClass:
                         self.maju()
                         
                     elif(self.tokenSkrg.tipe==Ttype.T_DLMR): #type: ignore
+                        # self.maju()
                         break
 
                     elif(self.tokenSkrg.tipe==Ttype.T_BKIN):
@@ -567,35 +593,174 @@ class parserClass:
     def parsePerulanganSelama(self)->node.nodePerulanganSelama:
         self.maju(2)
         state : int = 0
+        
+        tempNode : node.nodePerulanganSelama = node.nodePerulanganSelama(self.tokenSkrg.baris, self.tokenSkrg.kolom)
+        
+        # kondisiLoop : node.nodeEkspresi
+        
         while self.idxIterator<len(self.fullToken)-1:
             if(state==0):
-                if(self.tokenSkrg.tipe==Ttype.T_PRTS_KIRI):
-                    state=1
+                
+                if(self.tokenBlkng.tipe==Ttype.T_SLMA):
+                    if(self.tokenSkrg.tipe==Ttype.T_PRTS_KIRI):
+                        state=1
+                    else:
+                        self.errorHandlerObjek.tambahinError(__name__, 16, self.tokenSkrg.baris, self.tokenSkrg.kolom, self.tokenSkrg.nilai)
+                        self.maju()
+                
+                elif(self.tokenSkrg.tipe==Ttype.T_ISNY):
+                    state=2
+                
+                elif(self.tokenSkrg.tipe==Ttype.T_AKHR):
+                    state=3
+                
+                else:
+                    self.maju()
             
             elif(state==1):
-                ekspresi = self.parseEkspresi()
+                getter : node.nodeEkspresi | None = self.parseEkspresi()
+                if(not getter is None):
+                    # kondisiLoop = getter
+                    tempNode.kondisi = getter
+                    
+                self.maju()
+                state = 0
+            
+            elif(state==2):
+                # isiLoop = self.parseCodeContainer()
+                self.maju()
+                tempNode.isiLoop = self.parseCodeContainer()
+                state = 0
                 pass
-            print(self.tokenSkrg)
+                
+            elif(state==3):
+                self.maju()
+                break
+            
+            # print(self.tokenSkrg)
+        return tempNode
+    
+    # def parseProperti(self)->node.nodeAksesProperti:
+        
+    
+    def parseIdentifier(self)->node.nodePenugasan:
+        identifierReferensi : node.nodeIdentifier = node.nodeIdentifier(self.tokenSkrg)
+        tempNodePenugasan : node.nodePenugasan = node.nodePenugasan(self.tokenSkrg.baris, self.tokenSkrg.kolom)
+        tempNodePenugasan.referensi = identifierReferensi
+        
+        # temp : Any
+        # while (self.tokenDepan.tipe in [Ttype.T_SYMBOL_TTIK, Ttype.T_SYMBOL_BRKT_KIRI]):
+            # tempNodePenugasan.ekspresi = 
+            # if(self.tokenSkrg.tipe==Ttype.T_SYMBOL_TTIK):
+                # temp = self.parseIdentifier()
+        #     else:
+        #         self.maju()
+            
+        self.maju()
+        if(self.tokenSkrg.tipe==Ttype.T_SMDG):
+            self.maju()
+            getEkspr : node.nodeEkspresi | None = self.parseEkspresi()
+            if(not getEkspr is None):
+                tempNodePenugasan.ekspresi = getEkspr
+                
+            else:
+                raise Exception("STOPPER")
+        self.maju()
+        return tempNodePenugasan
+    
+    def parseUnary(self)->node.nodeBiner:
+        identifier : tokenClass = tokenClass(-1, -1, Ttype.T_EROR, "-1")
+        tokenOperator : tokenClass = tokenClass(-1, -1, Ttype.T_EROR, "-1")
+        
+        tokenBwtLiteral : tokenClass = tokenClass(-1, -1, Ttype.T_EROR, "-1")
+        nodeLiteral : node.nodeNomor = node.nodeNomor(tokenClass(-1, -1, Ttype.T_EROR, "-1"), TIPEDATA_INTEGER)
+        nodeIdentifier : node.nodeIdentifier = node.nodeIdentifier(tokenClass(-1, -1, Ttype.T_EROR, "-1"))
+        
+        state = 0
+        invalidFlag : bool = False
+        delimiterError : bool = False
+        while self.idxIterator<len(self.fullToken)-1:
+            
+            if(state==0):
+                
+                if(self.tokenSkrg.tipe in [Ttype.T_IDTF, Ttype.T_IVTF]):state=1
+                elif(self.tokenSkrg.tipe==Ttype.T_ICRT):state=2
+                elif(self.tokenSkrg.tipe==Ttype.T_DCRT):state=3
+                elif(self.tokenSkrg.tipe==Ttype.T_DLMR):
+                    # self.maju()
+                    break
+                elif(self.tokenSkrg.tipe in grammar.keywordList.values()):
+                    invalidFlag = True
+                    delimiterError = True
+                    self.errorHandlerObjek.tambahinError(__name__, 19, self.tokenSkrg.baris, self.tokenSkrg.kolom, f"{self.tokenSkrg.nilai}{self.tokenDepan.nilai}")
+                    break
+                
+                else:
+                    invalidFlag = True
+                    self.errorHandlerObjek.tambahinError(__name__, 18, self.tokenSkrg.baris, self.tokenSkrg.kolom, f"{self.tokenSkrg.nilai}{self.tokenDepan.nilai}")
+                    self.maju()
+                    # print("invalid")
+                    # break
+                    
+            elif(state==1):
+                if(self.tokenSkrg.tipe in [Ttype.T_IDTF, Ttype.T_IVTF]):
+                    identifier = self.tokenSkrg
+                    self.maju()
+                else:
+                    state=0
+            
+            elif(state==2):
+                if(self.tokenSkrg.tipe==Ttype.T_ICRT):
+                    tokenOperator = tokenClass(self.tokenSkrg.baris, self.tokenSkrg.kolom, Ttype.T_PLUS, "+")
+                    self.maju()
+                else:
+                    state=0
+            
+            elif(state==3):
+                if(self.tokenSkrg.tipe==Ttype.T_DCRT):
+                    tokenOperator = tokenClass(self.tokenSkrg.baris, self.tokenSkrg.kolom, Ttype.T_MINS, "-")
+                    self.maju()
+                else:
+                    state=0
+        
+        # if(not tokenOperator is None and not identifier is None):
+        if(not invalidFlag):
+            tokenBwtLiteral = tokenClass(tokenOperator.baris, tokenOperator.kolom, Ttype.T_LITERAL_INT, "1")
+            nodeLiteral = node.nodeNomor(tokenBwtLiteral, TIPEDATA_INTEGER)
+            nodeIdentifier = node.nodeIdentifier(identifier)
+            
+            tempNodeBiner : node.nodeBiner = node.nodeBiner(nodeIdentifier, tokenOperator, nodeLiteral)
+            return tempNodeBiner
+        else:
+            if(delimiterError):
+                self.mundur()
+            return node.nodeBiner(node.nodeEkspresi(-1, -1, TIPEDATA_NULL), tokenClass(-1, -1, Ttype.T_EROR, "-1"), node.nodeEkspresi(-1, -1, TIPEDATA_NULL))
+        # else:raise Exception("UNEXPECTED ERROR")
     
     def parseCodeContainer(self)->list[node.nodeClass]:
         """fungsi ini buat ngeparse barisan kode didalem scope (kyk isinya if, perulangan, fungsi, dll),
         returnnya sekumpulan node dari sekumpulan token yg udh dibaca
         """
         kumpulanNode : list[node.nodeClass] = []
+        tokensGkDikenal : list[list[tokenClass]] = []
+        tempTokensGkDikenal : list[tokenClass] = []
         
         while self.idxIterator<len(self.fullToken)-1:
             tempNode : node.nodeClass | None = None
             self.refresh()
             match [self.tokenSkrg.tipe, self.tokenDepan.tipe]:
+                
                 case pola.POLA_BIKIN_VARIABEL:
+                    if(len(tempTokensGkDikenal)>0):
+                        tokensGkDikenal.append(copy.copy(tempTokensGkDikenal))
+                        tempTokensGkDikenal.clear()
                     tempNode = self.parseBikinVariabel()
                     pass
                 
-                case pola.POLA_BIKIN_FUNGSI:
-                    tempNode = self.parseBikinFungsi()
-                    pass
-                
                 case [Ttype.T_BLKN,_]:
+                    if(len(tempTokensGkDikenal)>0):
+                        tokensGkDikenal.append(copy.copy(tempTokensGkDikenal))
+                        tempTokensGkDikenal.clear()
                     self.maju()
                     tempNodeReturn : node.nodeBalikin = node.nodeBalikin(self.tokenSkrg.baris, self.tokenSkrg.baris)
                     tempEkspresi : node.nodeEkspresi | None = self.parseEkspresi()
@@ -606,26 +771,58 @@ class parserClass:
                     pass
                 
                 case pola.POLA_PANGGIL_FUNGSI:
+                    if(len(tempTokensGkDikenal)>0):
+                        tokensGkDikenal.append(copy.copy(tempTokensGkDikenal))
+                        tempTokensGkDikenal.clear()
                     temp : node.nodePanggilFungsi  = self.parsePanggilFungsi()
                     kumpulanNode.append(copy.deepcopy(temp))
                     pass
-                
-                # case pola.POLA_KALAU_BRANCH:
-                #     temp : node.nodePanggilFungsi =
-                
+
                 case pola.POLA_PERULANGAN_SELAMA:
+                    if(len(tempTokensGkDikenal)>0):
+                        tokensGkDikenal.append(copy.copy(tempTokensGkDikenal))
+                        tempTokensGkDikenal.clear()
                     temp : node.nodePerulanganSelama = self.parsePerulanganSelama()
+                    kumpulanNode.append(temp)
                 
                 case [Ttype.T_AKHR,_]:
+                    if(len(tempTokensGkDikenal)>0):
+                        tokensGkDikenal.append(copy.copy(tempTokensGkDikenal))
+                        tempTokensGkDikenal.clear()
                     break
                 
+                case [Ttype.T_IDTF, _]:
+                    if(len(tempTokensGkDikenal)>0):
+                        tokensGkDikenal.append(copy.copy(tempTokensGkDikenal))
+                        tempTokensGkDikenal.clear()
+                    temp : node.nodePenugasan = self.parseIdentifier()
+                    kumpulanNode.append(temp)
+                
+                # case [_,Ttype.T_ICRT | Ttype.T_DCRT]:
+                #     if(len(tempTokensGkDikenal)>0):
+                #         tokensGkDikenal.append(copy.copy(tempTokensGkDikenal))
+                #         tempTokensGkDikenal.clear()
+                        
+                #     # if(self.tokenSkrg.tipe in [Ttype.T_IVTF, Ttype.T_IDTF]):
+                #     test = self.parseUnary()
+                #     kumpulanNode.append(test)
+                
                 case _:
+                    tempTokensGkDikenal.append(self.tokenSkrg)
+                    # tokensGkDikenal.append(self.tokenSkrg)
                     pass
                 
             if(not tempNode is None):
                 kumpulanNode.append(tempNode)
             if(self.idxIterator<len(self.fullToken)-1):
                 self.maju()
+        if(len(tokensGkDikenal)>0):
+            for listToken in tokensGkDikenal:
+                    if(listToken[0].baris!=listToken[-1].baris):
+                        self.errorHandlerObjek.tambahinError(p_kelas=__name__,\
+                            p_kodeError=17, p_baris=listToken[0].baris, p_bagian=f"mulai dari ({listToken[0].nilai}) sampe ({listToken[-1].nilai}) baris : {listToken[-1].baris} kolom : "+str(listToken[-1].kolom-(listToken[-1].getValueLength() if listToken[-1].getValueLength()>1 else 0)))
+                    else:
+                        self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=17, p_baris=listToken[0].baris, p_bagian=f"mulai dari ({listToken[0].nilai}) sampe ({listToken[-1].nilai})")
         return kumpulanNode
 
     def parseGlobal(self)->None:
@@ -656,9 +853,11 @@ class parserClass:
                         self.maju(3)
                         pass
                         tempNode.isiFungsi = self.parseCodeContainer()
+                        # self.maju()
                     else:
                         raise Exception("APENI WOI")
                     pass
+                
                 case _:
                     outerScopeRecorder.append(self.tokenSkrg)
                     outerScopeFlag=True

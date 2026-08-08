@@ -52,6 +52,10 @@ class errorHandlerClass:
                 13 : "operand kanan invalid",
                 14 : "ngodonf nya didlm fungsi loh yh, jgn ditaroh diluar gtu",
                 15 : "kodenya gaada entry point, nambahin fungsi main dulu sana",
+                16 : "ekspresinya harap dikurung pke parantesis yh",
+                17 : "kodenya invalid twin, cona cek lagi ada yg salah apa egk",
+                18 : "inkrementalnya invalid, harap cek lgi",
+                19 : "kyknya statementnya blm ditutup make ';' ",
             },
             grammar.MODUL_PATH_SMTK : {
                 1 : "variabelnya ga ketemu, coba cek lagi udh dibikin apa blom",
@@ -72,6 +76,7 @@ class errorHandlerClass:
                 16 : "fungsi tsb tipenya void, hrusnya ga ngebalikin apa apa",
                 17 : "fungsi tsb gak ngereturn apa apa, coba balikin sesuatu di fungsi tsb",
                 18 : "return fungsi tsb gak sesuai sama tipedatanya le, cek lg dh",
+                19 : "operasi perbandingan tpi tipedatanya gasama",
             }
         }
     

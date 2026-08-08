@@ -1,7 +1,10 @@
 
 fungsi main isinya
-    tampilin(0>1);
-    // ngulangin selama (0<1) isinya
-    //     //PARSER GABISA BACA EKSPRESI PERBANDINGAN
+    // tampilin(0+1*0/1);
+    // bikin variabel namanya counter tipenya integer nilainya 0;
+    counter = 1;
+    // ngulangin selama (counter<100) isinya 
+    //     tampilin(12+23);
+    //     fosforius--;
     // akhir
 akhir;

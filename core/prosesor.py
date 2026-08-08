@@ -31,8 +31,8 @@ def run(fileOriginal : str, p_namaFile : str) -> None:
     else:
         parserObjek.getTree().printTree()
         # semantikObjek.proses(parserObjek.getTree())
-        if(errorHandlerObjek.adaError()):
-            errorHandlerObjek.displayError()
+        # if(errorHandlerObjek.adaError()):
+        #     errorHandlerObjek.displayError()
         # else:
         #     codegenObjek.proses(parserObjek.getTree())
         #     if(errorHandlerObjek.adaError()):
