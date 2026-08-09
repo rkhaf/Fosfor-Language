@@ -300,7 +300,24 @@ class semantikClass:
         kiri = self.visit(p_node.referensi, p_scope)
         if(kiri!=kanan and not (kiri==TIPEDATA_EROR or kanan==TIPEDATA_EROR)):
             self.errorHandlerObjek.tambahinError(__name__, 3, p_node.baris, p_bagian=f"{kiri} = {kanan}")
+
+    def check_nodeKalau(self, p_node: node.nodeKalau, p_scope: scopeContainer)->None:
+        banding : datatypes = self.visit(p_node.kondisi, p_scope)
         
+        if(banding!=TIPEDATA_BOOLEAN):
+            self.errorHandlerObjek.tambahinError(__name__, 20, p_node.baris)
+        
+        for isiNode in p_node.isiKalau:
+            self.visit(isiNode, p_scope)
+            
+        for isiNode in p_node.isiElse:
+            self.visit(isiNode, p_scope)
+            
+        for isiNode in p_node.listElif:
+            self.visit(isiNode, p_scope)
+        
+        pass
+
     def registerFungsi(self, p_node : node.nodeBikinFungsi, p_rootScope: scopeContainer)->None:
         if(p_rootScope.cekFungsi(p_node.namaFungsi)):
             self.errorHandlerObjek.tambahinError(__name__, 14, p_node.baris, p_bagian=p_node.namaFungsi)

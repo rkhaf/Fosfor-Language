@@ -56,6 +56,7 @@ class errorHandlerClass:
                 17 : "kodenya invalid twin, cona cek lagi ada yg salah apa egk",
                 18 : "inkrementalnya invalid, harap cek lgi",
                 19 : "kyknya statementnya blm ditutup make ';' ",
+                20 : "'kalau misal' tu bergantung sma 'kalau', jdi bikin dibikin dulu coba",
             },
             grammar.MODUL_PATH_SMTK : {
                 1 : "variabelnya ga ketemu, coba cek lagi udh dibikin apa blom",
@@ -77,6 +78,7 @@ class errorHandlerClass:
                 17 : "fungsi tsb gak ngereturn apa apa, coba balikin sesuatu di fungsi tsb",
                 18 : "return fungsi tsb gak sesuai sama tipedatanya le, cek lg dh",
                 19 : "operasi perbandingan tpi tipedatanya gasama",
+                20 : "ekspresi kondisinya hrus bernilai boolean",
             }
         }
     

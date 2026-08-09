@@ -58,9 +58,14 @@ class LLVMMergerClass:
                     output_exe_path,
                 ]
 
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            if result.returncode != 0:
+                print("=== G++ ERROR LOG ===")
+                print(result.stderr)
+                raise RuntimeError(f"G++ Linking Failed:\n{result.stderr}")
+            
             # Eksekusi linker
             subprocess.run(cmd, check=True)
-
         finally:
             # 5. BERSIH-BERSIH: Hapus file .o temporary biar gak nyampah di disk
             if os.path.exists(temp_obj_path):

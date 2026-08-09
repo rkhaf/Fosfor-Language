@@ -1,23 +1,19 @@
-
 fungsi main isinya
-    bikin variabel namanya counter tipenya integer nilainya 0;
-    kalau (counter>10) isinya
-        tampilin(67);
-        // kalau (counter>12) isinya
-        //     // tampilin(99);
-        //     counter++;
-        // akhir
-        // kalau nggak isinya
-        //     tampilin(0);
-        // akhir
+    bikin variabel namanya total tipenya integer nilainya 0;
+    bikin variabel namanya i tipenya integer nilainya 0;
+    bikin variabel namanya j tipenya integer nilainya 0;
+
+    ngulangin selama (i < 10) isinya
+        j = 0;
+        
+        ngulangin selama (j < 10) isinya
+            total++;
+            j++;
+        akhir
+        
+        i++;
     akhir
-    kalau misal (counter>5) isinya
-        tampilin(123);
-        // kalau (counter<1) isinya 
-        //     tampilin(444);
-        // akhir
-    akhir
-    kalau nggak isinya
-        tampilin(3636);
-    akhir
+
+    // Print sekali aja di luar loop biar gak ke-choke I/O
+    tampilin(total);
 akhir;

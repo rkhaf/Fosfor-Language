@@ -612,7 +612,8 @@ class parserClass:
                     state=2
                 
                 elif(self.tokenSkrg.tipe==Ttype.T_AKHR):
-                    state=3
+                    # state=3
+                    break
                 
                 else:
                     self.maju()
@@ -633,9 +634,9 @@ class parserClass:
                 state = 0
                 pass
                 
-            elif(state==3):
-                self.maju()
-                break
+            # elif(state==3):
+            #     self.maju()
+            #     break
             
             # print(self.tokenSkrg)
         return tempNode
@@ -740,10 +741,44 @@ class parserClass:
         # else:raise Exception("UNEXPECTED ERROR")
     
     def parseKalauMisal(self)->node.nodeKalau:
-        pass
+        tempNodeKalau : node.nodeKalau = node.nodeKalau(self.tokenSkrg.baris, self.tokenSkrg.kolom)
+        state : int = 0
+        self.maju()
+        while self.idxIterator<len(self.fullToken)-1:
+            if(state==0):
+                
+                if(self.tokenSkrg.tipe==Ttype.T_MSAL):
+                    state=1
+                
+                elif(self.tokenSkrg.tipe==Ttype.T_ISNY):
+                    state=2
+                    
+                # elif(self.tokenSkrg.tipe==Ttype.T_AKHR):
+                #     break
+                    
+            elif(state==1):
+                self.maju()
+                if(self.tokenSkrg.tipe!=Ttype.T_PRTS_KIRI):
+                    self.errorHandlerObjek.tambahinError(__name__, 16, self.tokenSkrg.baris, self.tokenSkrg.kolom, self.tokenSkrg.nilai)
+                else:
+                    getter : None | node.nodeEkspresi = self.parseEkspresi()
+                    if(not getter is None):
+                        tempNodeKalau.kondisi = getter
+                self.maju()
+                state=0
+                
+            elif(state==2):
+                self.maju()
+                getter : None | list[node.nodeClass] = self.parseCodeContainer()
+                if(not getter is None):
+                    tempNodeKalau.isiKalau = getter
+                # state=0
+                break
+                
+        return tempNodeKalau
     
     def parseKalau(self)->node.nodeKalau:
-        print("kalau dibaris",self.tokenSkrg.baris)
+        # print("kalau dibaris",self.tokenSkrg.baris)
         tempNodeKalau : node.nodeKalau = node.nodeKalau(self.tokenSkrg.baris, self.tokenSkrg.kolom)
         state:int=0
         
@@ -753,8 +788,12 @@ class parserClass:
                     if(self.tokenDepan.tipe==Ttype.T_PRTS_KIRI):
                         state=1
                     elif(self.tokenDepan.tipe==Ttype.T_MSAL):
-                        self.maju()
-                        state=1
+                        reader : node.nodeKalau | None = self.parseKalauMisal()
+                        if(not reader is None):
+                            tempNodeKalau.listElif.append(reader)
+                        pass
+                    elif(self.tokenDepan.tipe==Ttype.T_NGGK):
+                        state=3
                     else:
                         self.errorHandlerObjek.tambahinError(__name__, 16, self.tokenSkrg.baris, self.tokenSkrg.kolom, self.tokenSkrg.nilai)
                         break
@@ -762,37 +801,41 @@ class parserClass:
                 elif(self.tokenSkrg.tipe==Ttype.T_ISNY):
                     state=2
                 
-                elif (self.tokenSkrg.tipe==Ttype.T_AKHR):
-                    if(self.tokenDepan.tipe==Ttype.T_KLAU):
-                        self.maju()
-                        if(self.tokenDepan.tipe==Ttype.T_MSAL):
-                            # print("ketemu elif")
-                            reader : node.nodeKalau | None = self.parseKalau()
-                            if(not reader is None):
-                                tempNodeKalau.listElif.append(reader)
-                            pass
-                        elif(self.tokenDepan.tipe==Ttype.T_NGGK):
-                            self.maju(3)
-                            test = self.parseCodeContainer()
-                            tempNodeKalau.isiElse = test
-                            # state=0
-                            # self.maju()
-                            # self.mundur()
-                            pass
-                            break
-                            # reader : node.nodeKalau | None = self.parseKalau()
-                            # if(not reader is None):
-                            #     tempNodeKalau.el
-                        else:
-                            self.mundur()
-                            self.maju()
-                            break
-                    else:
-                        self.maju()
-                        break
-                elif(self.tokenSkrg.tipe==Ttype.T_MSAL):
-                    self.maju()
-            
+                # elif(self.tokenSkrg.tipe==Ttype.T_AKHR):
+                #     break
+                else:
+                    break
+                    # print(self.tokenSkrg)
+                    # raise Exception("unexpected token")
+                
+                # elif (self.tokenSkrg.tipe==Ttype.T_AKHR):
+                #     if(self.tokenDepan.tipe==Ttype.T_KLAU):
+                #         self.maju()
+                #         if(self.tokenDepan.tipe==Ttype.T_MSAL):
+                #             # print("ketemu elif")
+                #             reader : node.nodeKalau | None = self.parseKalauMisal()
+                #             if(not reader is None):
+                #                 tempNodeKalau.listElif.append(reader)
+                #             pass
+                #         elif(self.tokenDepan.tipe==Ttype.T_NGGK):
+                #             self.maju(3)
+                #             test = self.parseCodeContainer()
+                #             tempNodeKalau.isiElse = test
+                #             pass
+                #             break
+                #             # reader : node.nodeKalau | None = self.parseKalau()
+                #             # if(not reader is None):
+                #             #     tempNodeKalau.el
+                #         else:
+                #             self.mundur()
+                #             self.maju()
+                #             break
+                #     else:
+                #         self.maju()
+                #         break
+                # elif(self.tokenSkrg.tipe==Ttype.T_MSAL):
+                #     self.maju()
+            #state baca kondisi
             elif(state==1):
                 self.maju()
                 getter : node.nodeEkspresi | None = self.parseEkspresi()
@@ -801,13 +844,24 @@ class parserClass:
                 self.maju()
                 state=0
                 pass
+            
+            #state baca isi branch
             elif(state==2):
                 self.maju()
                 getList = self.parseCodeContainer()
                 if(len(getList)>0):
                     tempNodeKalau.isiKalau = getList
                 state=0
-        print("return kalaunya baris",tempNodeKalau.baris)
+            
+            #state baca else
+            elif(state==3):
+                self.maju(3)
+                test = self.parseCodeContainer()
+                tempNodeKalau.isiElse = test
+                pass
+                break
+        # print("return kalaunya baris",tempNodeKalau.baris)
+        self.mundur()
         return tempNodeKalau
     
     def parseCodeContainer(self)->list[node.nodeClass]:
@@ -817,7 +871,7 @@ class parserClass:
         kumpulanNode : list[node.nodeClass] = []
         tokensGkDikenal : list[list[tokenClass]] = []
         tempTokensGkDikenal : list[tokenClass] = []
-        print("parsing container",self.tokenSkrg.baris, self.tokenSkrg.nilai)
+        # print("parsing container",self.tokenSkrg.baris, self.tokenSkrg.nilai)
         
         while self.idxIterator<len(self.fullToken)-1:
             tempNode : node.nodeClass | None = None
@@ -863,6 +917,7 @@ class parserClass:
                     if(len(tempTokensGkDikenal)>0):
                         tokensGkDikenal.append(copy.copy(tempTokensGkDikenal))
                         tempTokensGkDikenal.clear()
+                    self.maju()
                     break
                 
                 case [Ttype.T_IDTF, _]:
@@ -872,12 +927,31 @@ class parserClass:
                     temp : node.nodePenugasan = self.parseIdentifier()
                     kumpulanNode.append(temp)
                 
+                case [Ttype.T_KLAU, Ttype.T_NGGK]:
+                    tempStore : list[tokenClass] = []
+                    while self.idxIterator<len(self.fullToken)-1 and not self.tokenSkrg.tipe in [Ttype.T_AKHR]:
+                        tempStore.append(self.tokenSkrg)
+                        self.maju()
+                    self.errorHandlerObjek.tambahinError(__name__, 20, tempStore[0].baris, tempStore[0].kolom, f"({tempStore[0].nilai}) sampe ({tempStore[-1].nilai})")
+                    pass
+                
+                case [Ttype.T_KLAU, Ttype.T_MSAL]:
+                    tempStore : list[tokenClass] = []
+                    while self.idxIterator<len(self.fullToken)-1 and not self.tokenSkrg.tipe in [Ttype.T_AKHR]:
+                        tempStore.append(self.tokenSkrg)
+                        self.maju()
+                    self.errorHandlerObjek.tambahinError(__name__, 20, tempStore[0].baris, tempStore[0].kolom, f"({tempStore[0].nilai}) sampe ({tempStore[-1].nilai})")
+                    pass
+                
                 case [Ttype.T_KLAU, _]:
                     if(len(tempTokensGkDikenal)>0):
                         tokensGkDikenal.append(copy.copy(tempTokensGkDikenal))
                         tempTokensGkDikenal.clear()
                     temp : node.nodeKalau = self.parseKalau()
                     kumpulanNode.append(temp)
+                
+                    
+                
                 case _:
                     tempTokensGkDikenal.append(self.tokenSkrg)
                     # tokensGkDikenal.append(self.tokenSkrg)
@@ -894,7 +968,7 @@ class parserClass:
                             p_kodeError=17, p_baris=listToken[0].baris, p_bagian=f"mulai dari ({listToken[0].nilai}) sampe ({listToken[-1].nilai}) baris : {listToken[-1].baris} kolom : "+str(listToken[-1].kolom-(listToken[-1].getValueLength() if listToken[-1].getValueLength()>1 else 0)))
                     else:
                         self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=17, p_baris=listToken[0].baris, p_bagian=f"mulai dari ({listToken[0].nilai}) sampe ({listToken[-1].nilai})")
-        print("exiting contread")
+        # print("exiting contread")
         return kumpulanNode
 
     def parseGlobal(self)->None:

@@ -2,7 +2,7 @@ from __future__ import annotations
 from llvmlite import ir
 from typing import Optional, Union
 from typing import cast
-from typing import Any, Callable
+from typing import Any, Callable, Dict
 from errorHandler import errorHandlerClass
 from modul_parsing.AST import ASTClass
 from pohon import node
@@ -102,6 +102,16 @@ class codeGeneratorClass:
             self.fungsiExtern[namaBuiltin] = llvm_fungsi
         
         return self.fungsiExtern[namaBuiltin]
+    
+    def llvm_addBlok(self, p_namaBlok : str, p_statement : list[node.nodeClass]|list[node.nodeKalau], p_scope : scopeClass)->ir.Block:
+        if(not self.builder is None):
+            tempBlok : ir.Block = self.builder.append_basic_block(p_namaBlok)
+            self.builder.position_at_start(tempBlok)
+            
+            for statemen in p_statement:
+                self.visit(statemen, p_scope)
+            
+            return tempBlok
     
     def visit(self, p_node : node.nodeClass, p_scope : scopeClass)->ir.Value | None:
         namaFungsi : str =f"baca_{type(p_node).__name__}"
@@ -259,26 +269,110 @@ class codeGeneratorClass:
             raise Exception("UNEXPECTED RESULT")
     
     def baca_nodePerulanganSelama(self, p_nodePerulanganSelama : node.nodePerulanganSelama, p_scope : scopeClass)->ir.Value | None:
-        if(not self.builder is None):
-            loop_cond = self.builder.function.append_basic_block("loop.cond") #type:ignore
-            loop_body = self.builder.function.append_basic_block("loop.body") #type:ignore
-            loop_end  = self.builder.function.append_basic_block("loop.end") #type:ignore
-            
-            self.builder.branch(loop_cond)
-            
-            self.builder.position_at_end(loop_cond)
-            cond_val = self.visit(p_nodePerulanganSelama.kondisi, p_scope)
-            self.builder.cbranch(cond_val, loop_body, loop_end)
-            
-            self.builder.position_at_end(loop_body)
-            for nodeKode in p_nodePerulanganSelama.isiLoop:
-                test = self.visit(nodeKode, p_scope)
-            
-            self.builder.branch(loop_cond)
-            self.builder.position_at_end(loop_end)
+        if (not self.builder is None):
+            # 1. Bikin label basic block
+            cond_bb = self.builder.function.append_basic_block("loop.cond")
+            body_bb = self.builder.function.append_basic_block("loop.body")
+            end_bb = self.builder.function.append_basic_block("loop.end")
 
-        pass
+            # 2. Dari lokasi sekarang, langsung lompat ke pengecekan kondisi
+            self.builder.branch(cond_bb)
+
+            # --- BLOCK KONDISI ---
+            # 🔴 UBAH 1: Pake position_at_end biar instruksi cond di-append dari atas ke bawah
+            self.builder.position_at_end(cond_bb)
+            cond_val = self.visit(p_nodePerulanganSelama.kondisi, p_scope)
+            # Jika True ke body_bb, Jika False ke end_bb
+            self.builder.cbranch(cond_val, body_bb, end_bb)
+
+            # --- BLOCK BODY (ISI LOOP) ---
+            # 🔴 UBAH 2: Pake position_at_end biar stmt (termasuk i++) masuk ke body_bb secara urut
+            self.builder.position_at_end(body_bb)
+            for stmt in p_nodePerulanganSelama.isiLoop:
+                self.visit(stmt, p_scope)
+
+            # Jika di akhir body belum di-terminate, paksain branch balik ke cond_bb!
+            if not self.builder.block.is_terminated:
+                self.builder.branch(cond_bb)
+
+            # --- PENTING: KUNCI BUILDER DI END_BB UNTUK STATEMENT SELANJUTNYA ---
+            # 🔴 UBAH 3: Pake position_at_end biar statement di luar loop (kayak tampilin) masuk ke end_bb
+            self.builder.position_at_end(end_bb)
     
+    def baca_nodeKalau(self, p_nodeKalau : node.nodeKalau, p_scope : scopeClass)->None:
+        
+        getterKondisi : ir.Value | None = self.visit(p_nodeKalau.kondisi, p_scope)
+        llvm_kondisi : ir.Value
+        if(not getterKondisi is None):
+            llvm_kondisi = getterKondisi
+        else:
+            raise Exception("STOPPER")
+        
+        llvm_merge_blok : ir.Block = self.builder.function.append_basic_block("if.end")
+        # llvm_isiElif_blok : ir.Block  = self.builder.function.append_basic_block("if.elif")
+        llvm_isiKalau_blok : ir.Block = self.builder.function.append_basic_block("if.then")
+        llvm_else_blok : ir.Block = self.builder.function.append_basic_block("if.else")
+        # llvm_isiKalau_blok : ir.Block = self.llvm_addBlok("if.then", p_nodeKalau.isiKalau, p_scope)
+        # llvm_else_blok : ir.Block = self.llvm_addBlok("if.else", p_nodeKalau.isiElse, p_scope)
+        
+        self.builder.cbranch(llvm_kondisi, llvm_isiKalau_blok, llvm_else_blok)
+        
+        self.builder.position_at_start(llvm_isiKalau_blok)
+        for nodeKode in p_nodeKalau.isiKalau:
+            self.visit(nodeKode, p_scope)
+        
+        if not self.builder.block.is_terminated:
+            self.builder.branch(llvm_merge_blok)
+            
+        self.builder.position_at_start(llvm_else_blok)
+        
+        listElif : list[node.nodeKalau] = p_nodeKalau.listElif
+        isiElse : list[node.nodeClass] = p_nodeKalau.isiElse
+        
+        if(len(listElif)>0):
+            for nodeKode in p_nodeKalau.listElif:
+                if not len(nodeKode.isiElse)>0 and len(isiElse)>0:
+                    nodeKode.isiElse = isiElse
+                
+                self.visit(nodeKode, p_scope)
+                
+            if not self.builder.block.is_terminated:
+                self.builder.branch(llvm_merge_blok)
+            
+        elif len(isiElse)>0:
+            self.builder.position_at_start(llvm_else_blok)
+            for nodeKode in p_nodeKalau.isiElse:
+                self.visit(nodeKode, p_scope)
+                
+            if not self.builder.block.is_terminated:
+                self.builder.branch(llvm_merge_blok)
+        
+        else:
+            if not self.builder.block.is_terminated:
+                self.builder.branch(llvm_merge_blok)
+                
+        self.builder.position_at_start(llvm_merge_blok)
+        
+        # if(len(p_nodeKalau.listElif)):
+        #     llvm_isiElif_blok : ir.Block  = self.builder.function.append_basic_block("if.elif")
+        #     self.builder.position_at_start(llvm_isiElif_blok)
+            
+        #     for nodeElif in p_nodeKalau.listElif:
+        #         self.baca_nodeKalau(nodeElif, p_scope)
+                
+        #     if not self.builder.block.is_terminated:
+        #         self.builder.branch(llvm_blok_merge)
+        
+        # else:
+        #     llvm_else_blok  = self.llvm_addBlok("if.else", p_nodeKalau.isiElse, p_scope)
+        #     if not self.builder.block.is_terminated:
+        #         self.builder.branch(llvm_blok_merge)
+        
+        
+        # self.builder.position_at_start(llvm_blok_merge)
+            
+                
+        pass
     def proses(self, p_astReferensi : ASTClass)->None:
         nodeList : list[node.nodeClass] = p_astReferensi.getTree()
         for fungsiNode in nodeList:
