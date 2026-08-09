@@ -1,2 +1,2 @@
-abel namanya counter tipenya integer nilainya 0;
-    counter = 1;
+
+    bikin variabel namanya counter tipenya integer nilainya 0;

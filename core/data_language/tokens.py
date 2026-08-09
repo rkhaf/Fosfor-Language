@@ -31,6 +31,7 @@ class tokenType(Enum):
     T_NGGK = auto()
     T_NGLG = auto()
     T_SLMA = auto()
+    T_MSAL = auto()
 
     T_LGKA_BKAN = auto()
     T_LGKA_ATAU = auto()

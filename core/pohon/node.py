@@ -247,6 +247,33 @@ class nodePanggilFungsi(nodeEkspresi):
     def __repr__(self) -> str:
         return str(self.getDatas())
 
+class nodeKalau(nodeStatement):
+    def __init__(self, p_baris: int, p_kolom: int) -> None:
+        super().__init__(p_baris, p_kolom)
+        self.kondisi : nodeEkspresi
+        self.isiKalau : list[nodeClass] = []
+        self.listElif : list[nodeKalau] = []
+        self.isiElse : list[nodeClass] = []
+    
+    def getDatas(self) -> dict[str, Any]:
+        isiKalau : list[dict[str, Any]] = []
+        listElif : list[dict[str, Any]] = []
+        isiElse : list[dict[str, Any]] = []
+        
+        if(len(self.isiKalau)>0):
+            for isi in self.isiKalau:
+                isiKalau.append(isi.getDatas())
+                
+        if(len(self.listElif)>0):
+            for elife in self.listElif:
+                listElif.append(elife.getDatas())
+                
+        if(len(self.isiElse)>0):
+            for isi in self.isiElse:
+                isiElse.append(isi.getDatas())
+                
+        return {"tipe" : "statementKalau", "kondisi" : self.kondisi.getDatas(), "isi" : isiKalau, "elif" : listElif, "else" : isiElse}
+
 class nodeBikinFungsi(nodeStatement):
     """
     node representasi utk bikin fungsi

@@ -3,5 +3,21 @@ fungsi main isinya
     bikin variabel namanya counter tipenya integer nilainya 0;
     kalau (counter>10) isinya
         tampilin(67);
+        // kalau (counter>12) isinya
+        //     // tampilin(99);
+        //     counter++;
+        // akhir
+        // kalau nggak isinya
+        //     tampilin(0);
+        // akhir
+    akhir
+    kalau misal (counter>5) isinya
+        tampilin(123);
+        // kalau (counter<1) isinya 
+        //     tampilin(444);
+        // akhir
+    akhir
+    kalau nggak isinya
+        tampilin(3636);
     akhir
 akhir;

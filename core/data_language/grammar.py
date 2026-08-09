@@ -82,6 +82,7 @@ KEYWORD_BLKN : str = "balikin"
 KEYWORD_NGGK : str = "nggak"
 KEYWORD_NGLG : str = "ngulangin"
 KEYWORD_SLMA : str = "selama"
+KEYWORD_MSAL : str = "misal"
 KEYWORD_DLMR : str = ";"
 
 KEYWORD_ENTRY_POINT : str = "main"
@@ -123,6 +124,7 @@ keywordList : dict[str, tokenType] = {
     KEYWORD_NGGK : tokenType.T_NGGK,
     KEYWORD_NGLG : tokenType.T_NGLG,
     KEYWORD_SLMA : tokenType.T_SLMA,
+    KEYWORD_MSAL : tokenType.T_MSAL,
     KEYWORD_LGKA_ATAU : tokenType.T_LGKA_ATAU,
     KEYWORD_LGKA_DAN : tokenType.T_LGKA_DAN,
     KEYWORD_LGKA_BKAN : tokenType.T_LGKA_BKAN
