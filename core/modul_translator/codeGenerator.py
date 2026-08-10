@@ -1,17 +1,28 @@
 from __future__ import annotations
+
 from llvmlite import ir
+import llvmlite.binding as llvm
+
 from typing import Optional, Union
 from typing import cast
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, TypedDict
 from errorHandler import errorHandlerClass
 from modul_parsing.AST import ASTClass
 from pohon import node
+
 from llvmFolder.konverter import LLVMLITEConverterClass as konvertClass
+from llvmFolder.konverter import TIPEDATA_LLVM_BOOLEAN
+from llvmFolder.konverter import TIPEDATA_LLVM_STRING
+from llvmFolder.konverter import TIPEDATA_LLVM_INTEGER
+from llvmFolder.konverter import TIPEDATA_LLVM_FLOAT
+from llvmFolder.konverter import TIPEDATA_LLVM_VOID
+
 from metadata.datatypeClass import TIPEDATA_BOOLEAN
 from metadata.datatypeClass import TIPEDATA_INTEGER
 from metadata.datatypeClass import TIPEDATA_STRING
 from metadata.datatypeClass import TIPEDATA_FLOAT
 from metadata.datatypeClass import TIPEDATA_NULL
+
 
 class scopeClass:
     def __init__(self, p_parent : scopeClass | None = None) -> None:
@@ -51,11 +62,40 @@ class scopeClass:
         else:
             raise Exception("ERROR")
 
-fungsiBuiltin : dict[str, dict[str, list[ir.Type] | str | ir.Type]] = {
-    "tampilin" : {
-        "namaDiCPP" : "fosfor_tampilin_int",
-        "parameter" : [ir.IntType(32)],
-        "tipeReturn" : ir.VoidType()
+class detailFungsi(TypedDict):
+    namaDiCPP : str
+    parameter : list[ir.Type]
+    tipeReturn : ir.Type
+
+fungsiBuiltin : dict[str, dict[ir.Type, detailFungsi]] = {
+    "tampilin":{
+        TIPEDATA_LLVM_INTEGER:{
+            "namaDiCPP":"fosfor_tampilin_int",
+            "parameter":[ir.IntType(32)],
+            "tipeReturn":ir.VoidType()
+        },
+        TIPEDATA_LLVM_STRING:{
+            "namaDiCPP":"fosfor_tampilin_str",
+            "parameter":[ir.IntType(8).as_pointer()], #type:ignore
+            "tipeReturn":ir.VoidType()
+        },
+        TIPEDATA_LLVM_BOOLEAN:{
+            "namaDiCPP":"fosfor_tampilin_bool",
+            "parameter":[ir.IntType(1)], 
+            "tipeReturn":ir.VoidType()
+        },
+        TIPEDATA_LLVM_FLOAT:{
+            "namaDiCPP":"fosfor_tampilin_flt",
+            "parameter":[ir.FloatType()], 
+            "tipeReturn":ir.VoidType()
+        },
+    },
+    "mulaiTimer":{
+        TIPEDATA_LLVM_VOID:{
+            "namaDiCPP":"fosfor_mulai_timer",
+            "parameter":[],
+            "tipeReturn":ir.VoidType()
+        }
     }
 }
 
@@ -82,19 +122,24 @@ class codeGeneratorClass:
         self.rootScope : scopeClass = scopeClass()
         self.builder : ir.IRBuilder | None = None
         self.fungsiExtern : dict[str, ir.Function] = {}
-        
+        self.modul.triple = "x86_64-pc-windows-gnu"
 
         pass
     
-    def setupBuiltin(self, p_namaFungsi : str)->ir.Function:
-        namaBuiltin : str = cast(str, fungsiBuiltin[p_namaFungsi]["namaDiCPP"])
+    def setupBuiltin(self, p_namaFungsi : str, p_tipedata : ir.Type, p_node : node.nodeClass)->ir.Function:
+        if(not p_tipedata in fungsiBuiltin[p_namaFungsi].keys()):
+            self.errorHandlerObjek.tambahinError(__name__, 1, p_node.baris, p_bagian=f"{p_namaFungsi}({p_tipedata.__str__()})")
+            return ir.Function(self.modul, ir.FunctionType(TIPEDATA_LLVM_VOID, []), name="ERROR")
+
+        namaBuiltin : str = fungsiBuiltin[p_namaFungsi][p_tipedata]["namaDiCPP"]
+        # namaBuiltin : str = cast(str, fungsiBuiltin[p_namaFungsi]["namaDiCPP"])
         
         if(namaBuiltin in self.fungsiExtern):
             return self.modul.globals[namaBuiltin]
         
         if(not p_namaFungsi in self.fungsiExtern.keys()):
-            parameterBuiltin : list[ir.Type] = cast(list[ir.Type], fungsiBuiltin[p_namaFungsi]["parameter"])
-            tipeReturnBuiltin : ir.Type = cast(ir.Type, fungsiBuiltin[p_namaFungsi]["tipeReturn"])
+            parameterBuiltin : list[ir.Type] = fungsiBuiltin[p_namaFungsi][p_tipedata]["parameter"]
+            tipeReturnBuiltin : ir.Type = fungsiBuiltin[p_namaFungsi][p_tipedata]["tipeReturn"]
             
             llvm_tipeFungsi : ir.FunctionType = ir.FunctionType(tipeReturnBuiltin, parameterBuiltin)
             llvm_fungsi : ir.Function = ir.Function(self.modul, llvm_tipeFungsi, namaBuiltin)
@@ -189,11 +234,13 @@ class codeGeneratorClass:
 
     def baca_nodePanggilFungsi(self, p_nodePanggilFungsi : node.nodePanggilFungsi, p_scope : scopeClass)->ir.Value:
         if(p_nodePanggilFungsi.namaFungsi.nilai in fungsiBuiltin.keys()):
-            llvm_fungsi : ir.Function = self.setupBuiltin(p_nodePanggilFungsi.namaFungsi.nilai)
-            getVariabel : ir.Value | None = self.visit(p_nodePanggilFungsi.parameterInput[0], p_scope)
             
+            getFungsi = fungsiBuiltin[p_nodePanggilFungsi.namaFungsi.nilai]
+            
+            getVariabel : ir.Value | None = self.visit(p_nodePanggilFungsi.parameterInput[0], p_scope)
             if(getVariabel is None):raise Exception("VARIABEL GAK KETEMU, SAFEGUARD JEBOL")
             else:
+                llvm_fungsi : ir.Function = self.setupBuiltin(p_nodePanggilFungsi.namaFungsi.nilai, getVariabel.type, p_nodePanggilFungsi)
                 llvm_parameterInput : ir.Value = getVariabel
                 return self.builder.call(llvm_fungsi, [llvm_parameterInput]) #type:ignore
             
@@ -220,6 +267,26 @@ class codeGeneratorClass:
     def baca_nodeNomor(self, p_nodeNomor : node.nodeNomor, p_scope : scopeClass)->ir.Value:
         if(p_nodeNomor.tipe==TIPEDATA_INTEGER):return ir.Constant(ir.IntType(32), int(p_nodeNomor.nilai))
         else:return ir.Constant(ir.FloatType(), float(p_nodeNomor.nilai))
+    
+    def baca_nodeBoolean(self, p_nodeBoolean : node.nodeBoolean, p_scope : scopeClass)->ir.Value:
+        return ir.Constant(ir.IntType(1), int(1) if p_nodeBoolean.nilai else int(0))
+    
+    def baca_nodeString(self, p_nodeString : node.nodeString, p_scope : scopeClass)->ir.Value:
+        teks : str = p_nodeString.nilai+"\0"
+        bit_teks : bytearray = bytearray(teks.encode('utf-8'))
+        
+        llvm_stringType : ir.ArrayType = ir.ArrayType(ir.IntType(8), len(bit_teks))
+        
+        stringKonstanta : ir.Constant = ir.Constant(llvm_stringType, bit_teks)
+        
+        global_string : ir.GlobalVariable = ir.GlobalVariable(self.modul, llvm_stringType, name=self.modul.get_unique_name("str_const"))
+        global_string.linkage = 'internal'
+        global_string.global_constant = True
+        global_string.initializer = stringKonstanta
+        
+        pointer = self.builder.bitcast(global_string, ir.IntType(8).as_pointer())
+        
+        return pointer
     
     def baca_nodeBiner(self, p_nodeBiner : node.nodeBiner, p_scope : scopeClass)->ir.Value:
         kiri : ir.Value | None = self.visit(p_nodeBiner.operand1, p_scope)

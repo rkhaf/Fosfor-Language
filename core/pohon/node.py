@@ -127,7 +127,7 @@ class nodeBoolean(nodeEkspresi):
         # assert p_token.tipe==Ttype.T_LITERAL_BOOL, "ERRORDEV: nodeBoolean hrusnya cmn nerima token boolean"
         
         self.tipe : datatypes = p_tipedata
-        self.nilai : str = p_token.nilai
+        self.nilai : bool = True if p_token.nilai=="benar" else False
         super().__init__(p_token.baris, p_token.kolom, self.tipe)
     
     def getDatas(self) -> dict[Any, Any]:

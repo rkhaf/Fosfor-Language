@@ -1,19 +1,22 @@
 fungsi main isinya
     bikin variabel namanya total tipenya integer nilainya 0;
-    bikin variabel namanya i tipenya integer nilainya 0;
-    bikin variabel namanya j tipenya integer nilainya 0;
+    bikin variabel namanya i tipenya integer nilainya 1;
 
-    ngulangin selama (i < 10000) isinya
-        j = 0;
+    tampilin("mulai perulangan...");
+
+    mulaiTimer();
+
+    ngulangin selama (i <= 20000000) isinya
+        total++;
         
-        ngulangin selama (j < 1000) isinya
-            total++;
-            j++;
+        // Cek kalau i kelipatan 5.000.000, print progress-nya!
+        kalau (i % 5000000 == 0) isinya
+            tampilin("iterasi ke:");
+            tampilin(i);
         akhir
-        
+
         i++;
     akhir
 
-    // Print sekali aja di luar loop biar gak ke-choke I/O
-    tampilin(total);
+    tampilin("dh selesai bg");
 akhir;

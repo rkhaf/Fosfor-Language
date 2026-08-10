@@ -13,12 +13,18 @@ LLVM_PRIMITIVE_TYPES : dict[str, ir.Type] = {
     # """
     
     TIPEDATA_INTEGER.namaPrimitive : ir.IntType(32),
-    TIPEDATA_FLOAT.namaPrimitive : ir.DoubleType(),
+    TIPEDATA_FLOAT.namaPrimitive : ir.FloatType(),
     TIPEDATA_BOOLEAN.namaPrimitive : ir.IntType(1),
     # "char" : ir.IntType(8),
     TIPEDATA_STRING.namaPrimitive : ir.PointerType(ir.IntType(8)),
     TIPEDATA_VOID.namaPrimitive : ir.VoidType(),
 }
+
+TIPEDATA_LLVM_INTEGER : ir.Type = LLVM_PRIMITIVE_TYPES.get(TIPEDATA_INTEGER.namaPrimitive, ir.Type())
+TIPEDATA_LLVM_FLOAT : ir.Type = LLVM_PRIMITIVE_TYPES.get(TIPEDATA_FLOAT.namaPrimitive, ir.Type())
+TIPEDATA_LLVM_BOOLEAN : ir.Type = LLVM_PRIMITIVE_TYPES.get(TIPEDATA_BOOLEAN.namaPrimitive, ir.Type())
+TIPEDATA_LLVM_STRING : ir.Type = LLVM_PRIMITIVE_TYPES.get(TIPEDATA_STRING.namaPrimitive, ir.Type())
+TIPEDATA_LLVM_VOID : ir.Type = LLVM_PRIMITIVE_TYPES.get(TIPEDATA_VOID.namaPrimitive, ir.Type())
 
 class LLVMLITEConverterClass:
     @staticmethod

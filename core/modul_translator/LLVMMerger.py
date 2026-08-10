@@ -20,13 +20,18 @@ class LLVMMergerClass:
         runtime_obj_path: str = "core/runtime/runtime.o",
         compiler: str = "g++",
     ) -> None:
+        
+        
         # 1. Parse IR String ke LLVM ModuleRef di RAM
         mod: llvm.ModuleRef = llvm.parse_assembly(str(ir_str))
         mod.verify()
 
         # 2. Setup Target Machine
-        target: llvm.Target = llvm.Target.from_default_triple()
-        target_machine: llvm.TargetMachine = target.create_target_machine()
+        target : llvm.Target = llvm.Target.from_triple("x86_64-pc-windows-gnu")
+        target_machine : llvm.TargetMachine = target.create_target_machine("", "", 2, "default", "default")
+
+        mod.triple = "x86_64-pc-windows-gnu"
+        mod.data_layout = str(target_machine.target_data)
 
         # 3. Convert IR RAM -> Byte Object File (.o)
         obj_bytes: bytes = target_machine.emit_object(mod)
@@ -48,6 +53,8 @@ class LLVMMergerClass:
                     runtime_obj_path,
                     "-o",
                     namaFile,
+                    "-fno-pic",
+                    "-fno-pie"
                 ]
             else:
                 cmd: list[str] = [
@@ -56,6 +63,8 @@ class LLVMMergerClass:
                     runtime_obj_path,
                     "-o",
                     output_exe_path,
+                    "-fno-pic",
+                    "-fno-pie"
                 ]
 
             result = subprocess.run(cmd, capture_output=True, text=True)

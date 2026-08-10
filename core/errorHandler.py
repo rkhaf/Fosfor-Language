@@ -79,6 +79,9 @@ class errorHandlerClass:
                 18 : "return fungsi tsb gak sesuai sama tipedatanya le, cek lg dh",
                 19 : "operasi perbandingan tpi tipedatanya gasama",
                 20 : "ekspresi kondisinya hrus bernilai boolean",
+            },
+            grammar.MODUL_PATH_CGEN : {
+                1 : "tipedata input utk fungsi builtin tsb blom disupport wkwk"
             }
         }
     

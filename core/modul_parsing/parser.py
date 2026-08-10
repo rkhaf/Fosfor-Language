@@ -159,7 +159,7 @@ class parserClass:
         """
         nodeKiri = self.parseFaktor()
         
-        while self.tokenSkrg.tipe == Ttype.T_MULT or self.tokenSkrg.tipe == Ttype.T_DIVE:
+        while self.tokenSkrg.tipe in [Ttype.T_MULT, Ttype.T_DIVE, Ttype.T_MDLO]:
             if(self.tokenDepan.tipe==Ttype.T_IDTF or self.tokenDepan.tipe in grammar.literalList.values() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
                 operator = self.tokenSkrg
                 self.maju()
