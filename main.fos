@@ -3,10 +3,10 @@ fungsi main isinya
     bikin variabel namanya i tipenya integer nilainya 0;
     bikin variabel namanya j tipenya integer nilainya 0;
 
-    ngulangin selama (i < 10) isinya
+    ngulangin selama (i < 10000) isinya
         j = 0;
         
-        ngulangin selama (j < 10) isinya
+        ngulangin selama (j < 1000) isinya
             total++;
             j++;
         akhir

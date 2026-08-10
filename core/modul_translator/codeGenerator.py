@@ -271,9 +271,9 @@ class codeGeneratorClass:
     def baca_nodePerulanganSelama(self, p_nodePerulanganSelama : node.nodePerulanganSelama, p_scope : scopeClass)->ir.Value | None:
         if (not self.builder is None):
             # 1. Bikin label basic block
-            cond_bb = self.builder.function.append_basic_block("loop.cond")
-            body_bb = self.builder.function.append_basic_block("loop.body")
-            end_bb = self.builder.function.append_basic_block("loop.end")
+            cond_bb = self.builder.function.append_basic_block("loop.kondisi")
+            body_bb = self.builder.function.append_basic_block("loop.badan")
+            end_bb = self.builder.function.append_basic_block("loop.akhir")
 
             # 2. Dari lokasi sekarang, langsung lompat ke pengecekan kondisi
             self.builder.branch(cond_bb)

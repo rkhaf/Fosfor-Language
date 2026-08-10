@@ -611,12 +611,14 @@ class parserClass:
                 elif(self.tokenSkrg.tipe==Ttype.T_ISNY):
                     state=2
                 
-                elif(self.tokenSkrg.tipe==Ttype.T_AKHR):
-                    # state=3
-                    break
+                # elif(self.tokenSkrg.tipe==Ttype.T_AKHR):
+                #     # state=3
+                #     break
                 
                 else:
-                    self.maju()
+                    # self.maju()
+                    self.mundur()
+                    break
             
             elif(state==1):
                 getter : node.nodeEkspresi | None = self.parseEkspresi()
@@ -633,12 +635,6 @@ class parserClass:
                 tempNode.isiLoop = self.parseCodeContainer()
                 state = 0
                 pass
-                
-            # elif(state==3):
-            #     self.maju()
-            #     break
-            
-            # print(self.tokenSkrg)
         return tempNode
 
     def parseIdentifier(self)->node.nodePenugasan:
@@ -753,9 +749,6 @@ class parserClass:
                 elif(self.tokenSkrg.tipe==Ttype.T_ISNY):
                     state=2
                     
-                # elif(self.tokenSkrg.tipe==Ttype.T_AKHR):
-                #     break
-                    
             elif(state==1):
                 self.maju()
                 if(self.tokenSkrg.tipe!=Ttype.T_PRTS_KIRI):
@@ -801,41 +794,8 @@ class parserClass:
                 elif(self.tokenSkrg.tipe==Ttype.T_ISNY):
                     state=2
                 
-                # elif(self.tokenSkrg.tipe==Ttype.T_AKHR):
-                #     break
                 else:
                     break
-                    # print(self.tokenSkrg)
-                    # raise Exception("unexpected token")
-                
-                # elif (self.tokenSkrg.tipe==Ttype.T_AKHR):
-                #     if(self.tokenDepan.tipe==Ttype.T_KLAU):
-                #         self.maju()
-                #         if(self.tokenDepan.tipe==Ttype.T_MSAL):
-                #             # print("ketemu elif")
-                #             reader : node.nodeKalau | None = self.parseKalauMisal()
-                #             if(not reader is None):
-                #                 tempNodeKalau.listElif.append(reader)
-                #             pass
-                #         elif(self.tokenDepan.tipe==Ttype.T_NGGK):
-                #             self.maju(3)
-                #             test = self.parseCodeContainer()
-                #             tempNodeKalau.isiElse = test
-                #             pass
-                #             break
-                #             # reader : node.nodeKalau | None = self.parseKalau()
-                #             # if(not reader is None):
-                #             #     tempNodeKalau.el
-                #         else:
-                #             self.mundur()
-                #             self.maju()
-                #             break
-                #     else:
-                #         self.maju()
-                #         break
-                # elif(self.tokenSkrg.tipe==Ttype.T_MSAL):
-                #     self.maju()
-            #state baca kondisi
             elif(state==1):
                 self.maju()
                 getter : node.nodeEkspresi | None = self.parseEkspresi()

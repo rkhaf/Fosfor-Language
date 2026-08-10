@@ -15,7 +15,9 @@ from metadata.datatypeClass import TIPEDATA_BOOLEAN
 # from typing import Any
 import json
 
-fungsi_builtin : list[fungsiObjek] = [fungsiObjek("tampilin", TIPEDATA_VOID, [varibelObjek(False,"p_inputCout", TIPEDATA_ANY)], node.nodeClass(-1, -1))]
+fungsi_builtin : list[fungsiObjek] = [
+    fungsiObjek("tampilin", TIPEDATA_VOID, [varibelObjek(False,"p_inputCout", TIPEDATA_ANY)], node.nodeClass(-1, -1))
+]
 
 class semantikClass:
     def __init__(self, p_errorHandlerRef : errorHandlerClass) -> None:

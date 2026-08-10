@@ -38,6 +38,6 @@ def run(fileOriginal : str, p_namaFile : str) -> None:
             if(errorHandlerObjek.adaError()):
                 errorHandlerObjek.displayError()
             else:
-                print(str(codegenObjek.modul))
-                # konverterObjek.proses(p_namaFile, codegenObjek.getModul(), "")
+                # print(str(codegenObjek.modul))
+                konverterObjek.proses(p_namaFile, codegenObjek.getModul(), "")
         # pass
