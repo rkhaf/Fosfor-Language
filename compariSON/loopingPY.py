@@ -1,20 +1,21 @@
 import time
 
-def main():
-    start = time.perf_counter()
-    
-    i = 0
-    total = 0
-    
-    # Loop 100 Juta Kali
-    while i < 100_000_000:
-        total = total + i
-        i = i + 1
-        
-    end = time.perf_counter()
-    
-    print(f"Hasil Total : {total}")
-    print(f"Waktu Python: {end - start:.4f} detik")
+total = 0
+i = 1
 
-if __name__ == "__main__":
-    main()
+print("Mulai perulangan 100 juta...")
+
+start = time.time()
+
+while i <= 100000000:
+    total += 1
+
+    if i % 20000000 == 0:
+        print(f"iterasi ke: {i}")
+
+    i += 1
+
+end = time.time()
+
+print(f"\n[Python] Waktu eksekusi: {end - start:.6f} detik")
+print(f"Hasil total: {total}")

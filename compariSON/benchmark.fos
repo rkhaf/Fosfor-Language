@@ -1,0 +1,24 @@
+fungsi main isinya
+    bikin variabel namanya total tipenya integer nilainya 0;
+    bikin variabel namanya i tipenya integer nilainya 1;
+
+    tampilin("Mulai perulangan 100 juta...");
+
+    mulaiTimer();
+
+    ngulangin selama (i <= 100000000) isinya
+        total++;
+
+        kalau (i % 20000000 == 0) isinya
+            tampilin("iterasi ke:");
+            tampilin(i);
+        akhir
+
+        i++;
+    akhir
+
+    stopTimer();
+
+    tampilin("Hasil total:");
+    tampilin(total);
+akhir;

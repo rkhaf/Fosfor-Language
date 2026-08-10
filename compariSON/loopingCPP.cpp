@@ -1,24 +1,30 @@
 #include <iostream>
 #include <chrono>
+#include <iomanip>
 
 int main() {
+    int total = 0;
+    int i = 1;
+
+    std::cout << "Mulai perulangan 100 juta..." << std::endl;
+
     auto start = std::chrono::high_resolution_clock::now();
 
-    // Pake long long biar gak integer overflow pas nampung total 100 juta
-    long long i = 0;
-    long long total = 0;
+    while (i <= 100000000) {
+        total++;
 
-    // Loop 100 Juta Kali
-    while (i < 100000000) {
-        total = total + i;
-        i = i + 1;
+        if (i % 20000000 == 0) {
+            std::cout << "iterasi ke: " << i << "\n";
+        }
+
+        i++;
     }
 
     auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration = end - start;
+    double duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000000.0;
 
-    std::cout << "Hasil Total : " << total << std::endl;
-    std::cout << "Waktu C++   : " << duration.count() << " detik" << std::endl;
+    std::cout << "\n[C++] Waktu eksekusi: " << std::fixed << std::setprecision(6) << duration << " detik" << std::endl;
+    std::cout << "Hasil total: " << total << std::endl;
 
     return 0;
 }

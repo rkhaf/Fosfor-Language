@@ -26,18 +26,19 @@ def run(fileOriginal : str, p_namaFile : str) -> None:
     parserObjek.proses(tokens)
 
     # print(tokens)
+    
     if(errorHandlerObjek.adaError()):
         errorHandlerObjek.displayError()
     else:
-        # parserObjek.getTree().printTree()
-        semantikObjek.proses(parserObjek.getTree())
-        if(errorHandlerObjek.adaError()):
-            errorHandlerObjek.displayError()
-        else:
-            codegenObjek.proses(parserObjek.getTree())
-            if(errorHandlerObjek.adaError()):
-                errorHandlerObjek.displayError()
-            else:
-                # print(str(codegenObjek.modul))
-                konverterObjek.proses(p_namaFile, codegenObjek.getModul(), "")
+        parserObjek.getTree().printTree()
+        # semantikObjek.proses(parserObjek.getTree())
+        # if(errorHandlerObjek.adaError()):
+        #     errorHandlerObjek.displayError()
+        # else:
+        #     codegenObjek.proses(parserObjek.getTree())
+        #     if(errorHandlerObjek.adaError()):
+        #         errorHandlerObjek.displayError()
+        #     else:
+        #         # print(str(codegenObjek.modul))
+        #         konverterObjek.proses(p_namaFile, codegenObjek.getModul(), "")
         # pass

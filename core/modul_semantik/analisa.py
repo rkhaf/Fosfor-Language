@@ -17,7 +17,8 @@ import json
 
 fungsi_builtin : list[fungsiObjek] = [
     fungsiObjek("tampilin", TIPEDATA_VOID, [varibelObjek(False,"p_inputCout", TIPEDATA_ANY)], node.nodeClass(-1, -1)),
-    fungsiObjek("mulaiTimer", TIPEDATA_VOID, [], node.nodeClass(-1, -1))
+    fungsiObjek("mulaiTimer", TIPEDATA_VOID, [], node.nodeClass(-1, -1)),
+    fungsiObjek("stopTimer", TIPEDATA_VOID, [], node.nodeClass(-1, -1)),
 ]
 
 class semantikClass:
@@ -99,30 +100,14 @@ class semantikClass:
             else:
                 tipedataVariabel = p_node.tipedataVariabel
                 
-            #################################################################
-            # BAGIAN INI PNGEN DIREVISI
-            if(isinstance(p_node.nilaiVariabel, node.nodeIdentifier)):
-                
-                #ngecek apkh variabelnya ada discope
-                if(p_scope.cekVariabel(p_node.nilaiVariabel.identifierToken)):
-                    
-                    getVariabel : varibelObjek = p_scope.getVariabel(p_node.nilaiVariabel.identifierToken)
-                    tipedataValue = getVariabel.type
-                    
-                else:
-                    newVariabelObj.invalid = True
-                    self.errorHandlerObjek.tambahinErrorMultibaris(p_kelas= __name__, p_kodeError=1, p_baris=p_node.nilaiVariabel.baris, p_bagian=p_node.nilaiVariabel.identifierToken)
-                
-            elif(type(p_node.nilaiVariabel) in [node.nodeNomor, node.nodeString, node.nodeBoolean]):
-                nilaiVar : node.nodeNomor | node.nodeString | node.nodeBoolean = p_node.nilaiVariabel
-                tipedataValue = nilaiVar.tipe
-            
-            #################################################################
-            # REVISI SMPE ATAS SINI
+            tipedataValue = self.visit(p_node.nilaiVariabel, p_scope)
+
             if(not tipedataValue is None):
                 if(tipedataVariabel!=tipedataValue):
                     self.errorHandlerObjek.tambahinError(__name__, 2, p_node.baris, p_bagian=p_node.namaVariabel)
                 p_scope.mappingVariabel.setdefault(p_node.namaVariabel, newVariabelObj)
+            else:
+                print(f"WARNING VALUE VARNYA {p_node.namaVariabel} MSH KOSONG")
 
     def check_nodePanggilFungsi(self, p_node: node.nodePanggilFungsi, p_scope: scopeContainer)->None:
         if(p_scope.cekFungsi(p_node.namaFungsi.nilai)):
@@ -142,38 +127,41 @@ class semantikClass:
                         # tipedataParameterInput = self.cekScope()
                         #################################################################
                         # BAGIAN INI PNGEN DIREVISI
-                        if(isinstance(paramSkrg, node.nodeIdentifier)):
-                            #ketemu parameter variabel
-                            if(p_scope.cekVariabel(paramSkrg.identifierToken)):
-                                #ketemu variabelnya
-                                tipedataParameterInput = p_scope.getVariabel(paramSkrg.identifierToken).type
+                        
+                        tipedataParameterInput=self.visit(paramSkrg, p_scope)
+                        
+                        # if(isinstance(paramSkrg, node.nodeIdentifier)):
+                        #     #ketemu parameter variabel
+                        #     if(p_scope.cekVariabel(paramSkrg.identifierToken)):
+                        #         #ketemu variabelnya
+                        #         tipedataParameterInput = p_scope.getVariabel(paramSkrg.identifierToken).type
                                 
-                            else:
-                                # print("GK KETEMU VARIABELNYA")
-                                self.errorHandlerObjek.tambahinError(__name__, 1, paramSkrg.baris, paramSkrg.kolom, paramSkrg.identifierToken)
+                        #     else:
+                        #         # print("GK KETEMU VARIABELNYA")
+                        #         self.errorHandlerObjek.tambahinError(__name__, 1, paramSkrg.baris, paramSkrg.kolom, paramSkrg.identifierToken)
                         
-                        elif(type(paramSkrg) in [node.nodeString, node.nodeNomor, node.nodeBoolean]):
-                            #ketemu parameter primitive
-                            tipedataParameterInput = paramSkrg.tipe
+                        # elif(type(paramSkrg) in [node.nodeString, node.nodeNomor, node.nodeBoolean]):
+                        #     #ketemu parameter primitive
+                        #     tipedataParameterInput = paramSkrg.tipe
                         
-                        elif(isinstance(paramSkrg, node.nodePanggilFungsi)):
-                            # self.cekScope(paramSkrg, p_scope)
-                            # continue
-                            #ketemu panggilan fungsi
-                            if(p_scope.cekFungsi(paramSkrg.namaFungsi.nilai)):
-                                tipedataParameterInput = p_scope.getFungsi(paramSkrg.namaFungsi.nilai).type
-                                self.visit(paramSkrg, p_scope)
-                            else:
-                                self.errorHandlerObjek.tambahinError(__name__, 6, paramSkrg.baris, paramSkrg.kolom, paramSkrg.namaFungsi.nilai)
-                                # print("FUNGSI GA NEMU")
-                            pass
+                        # elif(isinstance(paramSkrg, node.nodePanggilFungsi)):
+                        #     # self.cekScope(paramSkrg, p_scope)
+                        #     # continue
+                        #     #ketemu panggilan fungsi
+                        #     if(p_scope.cekFungsi(paramSkrg.namaFungsi.nilai)):
+                        #         tipedataParameterInput = p_scope.getFungsi(paramSkrg.namaFungsi.nilai).type
+                        #         self.visit(paramSkrg, p_scope)
+                        #     else:
+                        #         self.errorHandlerObjek.tambahinError(__name__, 6, paramSkrg.baris, paramSkrg.kolom, paramSkrg.namaFungsi.nilai)
+                        #         # print("FUNGSI GA NEMU")
+                        #     pass
                         
-                        else:
-                            #ketemu parameter node lain
-                            self.visit(paramSkrg, p_scope)
-                            # raise Exception(f"ada input yg ga diinginkan : {paramSkrg}")
-                        #################################################################
-                        # BAGIAN INI PNGEN DIREVISI
+                        # else:
+                        #     #ketemu parameter node lain
+                        #     self.visit(paramSkrg, p_scope)
+                        #     # raise Exception(f"ada input yg ga diinginkan : {paramSkrg}")
+                        # #################################################################
+                        # # BAGIAN INI PNGEN DIREVISI
                         
                     else:
                         #kondisi parameter opsional yg blm diisi

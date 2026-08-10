@@ -10,6 +10,9 @@ from errorHandler import errorHandlerClass
 from modul_parsing.AST import ASTClass
 from pohon import node
 
+from metadata.builtins import builtinClass
+from metadata.builtins import detailFungsi
+
 from llvmFolder.konverter import LLVMLITEConverterClass as konvertClass
 from llvmFolder.konverter import TIPEDATA_LLVM_BOOLEAN
 from llvmFolder.konverter import TIPEDATA_LLVM_STRING
@@ -62,42 +65,22 @@ class scopeClass:
         else:
             raise Exception("ERROR")
 
-class detailFungsi(TypedDict):
-    namaDiCPP : str
-    parameter : list[ir.Type]
-    tipeReturn : ir.Type
+# class detailFungsi(TypedDict):
+#     namaDiCPP : str
+#     parameter : list[ir.Type]
+#     tipeReturn : ir.Type
 
-fungsiBuiltin : dict[str, dict[ir.Type, detailFungsi]] = {
-    "tampilin":{
-        TIPEDATA_LLVM_INTEGER:{
-            "namaDiCPP":"fosfor_tampilin_int",
-            "parameter":[ir.IntType(32)],
-            "tipeReturn":ir.VoidType()
-        },
-        TIPEDATA_LLVM_STRING:{
-            "namaDiCPP":"fosfor_tampilin_str",
-            "parameter":[ir.IntType(8).as_pointer()], #type:ignore
-            "tipeReturn":ir.VoidType()
-        },
-        TIPEDATA_LLVM_BOOLEAN:{
-            "namaDiCPP":"fosfor_tampilin_bool",
-            "parameter":[ir.IntType(1)], 
-            "tipeReturn":ir.VoidType()
-        },
-        TIPEDATA_LLVM_FLOAT:{
-            "namaDiCPP":"fosfor_tampilin_flt",
-            "parameter":[ir.FloatType()], 
-            "tipeReturn":ir.VoidType()
-        },
-    },
-    "mulaiTimer":{
-        TIPEDATA_LLVM_VOID:{
-            "namaDiCPP":"fosfor_mulai_timer",
-            "parameter":[],
-            "tipeReturn":ir.VoidType()
-        }
-    }
-}
+# fungsiBuiltin : dict[str, list[detailFungsi]] = {
+#     "tampilin":[
+#         {"namaDiCPP":"fosfor_trampilin_int", "tipeReturn":ir.VoidType(), "parameter":[TIPEDATA_LLVM_INTEGER]},
+#         {"namaDiCPP":"fosfor_trampilin_str", "tipeReturn":ir.VoidType(), "parameter":[TIPEDATA_LLVM_STRING]},
+#         {"namaDiCPP":"fosfor_trampilin_bool", "tipeReturn":ir.VoidType(), "parameter":[TIPEDATA_LLVM_BOOLEAN]},
+#         {"namaDiCPP":"fosfor_trampilin_flt", "tipeReturn":ir.VoidType(), "parameter":[TIPEDATA_LLVM_FLOAT]},
+#     ],
+#     "mulaiTimer":[
+#         {"namaDiCPP":"fosfor_mulai_timer","tipeReturn":ir.VoidType(), "parameter":[]}
+#     ]
+# }
 
 mappingOpsInt : dict[str, str] = {
     "+" : "add",
@@ -126,27 +109,45 @@ class codeGeneratorClass:
 
         pass
     
-    def setupBuiltin(self, p_namaFungsi : str, p_tipedata : ir.Type, p_node : node.nodeClass)->ir.Function:
-        if(not p_tipedata in fungsiBuiltin[p_namaFungsi].keys()):
-            self.errorHandlerObjek.tambahinError(__name__, 1, p_node.baris, p_bagian=f"{p_namaFungsi}({p_tipedata.__str__()})")
-            return ir.Function(self.modul, ir.FunctionType(TIPEDATA_LLVM_VOID, []), name="ERROR")
-
-        namaBuiltin : str = fungsiBuiltin[p_namaFungsi][p_tipedata]["namaDiCPP"]
-        # namaBuiltin : str = cast(str, fungsiBuiltin[p_namaFungsi]["namaDiCPP"])
+    def setupBuiltin(self, p_namaFungsi : str, p_tipedata : list[ir.Type], p_node : node.nodeClass)->ir.Function:
+        # if(not p_tipedata in fungsiBuiltin[p_namaFungsi].keys()):
+        __getterDetail : detailFungsi | None = builtinClass.getDetailByParams(p_tipedata, builtinClass.getFungsiAllVariant(p_namaFungsi))
         
-        if(namaBuiltin in self.fungsiExtern):
+        if(__getterDetail is None): raise Exception("STOPPER")
+        detailBuiltin : detailFungsi = __getterDetail
+        namaBuiltin : str = detailBuiltin["namaDiCPP"]
+        
+        if(namaBuiltin in self.fungsiExtern.keys()):
             return self.modul.globals[namaBuiltin]
         
         if(not p_namaFungsi in self.fungsiExtern.keys()):
-            parameterBuiltin : list[ir.Type] = fungsiBuiltin[p_namaFungsi][p_tipedata]["parameter"]
-            tipeReturnBuiltin : ir.Type = fungsiBuiltin[p_namaFungsi][p_tipedata]["tipeReturn"]
+            parameterBuiltin : list[ir.Type] = detailBuiltin["parameter"]
+            tipeReturnBuiltin : ir.Type = detailBuiltin["tipeReturn"]
             
             llvm_tipeFungsi : ir.FunctionType = ir.FunctionType(tipeReturnBuiltin, parameterBuiltin)
             llvm_fungsi : ir.Function = ir.Function(self.modul, llvm_tipeFungsi, namaBuiltin)
-            
+
             self.fungsiExtern[namaBuiltin] = llvm_fungsi
-        
         return self.fungsiExtern[namaBuiltin]
+        # if(not p_tipedata in fungsiBuiltin[p_namaFungsi]):
+        #     self.errorHandlerObjek.tambahinError(__name__, 1, p_node.baris, p_bagian=f"{p_namaFungsi}({p_tipedata.__str__()})")
+        #     return ir.Function(self.modul, ir.FunctionType(TIPEDATA_LLVM_VOID, []), name="ERROR")
+
+        # namaBuiltin : str = fungsiBuiltin[p_namaFungsi][p_tipedata]["namaDiCPP"]
+        
+        # if(namaBuiltin in self.fungsiExtern):
+        #     return self.modul.globals[namaBuiltin]
+        
+        # if(not p_namaFungsi in self.fungsiExtern.keys()):
+        #     parameterBuiltin : list[ir.Type] = fungsiBuiltin[p_namaFungsi][p_tipedata]["parameter"]
+        #     tipeReturnBuiltin : ir.Type = fungsiBuiltin[p_namaFungsi][p_tipedata]["tipeReturn"]
+            
+        #     llvm_tipeFungsi : ir.FunctionType = ir.FunctionType(tipeReturnBuiltin, parameterBuiltin)
+        #     llvm_fungsi : ir.Function = ir.Function(self.modul, llvm_tipeFungsi, namaBuiltin)
+            
+        #     self.fungsiExtern[namaBuiltin] = llvm_fungsi
+        
+        # return self.fungsiExtern[namaBuiltin]
     
     def llvm_addBlok(self, p_namaBlok : str, p_statement : list[node.nodeClass]|list[node.nodeKalau], p_scope : scopeClass)->ir.Block:
         if(not self.builder is None):
@@ -233,16 +234,32 @@ class codeGeneratorClass:
             self.builder.ret(returnanFungsi) #type:ignore
 
     def baca_nodePanggilFungsi(self, p_nodePanggilFungsi : node.nodePanggilFungsi, p_scope : scopeClass)->ir.Value:
-        if(p_nodePanggilFungsi.namaFungsi.nilai in fungsiBuiltin.keys()):
+        # if(p_nodePanggilFungsi.namaFungsi.nilai in fungsiBuiltin.keys()):
+        if(builtinClass.cekFungsi(p_nodePanggilFungsi.namaFungsi.nilai)):
+            getterFungsi : list[detailFungsi] | None = builtinClass.getFungsiAllVariant(p_nodePanggilFungsi.namaFungsi.nilai)
+            getFungsi : list[detailFungsi]
             
-            getFungsi = fungsiBuiltin[p_nodePanggilFungsi.namaFungsi.nilai]
+            if(not getterFungsi is None):getFungsi = getterFungsi
+            else:raise Exception("builtin gk ketemu, safeguard jebol")
             
-            getVariabel : ir.Value | None = self.visit(p_nodePanggilFungsi.parameterInput[0], p_scope)
-            if(getVariabel is None):raise Exception("VARIABEL GAK KETEMU, SAFEGUARD JEBOL")
-            else:
-                llvm_fungsi : ir.Function = self.setupBuiltin(p_nodePanggilFungsi.namaFungsi.nilai, getVariabel.type, p_nodePanggilFungsi)
-                llvm_parameterInput : ir.Value = getVariabel
-                return self.builder.call(llvm_fungsi, [llvm_parameterInput]) #type:ignore
+            llvm_tipedataParameterInput : list[ir.Type] = []
+            llvm_parameterInput : list[ir.Value] = []
+            for tipedata in p_nodePanggilFungsi.parameterInput:
+                __getter : ir.Value | None = self.visit(tipedata, p_scope)
+                if(__getter is None) : raise Exception("STOPPER")
+                tempVisit : ir.Value = __getter
+                llvm_tipedataParameterInput.append(tempVisit.type)
+                llvm_parameterInput.append(tempVisit)
+                pass
+            
+            llvm_fungsi : ir.Function = self.setupBuiltin(p_nodePanggilFungsi.namaFungsi.nilai, llvm_tipedataParameterInput, p_nodePanggilFungsi)
+            return self.builder.call(llvm_fungsi, llvm_parameterInput)
+            # getVariabel : ir.Value | None = self.visit(p_nodePanggilFungsi.parameterInput[0], p_scope)
+            # if(getVariabel is None):raise Exception("VARIABEL GAK KETEMU, SAFEGUARD JEBOL")
+            # else:
+            #     llvm_fungsi : ir.Function = self.setupBuiltin(p_nodePanggilFungsi.namaFungsi.nilai, getVariabel.type, p_nodePanggilFungsi)
+            #     llvm_parameterInput : ir.Value = getVariabel
+            #     return self.builder.call(llvm_fungsi, [llvm_parameterInput]) #type:ignore
             
         elif(p_nodePanggilFungsi.namaFungsi.nilai in self.modul.globals):
             llvm_fungsi : ir.Function = self.modul.globals[p_nodePanggilFungsi.namaFungsi.nilai]

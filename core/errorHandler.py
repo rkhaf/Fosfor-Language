@@ -56,7 +56,7 @@ class errorHandlerClass:
                 17 : "kodenya invalid twin, cona cek lagi ada yg salah apa egk",
                 18 : "inkrementalnya invalid, harap cek lgi",
                 19 : "kyknya statementnya blm ditutup make ';' ",
-                20 : "'kalau misal' tu bergantung sma 'kalau', jdi bikin dibikin dulu coba",
+                20 : "'kalau misal' tu bergantung sma 'kalau', jdi 'bikin' nya dibikin dulu coba",
             },
             grammar.MODUL_PATH_SMTK : {
                 1 : "variabelnya ga ketemu, coba cek lagi udh dibikin apa blom",
