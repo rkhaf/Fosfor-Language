@@ -1,5 +1,5 @@
 # Fosfor Language
-project bikin bhs pemrograman kustom dgn metode compiled yg ditulis dari 0 tanpa mke tools bantuan (ANTLR, yacc, Bison) dgn base compilernya dibentuk dari python yg kemudian disupport make LLVM utk generasi .exe nya
+Project bikin bhs pemrograman kustom dengan metode compiled yg ditulis dari 0 tanpa make tools bantuan (ANTLR, Yacc, Bison). Base compilernya dibuat pke Python, lalu disupport sama LLVM utk generasi .exe nya, dibantu jg sama runtime berbasis C++ untuk ngehandle fungsi fungsi builtin nya.
 
 ## Benchmark
 disini terdapat 2 bahasa pemrograman populer yg disandingin sma bhsa Fosfor sbg perbandingan performa, masing masing bahasa ditest untuk melakukan perulangan sebanyak 100 juta kali putaran
