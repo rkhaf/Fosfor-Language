@@ -398,3 +398,7 @@ class semantikClass:
         #     print(json.dumps(scope.printDatas(), indent=2))
         #     pass
         pass
+    
+    def printScopes(self)->None:
+        for scope in self.scopes:
+            print(str(scope.printDatas())+"\n")
