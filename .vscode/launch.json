@@ -10,7 +10,8 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/core/eksekutor.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "args": ["d:/kode/py/Fosfor Language/main.fos"]
         }
     ]
 }

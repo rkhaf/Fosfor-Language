@@ -224,7 +224,6 @@ class parserClass:
             case _:
                 return self.parsePerbandingan()
 
-        
     def parseParameter(self)->list[node.nodeParameter]:
         """fungsi ini cmn ditujuin buat parameter bikin fungsi utk bagian pembacaan parameter
         """
@@ -324,8 +323,6 @@ class parserClass:
                     break
         return paramContainer
 
-    # def parseKalauBranch(self)->node
-
     def parsePanggilFungsi(self)->node.nodePanggilFungsi:
         """fungsi ini ditujuin utk ngehandle kalo ada pemanggilan fungsi, sambil ngecall fungsi parseEkspresi jg utk ngehandle isinya
         """
@@ -344,20 +341,20 @@ class parserClass:
                         state=2
                     
                     elif(self.tokenSkrg.tipe==Ttype.T_PRTS_KNAN):
-                        if(self.tokenDepan.tipe!=Ttype.T_PRTS_KNAN):
-                            self.maju()
-                        # self.maju()
+                        # if(self.tokenDepan.tipe!=Ttype.T_PRTS_KNAN):
+                        #     self.maju()
+                        self.maju()
                         break
+                        # state=0
                     
                     elif(self.tokenSkrg.tipe==Ttype.T_SYMBOL_KOMA):
                         state=2
                         self.maju()
                     
                     else:
-                        state=1
-                        self.errorHandlerObjek.tambahinError(__name__, 3, self.tokenSkrg.baris, self.tokenSkrg.kolom, self.tokenSkrg.nilai)
-                        # print(self.tokenSkrg.nilai)
-                        # raise Exception("stopper")
+                        # state=1
+                        self.errorHandlerObjek.tambahinError(__name__, 19, self.tokenBlkng.baris, self.tokenBlkng.kolom, self.tokenBlkng.nilai)
+                        break
                     
                 #ngepick identifier
                 elif(state==1):
@@ -856,6 +853,7 @@ class parserClass:
                         tempNodeReturn.returnEkspresi = tempEkspresi
                         
                     tempNode = tempNodeReturn
+                    self.maju()
                     pass
                 
                 case pola.POLA_PANGGIL_FUNGSI:
@@ -957,9 +955,9 @@ class parserClass:
                         self.punyaEntryPoint=True
                         tempNode = node.nodeBikinFungsi(self.tokenDepan.baris, self.tokenDepan.kolom, self.tokenDepan.nilai, TIPEDATA_VOID)
                         self.maju(3)
-                        pass
                         tempNode.isiFungsi = self.parseCodeContainer()
-                        # self.maju()
+                        pass
+                        
                     else:
                         raise Exception("APENI WOI")
                     pass

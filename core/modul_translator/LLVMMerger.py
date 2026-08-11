@@ -3,6 +3,10 @@ import subprocess
 import tempfile
 import llvmlite.binding as llvm
 from llvmlite import ir
+from pathlib import Path
+import config
+
+
 
 # Inisialisasi LLVM backend
 # llvm.initialize()
@@ -14,10 +18,10 @@ class LLVMMergerClass:
 
     def proses(
         self,
+        eksekusi : bool,
         namaFile : str,
         ir_str: ir.Module,
         output_exe_path: str,
-        runtime_obj_path: str = "core/runtime/runtime.o",
         compiler: str = "g++",
     ) -> None:
         
@@ -44,38 +48,48 @@ class LLVMMergerClass:
             temp_obj_file.write(obj_bytes)
             temp_obj_path: str = temp_obj_file.name
 
+        # print("TEST KONFIG", config.path_runtimeCPP)
+
+        targetPathEXE : Path
+        if(len(output_exe_path)==0):
+            targetPathEXE = Path.cwd()
+        else:
+            targetPathEXE = Path(output_exe_path)
+
         try:
-            # Command: g++ <temp_main.o> <runtime.o> -o <main.exe>
-            if(len(output_exe_path)==0):
-                cmd: list[str] = [
-                    compiler,
-                    temp_obj_path,
-                    runtime_obj_path,
-                    "-o",
-                    namaFile,
-                    "-fno-pic",
-                    "-fno-pie"
-                ]
-            else:
-                cmd: list[str] = [
-                    compiler,
-                    temp_obj_path,
-                    runtime_obj_path,
-                    "-o",
-                    output_exe_path,
-                    "-fno-pic",
-                    "-fno-pie"
-                ]
+            # 1. Pastikan target_exe berupa Absolute Path & ber-ekstensi .exe
+            target_exe = (targetPathEXE / f"{namaFile}.exe").resolve()
+
+            cmd = [
+                compiler,
+                temp_obj_path,
+                str(config.path_runtimeCPP),
+                "-o",
+                str(target_exe), # Kirim FULL ABSOLUTE PATH ke G++
+                "-fno-pic",
+                "-fno-pie"
+            ]
 
             result = subprocess.run(cmd, capture_output=True, text=True)
-            if result.returncode != 0:
-                print("=== G++ ERROR LOG ===")
-                print(result.stderr)
-                raise RuntimeError(f"G++ Linking Failed:\n{result.stderr}")
-            
-            # Eksekusi linker
-            subprocess.run(cmd, check=True)
+
+            if result.returncode == 0:
+                # 2. VALIDASI FISIK FILE: Cek apakah filenya BENERAN ada di harddisk!
+                if target_exe.exists():
+                    # print(f"✅ Linking Berhasil! Binary terbuat di: {target_exe}")
+                    
+                    # Baru deh auto-execute
+                    if eksekusi:
+                        subprocess.run([str(target_exe)], check=True)
+                        
+                else:
+                    print(f"❌ ANEH: G++ bilang sukses (returncode 0), tapi file ga ada di {target_exe}!")
+                    print("💡 Kemungkinan besar: Di-quarantine Antivirus atau tersimpan di folder lain.")
+
+            else:
+                print(f"❌ G++ Linking Failed:\n{result.stderr}")
+        
         finally:
             # 5. BERSIH-BERSIH: Hapus file .o temporary biar gak nyampah di disk
             if os.path.exists(temp_obj_path):
                 os.remove(temp_obj_path)
+        pass

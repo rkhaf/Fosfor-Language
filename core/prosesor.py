@@ -9,6 +9,7 @@ from modul_translator.codeGenerator import codeGeneratorClass
 from data_language.tokens import tokenClass
 from errorHandler import errorHandlerClass
 from modul_translator.LLVMMerger import LLVMMergerClass
+import subprocess
 # from tokenizer import tokenizerClass
 
 def run(fileOriginal : str, p_namaFile : str) -> None:
@@ -41,5 +42,6 @@ def run(fileOriginal : str, p_namaFile : str) -> None:
                 errorHandlerObjek.displayError()
             else:
                 # print(str(codegenObjek.modul))
-                konverterObjek.proses(p_namaFile, codegenObjek.getModul(), "")
+                konverterObjek.proses(True,p_namaFile, codegenObjek.getModul(), "")
+                # subprocess.run(["./"+str()])
         # pass

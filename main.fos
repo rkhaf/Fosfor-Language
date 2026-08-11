@@ -1,24 +1,17 @@
+// bikin fungsi namanya heinkel tipenya string isinya
+//     bikin variabel namanya test tipenya string nilainya "p";
+//     test = "halo";
+//     balikin "helo worl";
+// akhir;
+
+bikin fungsi namanya kuadra tipenya string parameternya(inp:string="leisserai") isinya
+    balikin inp;
+akhir;
+
 fungsi main isinya
-    bikin variabel namanya total tipenya integer nilainya 0;
-    bikin variabel namanya i tipenya integer nilainya 1;
+    // bikin variabel namanya nama tipenya string nilainya "hans";
+    // bikin variabel nilainya "nama" tipenya string namanya woilah;
 
-    tampilin("Mulai perulangan 100 juta...");
-
-    mulaiTimer();
-
-    ngulangin selama (i <= 100000000) isinya
-        total++;
-
-        kalau (i % 20000000 == 0) isinya
-            tampilin("iterasi ke:");
-            tampilin(i);
-        akhir
-
-        i++;
-    akhir
-
-    stopTimer();
-
-    tampilin("Hasil total:");
-    tampilin(total);
+    // tampilin("furheim");
+    tampilin(kuadra());
 akhir;

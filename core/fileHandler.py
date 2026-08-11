@@ -18,4 +18,4 @@ def readPath(p_path : str) -> None:
                 print("format file gak sesuai")
 
     except FileNotFoundError:
-        print("gak nemu")
+        print(f"file gak ketemu ({p_path}) ({namaBersih})")

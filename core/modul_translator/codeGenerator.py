@@ -265,9 +265,20 @@ class codeGeneratorClass:
             llvm_fungsi : ir.Function = self.modul.globals[p_nodePanggilFungsi.namaFungsi.nilai]
             llvm_params : list[ir.Value] = []
             
-            for paramIdx in range(0, len(p_nodePanggilFungsi.parameterInput)):
-                paramInput : ir.Value = self.visit(p_nodePanggilFungsi.parameterInput[paramIdx], p_scope)
-                llvm_params.append(paramInput)
+            ### error baca defaultvalue parameter fungsi
+            
+            for paramIdx in range(0, len(llvm_fungsi.function_type.args)):
+                paramInput : ir.Value
+                # try:
+                #     paramInput : ir.Value = self.visit(p_nodePanggilFungsi.parameterInput[paramIdx], p_scope)
+
+                # else:
+                #     if()
+                # if(len(p_nodePanggilFungsi.parameterInput)>=paramIdx):
+                #     paramInput : ir.Value = self.visit(p_nodePanggilFungsi.parameterInput[paramIdx], p_scope)
+                #     llvm_params.append(paramInput)
+                # else:
+                #     pass
                 
             return self.builder.call(llvm_fungsi, llvm_params) #type:ignore 
         # raise Exception("STOPPER")
