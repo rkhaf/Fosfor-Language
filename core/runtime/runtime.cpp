@@ -17,10 +17,6 @@ extern "C" {
 
     void fosfor_stop_timer(){
         auto end_time = std::chrono::high_resolution_clock::now();
-        // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time-g_start_time).count();
-
-        // double detik = duration / 1000000.0;
-
         std::chrono::duration<double> duration = end_time - g_start_time;
 
         // std::cout << std::fixed << std::setprecision(4);

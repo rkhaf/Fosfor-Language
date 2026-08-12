@@ -1,10 +1,20 @@
+impor modul vektor;
+// impor file tes;
 
-bikin fungsi namanya test1 tipenya string parameternya(inp:string, inp2:integer=123) isinya
-    tampilin(inp2);
-    balikin inp;
-akhir;
+// impor beberapa modul (
+//     vektor,
+//     list,
+//     unordered_map
+// )
+
 
 fungsi main isinya
-    tampilin(test1("heinkel"));
-    tampilin(test1("heinkel", 67));
+    bikin variabel tipenya integer namanya testing nilainya 123;
+    tampilin(testing);
 akhir;
+
+// impor beberapa file (
+//     tes1,
+//     tes2,
+//     tes3
+// )

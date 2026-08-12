@@ -68,23 +68,6 @@ class scopeClass:
         else:
             raise Exception("ERROR")
 
-# class detailFungsi(TypedDict):
-#     namaDiCPP : str
-#     parameter : list[ir.Type]
-#     tipeReturn : ir.Type
-
-# fungsiBuiltin : dict[str, list[detailFungsi]] = {
-#     "tampilin":[
-#         {"namaDiCPP":"fosfor_trampilin_int", "tipeReturn":ir.VoidType(), "parameter":[TIPEDATA_LLVM_INTEGER]},
-#         {"namaDiCPP":"fosfor_trampilin_str", "tipeReturn":ir.VoidType(), "parameter":[TIPEDATA_LLVM_STRING]},
-#         {"namaDiCPP":"fosfor_trampilin_bool", "tipeReturn":ir.VoidType(), "parameter":[TIPEDATA_LLVM_BOOLEAN]},
-#         {"namaDiCPP":"fosfor_trampilin_flt", "tipeReturn":ir.VoidType(), "parameter":[TIPEDATA_LLVM_FLOAT]},
-#     ],
-#     "mulaiTimer":[
-#         {"namaDiCPP":"fosfor_mulai_timer","tipeReturn":ir.VoidType(), "parameter":[]}
-#     ]
-# }
-
 mappingOpsInt : dict[str, str] = {
     "+" : "add",
     "-" : "sub",
@@ -132,25 +115,6 @@ class codeGeneratorClass:
 
             self.fungsiExtern[namaBuiltin] = llvm_fungsi
         return self.fungsiExtern[namaBuiltin]
-        # if(not p_tipedata in fungsiBuiltin[p_namaFungsi]):
-        #     self.errorHandlerObjek.tambahinError(__name__, 1, p_node.baris, p_bagian=f"{p_namaFungsi}({p_tipedata.__str__()})")
-        #     return ir.Function(self.modul, ir.FunctionType(TIPEDATA_LLVM_VOID, []), name="ERROR")
-
-        # namaBuiltin : str = fungsiBuiltin[p_namaFungsi][p_tipedata]["namaDiCPP"]
-        
-        # if(namaBuiltin in self.fungsiExtern):
-        #     return self.modul.globals[namaBuiltin]
-        
-        # if(not p_namaFungsi in self.fungsiExtern.keys()):
-        #     parameterBuiltin : list[ir.Type] = fungsiBuiltin[p_namaFungsi][p_tipedata]["parameter"]
-        #     tipeReturnBuiltin : ir.Type = fungsiBuiltin[p_namaFungsi][p_tipedata]["tipeReturn"]
-            
-        #     llvm_tipeFungsi : ir.FunctionType = ir.FunctionType(tipeReturnBuiltin, parameterBuiltin)
-        #     llvm_fungsi : ir.Function = ir.Function(self.modul, llvm_tipeFungsi, namaBuiltin)
-            
-        #     self.fungsiExtern[namaBuiltin] = llvm_fungsi
-        
-        # return self.fungsiExtern[namaBuiltin]
     
     def llvm_addBlok(self, p_namaBlok : str, p_statement : list[node.nodeClass]|list[node.nodeKalau], p_scope : scopeClass)->ir.Block:
         if(not self.builder is None):
@@ -288,22 +252,9 @@ class codeGeneratorClass:
                         testGetValueFromDefaultValue : varObj = p_scope.getVariabel(testGetVarParamNameLLVM.name)
                         if(not testGetValueFromDefaultValue["llvm_defaultValue"] is None):
                             llvm_params.append(testGetValueFromDefaultValue["llvm_defaultValue"])
-                        pass
-                    pass
-                pass
-                
-                # paramInput : ir.Value
-                # try:
-                #     paramInput = self.visit(p_nodePanggilFungsi.parameterInput[paramIdx], p_scope)
+                        else:raise Exception("stopper")
+                    else:raise Exception("stopper")
 
-                # else:
-                #     if()
-                # if(len(p_nodePanggilFungsi.parameterInput)>=paramIdx):
-                #     paramInput : ir.Value = self.visit(p_nodePanggilFungsi.parameterInput[paramIdx], p_scope)
-                #     llvm_params.append(paramInput)
-                # else:
-                #     pass
-                
             return self.builder.call(llvm_fungsi, llvm_params) #type:ignore 
         # raise Exception("STOPPER")
     
@@ -382,7 +333,7 @@ class codeGeneratorClass:
         if(isinstance(p_nodePenugasan.referensi, node.nodeIdentifier)):
             namaIdtf : str = p_nodePenugasan.referensi.identifierToken
             if(p_scope.cekVariabel(namaIdtf)):
-                llvm_alokaMem : ir.AllocaInstr = p_scope.getVariabel(namaIdtf)
+                llvm_alokaMem : ir.AllocaInstr = p_scope.getVariabel(namaIdtf)["llvm_aloka"]
                 self.builder.store(llvm_nilai, llvm_alokaMem)
             else:
                 raise Exception("SAFEGUARD JEBOL, IDENTIFIER GK KETEMU")

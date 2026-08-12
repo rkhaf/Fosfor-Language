@@ -300,8 +300,17 @@ class nodeBikinFungsi(nodeStatement):
             
         return {"tipe" : "deklarasiFungsi", "nama" : self.namaFungsi, "tipeReturn" : self.tipedataFungsi.__repr__(), "parameter" : temp2, "badan" : temp1}
 
-    def evaluasi(self)->None:
-        print("nama gwh:",hex(id(self)))
+    # def evaluasi(self)->None:
+    #     print("nama gwh:",hex(id(self)))
+
+class nodeImpor(nodeStatement):
+    def __init__(self, p_baris: int, p_kolom: int, p_token : tokenClass, p_apakahBuiltin : bool) -> None:
+        super().__init__(p_baris, p_kolom)
+        self.nama : tokenClass = p_token
+        self.apakahBuiltin : bool = p_apakahBuiltin
+    
+    def getDatas(self) -> dict[str, Any]:
+        return {"tipe" : "deklarasiImpor", "nama" : self.nama.nilai, "apakahBuiltin" : self.apakahBuiltin}
 
 class nodePerulanganSelama(nodeStatement):
     def __init__(self, p_baris: int, p_kolom: int) -> None:

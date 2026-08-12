@@ -67,7 +67,8 @@ class LLVMMergerClass:
                 "-o",
                 str(target_exe), # Kirim FULL ABSOLUTE PATH ke G++
                 "-fno-pic",
-                "-fno-pie"
+                "-fno-pie",
+                "-Wl,--gc-sections"
             ]
 
             result = subprocess.run(cmd, capture_output=True, text=True)

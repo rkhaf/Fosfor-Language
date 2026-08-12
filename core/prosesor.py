@@ -31,17 +31,17 @@ def run(fileOriginal : str, p_namaFile : str) -> None:
     if(errorHandlerObjek.adaError()):
         errorHandlerObjek.displayError()
     else:
-        # parserObjek.getTree().printTree()
-        semantikObjek.proses(parserObjek.getTree())
-        # semantikObjek.printScopes()
-        if(errorHandlerObjek.adaError()):
-            errorHandlerObjek.displayError()
-        else:
-            codegenObjek.proses(parserObjek.getTree())
-            if(errorHandlerObjek.adaError()):
-                errorHandlerObjek.displayError()
-            else:
-                # print(str(codegenObjek.modul))
-                konverterObjek.proses(True,p_namaFile, codegenObjek.getModul(), "")
+        parserObjek.getTree().printTree()
+        # semantikObjek.proses(parserObjek.getTree())
+        # # semantikObjek.printScopes()
+        # if(errorHandlerObjek.adaError()):
+        #     errorHandlerObjek.displayError()
+        # else:
+        #     codegenObjek.proses(parserObjek.getTree())
+        #     if(errorHandlerObjek.adaError()):
+        #         errorHandlerObjek.displayError()
+        #     else:
+        #         # print(str(codegenObjek.modul))
+        #         konverterObjek.proses(True,p_namaFile, codegenObjek.getModul(), "")
                 # subprocess.run(["./"+str()])
         # pass

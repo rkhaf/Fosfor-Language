@@ -535,7 +535,7 @@ class parserClass:
                             else:
                                 self.maju()
                             errorFlag=True
-                        elif(self.tokenSkrg.tipe in [Ttype.T_TPNY, Ttype.T_TPNY]):
+                        elif(self.tokenSkrg.tipe in [Ttype.T_TPNY, Ttype.T_NLNY]):
                             state=0
                         else:
                             tempNode.namaVariabel+= self.tokenSkrg.nilai
@@ -821,6 +821,20 @@ class parserClass:
         self.mundur()
         return tempNodeKalau
     
+    def parseImpor(self)->node.nodeImpor:
+        namaObjekToken : tokenClass = self.tokenSkrg
+        while self.idxIterator<len(self.fullToken)-1:
+            if(self.tokenSkrg.tipe==Ttype.T_DLMR):
+                break
+            
+            elif(self.tokenSkrg.tipe not in pola.POLA_IMPOR_MODUL):
+                namaObjekToken = self.tokenSkrg
+                self.maju()
+            
+            else:
+                self.maju()
+        return node.nodeImpor(namaObjekToken.baris, namaObjekToken.kolom, namaObjekToken, True)
+    
     def parseCodeContainer(self)->list[node.nodeClass]:
         """fungsi ini buat ngeparse barisan kode didalem scope (kyk isinya if, perulangan, fungsi, dll),
         returnnya sekumpulan node dari sekumpulan token yg udh dibaca
@@ -951,7 +965,10 @@ class parserClass:
                 
                 case pola.POLA_ENTRY_POINT:
                     if(self.tokenDepan.nilai==grammar.KEYWORD_ENTRY_POINT):
-                        
+                        if(outerScopeFlag):
+                            outerScopeFlag=False
+                            outerScopeList.append(outerScopeRecorder.copy())
+                            outerScopeRecorder.clear()
                         self.punyaEntryPoint=True
                         tempNode = node.nodeBikinFungsi(self.tokenDepan.baris, self.tokenDepan.kolom, self.tokenDepan.nilai, TIPEDATA_VOID)
                         self.maju(3)
@@ -961,6 +978,14 @@ class parserClass:
                     else:
                         raise Exception("APENI WOI")
                     pass
+                
+                case pola.POLA_IMPOR_MODUL:
+                    if(outerScopeFlag):
+                        outerScopeFlag=False
+                        outerScopeList.append(outerScopeRecorder.copy())
+                        outerScopeRecorder.clear()
+                    tempNode = self.parseImpor()
+                    
                 
                 case _:
                     outerScopeRecorder.append(self.tokenSkrg)
@@ -973,7 +998,7 @@ class parserClass:
             if(self.idxIterator<len(self.fullToken)-1):
                 self.maju()
                 if(self.idxIterator==len(self.fullToken)-1):
-                    if(outerScopeFlag):
+                    if(outerScopeFlag or len(outerScopeList)>0):
                         outerScopeFlag=False
                         outerScopeRecorder.append(self.tokenSkrg)
                         outerScopeList.append(outerScopeRecorder.copy())
