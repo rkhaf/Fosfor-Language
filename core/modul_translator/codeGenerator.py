@@ -26,15 +26,18 @@ from metadata.datatypeClass import TIPEDATA_STRING
 from metadata.datatypeClass import TIPEDATA_FLOAT
 from metadata.datatypeClass import TIPEDATA_NULL
 
+class varObj(TypedDict):
+    llvm_aloka : ir.AllocaInstr
+    llvm_defaultValue : None |ir.Value
 
 class scopeClass:
     def __init__(self, p_parent : scopeClass | None = None) -> None:
         self.scopeParent : scopeClass | None = p_parent
-        self.mappingVariabel : dict[str, ir.AllocaInstr] = {}
+        self.mappingVariabel : dict[str, varObj] = {}
     
-    def addVariabel(self, p_nama : str, p_ptr : ir.AllocaInstr)->None:
-        self.mappingVariabel[p_nama] = p_ptr
-    
+    def addVariabel(self, p_nama : str, p_ptr : ir.AllocaInstr, p_defaultValue : ir.Value | None = None)->None:
+        self.mappingVariabel[p_nama] = {"llvm_aloka":p_ptr, "llvm_defaultValue":p_defaultValue}
+        
     def cekVariabel(self, p_nama:str)->bool:
         if(self.scopeParent is None):
             return p_nama in self.mappingVariabel.keys()
@@ -45,10 +48,10 @@ class scopeClass:
             else:
                 return self.scopeParent.cekVariabel(p_nama)
 
-    def getVariabel(self, p_nama : str)->ir.AllocaInstr:
+    def getVariabel(self, p_nama : str)->varObj:
         if(self.cekVariabel(p_nama)):
             if(self.scopeParent is None):
-                getter : ir.AllocaInstr | None = self.mappingVariabel.get(p_nama, None)
+                getter : varObj | None = self.mappingVariabel.get(p_nama, None)
                 if(not getter is None):
                     return getter
                 else:raise Exception("gk ketemu")
@@ -56,7 +59,7 @@ class scopeClass:
             else:
                 percobaanCari : bool = p_nama in self.mappingVariabel.keys()
                 if(percobaanCari):
-                    getter : ir.AllocaInstr | None = self.mappingVariabel.get(p_nama, None)
+                    getter : varObj | None = self.mappingVariabel.get(p_nama, None)
                     if(not getter is None):
                         return getter
                     else:raise Exception("gk ketemu")
@@ -159,10 +162,13 @@ class codeGeneratorClass:
             
             return tempBlok
     
-    def visit(self, p_node : node.nodeClass, p_scope : scopeClass)->ir.Value | None:
-        namaFungsi : str =f"baca_{type(p_node).__name__}"
-        fungsiTujuan : Callable[[Any, Any], Any] = getattr(self, namaFungsi)
-        return fungsiTujuan(p_node, p_scope)
+    def visit(self, p_node : node.nodeClass | None, p_scope : scopeClass)->ir.Value | None:
+        if(p_node is None):
+            return None
+        else:
+            namaFungsi : str =f"baca_{type(p_node).__name__}"
+            fungsiTujuan : Callable[[Any, Any], Any] = getattr(self, namaFungsi)
+            return fungsiTujuan(p_node, p_scope)
     
     def baca_nodeBikinVariabel(self, p_nodeBikinVariabel : node.nodeBikinVariabel, p_scope : scopeClass)->None:
         if(not self.builder is None):
@@ -211,19 +217,25 @@ class codeGeneratorClass:
             llvm_entryBlock : ir.Block = llvm_fungsiBaru.append_basic_block(name="entry") #type:ignore
             self.builder = ir.IRBuilder(llvm_entryBlock)
             
-            zeroExitCode : ir.Constant = ir.Constant(ir.IntType(32), 0)
+            # zeroExitCode : ir.Constant = ir.Constant(ir.IntType(32), 0)
             
-            returnanFungsi : Any
+            returnanFungsi : ir.Instruction
             
             #ngisiin nama utk paramnya
             for paramIdx in range(0, len(p_nodeBikinFungsi.parameterFungsi)):
                 namaParam : str = p_nodeBikinFungsi.parameterFungsi[paramIdx].nama
                 llvm_fungsiBaru.args[paramIdx].name = namaParam
                 
+                llvm_atomikParamDefaultValue : ir.Value | None = self.visit(p_nodeBikinFungsi.parameterFungsi[paramIdx].nilaiDefault, p_scope)
+                if(not llvm_atomikParamDefaultValue is None):
+                    assert isinstance(llvm_atomikParamDefaultValue, ir.Value), "[baca_nodeBikinFungsi] datatype llvm_atomikParamDefaultValue ga sesuai"
+                
                 llvm_atomikParam : ir.AllocaInstr = self.builder.alloca(llvm_fungsiBaru.args[paramIdx].type, name=namaParam)
+                assert isinstance(llvm_atomikParam, ir.AllocaInstr), "[baca_nodeBikinFungsi] datatype llvm_atomikParam ga sesuai"
+
                 self.builder.store(llvm_fungsiBaru.args[paramIdx], llvm_atomikParam)
-                p_scope.addVariabel(namaParam, llvm_atomikParam)
-            
+                p_scope.addVariabel(namaParam, llvm_atomikParam, llvm_atomikParamDefaultValue)
+                pass
             for nodeKode in p_nodeBikinFungsi.isiFungsi:
                 if(isinstance(nodeKode, node.nodeBalikin)):
                     returnanFungsi = self.visit(nodeKode, newScope)
@@ -245,9 +257,8 @@ class codeGeneratorClass:
             llvm_tipedataParameterInput : list[ir.Type] = []
             llvm_parameterInput : list[ir.Value] = []
             for tipedata in p_nodePanggilFungsi.parameterInput:
-                __getter : ir.Value | None = self.visit(tipedata, p_scope)
-                if(__getter is None) : raise Exception("STOPPER")
-                tempVisit : ir.Value = __getter
+                tempVisit : ir.Value = self.visit(tipedata, p_scope)
+                assert isinstance(tempVisit, ir.Value), "[baca_nodePanggilFungsi] datatype tempVisit ga sesuai"
                 llvm_tipedataParameterInput.append(tempVisit.type)
                 llvm_parameterInput.append(tempVisit)
                 pass
@@ -268,9 +279,22 @@ class codeGeneratorClass:
             ### error baca defaultvalue parameter fungsi
             
             for paramIdx in range(0, len(llvm_fungsi.function_type.args)):
-                paramInput : ir.Value
+                if(paramIdx<len(p_nodePanggilFungsi.parameterInput)):
+                    paramInput : ir.Value = self.visit(p_nodePanggilFungsi.parameterInput[paramIdx], p_scope)
+                    llvm_params.append(paramInput)
+                else:
+                    testGetVarParamNameLLVM : ir.Value = llvm_fungsi.args[paramIdx]
+                    if (p_scope.cekVariabel(testGetVarParamNameLLVM.name)):
+                        testGetValueFromDefaultValue : varObj = p_scope.getVariabel(testGetVarParamNameLLVM.name)
+                        if(not testGetValueFromDefaultValue["llvm_defaultValue"] is None):
+                            llvm_params.append(testGetValueFromDefaultValue["llvm_defaultValue"])
+                        pass
+                    pass
+                pass
+                
+                # paramInput : ir.Value
                 # try:
-                #     paramInput : ir.Value = self.visit(p_nodePanggilFungsi.parameterInput[paramIdx], p_scope)
+                #     paramInput = self.visit(p_nodePanggilFungsi.parameterInput[paramIdx], p_scope)
 
                 # else:
                 #     if()
@@ -285,7 +309,8 @@ class codeGeneratorClass:
     
     def baca_nodeIdentifier(self, p_nodeIdentifier : node.nodeIdentifier, p_scope : scopeClass)-> ir.Value:
         if(p_scope.cekVariabel(p_nodeIdentifier.identifierToken)):
-            getVar : ir.AllocaInstr = p_scope.getVariabel(p_nodeIdentifier.identifierToken)
+            getVar : ir.AllocaInstr = p_scope.getVariabel(p_nodeIdentifier.identifierToken)["llvm_aloka"]
+            assert isinstance(getVar, ir.AllocaInstr), "[baca_nodeIdentifier] datatype getVar gk sesuai"
             return cast(ir.Value, self.builder.load(getVar, f"load_{p_nodeIdentifier.identifierToken}")) #type: ignore
         else:
             raise Exception("variable gak ketemu, semantik kebobolan / blm didaftarin discope table")
@@ -295,6 +320,7 @@ class codeGeneratorClass:
     def baca_nodeNomor(self, p_nodeNomor : node.nodeNomor, p_scope : scopeClass)->ir.Value:
         if(p_nodeNomor.tipe==TIPEDATA_INTEGER):return ir.Constant(ir.IntType(32), int(p_nodeNomor.nilai))
         else:return ir.Constant(ir.FloatType(), float(p_nodeNomor.nilai))
+    
     
     def baca_nodeBoolean(self, p_nodeBoolean : node.nodeBoolean, p_scope : scopeClass)->ir.Value:
         return ir.Constant(ir.IntType(1), int(1) if p_nodeBoolean.nilai else int(0))
