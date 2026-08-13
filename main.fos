@@ -1,20 +1,6 @@
-impor modul vektor;
-// impor file tes;
-
-// impor beberapa modul (
-//     vektor,
-//     list,
-//     unordered_map
-// )
-
+// impor modul vektor;
 
 fungsi main isinya
-    bikin variabel tipenya integer namanya testing nilainya 123;
+    bikin variabel tipenya integer namanya testing nilainya 67;
     tampilin(testing);
 akhir;
-
-// impor beberapa file (
-//     tes1,
-//     tes2,
-//     tes3
-// )

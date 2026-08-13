@@ -984,7 +984,8 @@ class parserClass:
                         outerScopeFlag=False
                         outerScopeList.append(outerScopeRecorder.copy())
                         outerScopeRecorder.clear()
-                    tempNode = self.parseImpor()
+                    tempNodeImpor : node.nodeImpor = self.parseImpor()
+                    self.ASTObjek.nodeRootDivisiImpor.nodeContainer.append(tempNodeImpor)
                     
                 
                 case _:
