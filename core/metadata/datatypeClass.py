@@ -16,6 +16,7 @@ class datatypes:
     induk dari seluruh representasi tipedata
     """
     def __init__(self)->None:
+        self.namaPrimitive : str = "NULL"
         pass
 
     def _isPointer(self)->bool:

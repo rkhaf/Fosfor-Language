@@ -1,0 +1,19 @@
+{
+    "namaModul": "output",
+    "deskripsi": "modul builtin buat ngeprint",
+    "fileObjek": "output.o",
+    "daftarFungsi": {
+        "tampilin": {
+            "tipeReturn": "void",
+            "parameter": [
+                {"nama": "input", "tipe": "any"}
+            ],
+            "overloadCPP": {
+                "integer": "fosfor_tampilin_int",
+                "string": "fosfor_tampilin_str",
+                "boolean": "fosfor_tampilin_bool",
+                "float": "fosfor_tampilin_flt"
+            }
+        }
+    }
+}

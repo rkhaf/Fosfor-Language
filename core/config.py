@@ -16,5 +16,6 @@ SYS_FILE_FORMAT : str = "fos"
 #         return Path(__name__).resolve()
 
 coreDir : Path = Path(__file__).resolve().parent
-path_runtimeCPP  = coreDir / "runtime" / "runtime.o"
+path_runtimeCPP : Path = coreDir / "runtime" / "runtime.o"
+path_builtins : Path = coreDir / "builtins"
 pass

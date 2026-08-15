@@ -1,0 +1,17 @@
+{
+    "namaModul": "timer",
+    "deskripsi": "modul builtin buat penghitng waktu",
+    "fileObjek": "timer.o",
+    "daftarFungsi": {
+        "mulaiTimer": {
+            "tipeReturn": "void",
+            "parameter": [],
+            "overloadCPP": "fosfor_mulai_timer"
+        },
+        "stopTimer": {
+            "tipeReturn": "void",
+            "parameter": [],
+            "overloadCPP": "fosfor_stop_timer"
+        }
+    }
+}

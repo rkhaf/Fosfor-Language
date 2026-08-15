@@ -10,6 +10,7 @@ from modul_linker.importHandler import importHandler
 from data_language.tokens import tokenClass
 from errorHandler import errorHandlerClass
 from modul_translator.LLVMMerger import LLVMMergerClass
+from metadata.builtins import builtinClass
 import subprocess
 # from tokenizer import tokenizerClass
 
@@ -17,10 +18,11 @@ def run(fileOriginal : str, p_namaFile : str) -> None:
     errorHandlerObjek = errorHandlerClass()
     lekserObjek : lekserClass = lekserClass(errorHandlerObjek)
     parserObjek : parserClass = parserClass(errorHandlerObjek)
-    semantikObjek : semantikClass = semantikClass(errorHandlerObjek)
-    codegenObjek : codeGeneratorClass = codeGeneratorClass(errorHandlerObjek)
     konverterObjek : LLVMMergerClass = LLVMMergerClass()
     importHandlerObjek : importHandler = importHandler()
+    builtinObjek : builtinClass = builtinClass()
+    codegenObjek : codeGeneratorClass = codeGeneratorClass(errorHandlerObjek, builtinObjek)
+    semantikObjek : semantikClass = semantikClass(errorHandlerObjek, builtinObjek)
     # tokenizerObjek = tokenizerClass()
 
     # codegenObjek.
@@ -34,9 +36,10 @@ def run(fileOriginal : str, p_namaFile : str) -> None:
         errorHandlerObjek.displayError()
     else:
         # parserObjek.getTree().printTree()
-        # importHandlerObjek.proses(parserObjek.getTree())
+        importHandlerObjek.proses(parserObjek.getTree())
+        builtinObjek.proses(importHandlerObjek.getLLVMBuiltinMapping(), importHandlerObjek.getFosBuiltinMapping())
         semantikObjek.proses(parserObjek.getTree())
-        # semantikObjek.printScopes()
+        # # semantikObjek.printScopes()
         if(errorHandlerObjek.adaError()):
             errorHandlerObjek.displayError()
         else:
@@ -47,4 +50,4 @@ def run(fileOriginal : str, p_namaFile : str) -> None:
                 # print(str(codegenObjek.modul))
                 konverterObjek.proses(True,p_namaFile, codegenObjek.getModul(), "")
                 # subprocess.run(["./"+str()])
-        # pass
+        pass

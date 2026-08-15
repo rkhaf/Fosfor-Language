@@ -1,6 +1,10 @@
-// impor modul vektor;
+impor modul output;
+impor modul timer;
 
 fungsi main isinya
-    bikin variabel tipenya integer namanya testing nilainya 67;
+    mulaiTimer();
+    bikin variabel tipenya integer namanya testing nilainya 1;
+    testing=5;
     tampilin(testing);
+    stopTimer();
 akhir;

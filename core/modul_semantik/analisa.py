@@ -1,30 +1,34 @@
 from errorHandler import errorHandlerClass
 from modul_parsing.AST import ASTClass
-# from pohon.node import nodeBikinFungsi
-# from pohon.node import node.nodeClass
 from pohon import node
+
 from modul_semantik.simbolTableManager import scopeContainer
 from modul_semantik.simbolTableManager import varibelObjek
 from modul_semantik.simbolTableManager import fungsiObjek
+
 from metadata.datatypeClass import datatypes
+
 from metadata.datatypeClass import TIPEDATA_VOID
 from metadata.datatypeClass import TIPEDATA_NULL
 from metadata.datatypeClass import TIPEDATA_ANY
 from metadata.datatypeClass import TIPEDATA_EROR
 from metadata.datatypeClass import TIPEDATA_BOOLEAN
-# from typing import Any
-import json
 
-fungsi_builtin : list[fungsiObjek] = [
-    fungsiObjek("tampilin", TIPEDATA_VOID, [varibelObjek(False,"p_inputCout", TIPEDATA_ANY)], node.nodeClass(-1, -1)),
-    fungsiObjek("mulaiTimer", TIPEDATA_VOID, [], node.nodeClass(-1, -1)),
-    fungsiObjek("stopTimer", TIPEDATA_VOID, [], node.nodeClass(-1, -1)),
-]
+from metadata.builtins import builtinClass
+
+# import json
+
+# fungsi_builtin : list[fungsiObjek] = [
+#     fungsiObjek("tampilin", TIPEDATA_VOID, [varibelObjek(False,"p_inputCout", TIPEDATA_ANY)], node.nodeClass(-1, -1)),
+#     fungsiObjek("mulaiTimer", TIPEDATA_VOID, [], node.nodeClass(-1, -1)),
+#     fungsiObjek("stopTimer", TIPEDATA_VOID, [], node.nodeClass(-1, -1)),
+# ]
 
 class semantikClass:
-    def __init__(self, p_errorHandlerRef : errorHandlerClass) -> None:
+    def __init__(self, p_errorHandlerRef : errorHandlerClass, p_builtinClass : builtinClass) -> None:
         self.errorHandlerObjek = p_errorHandlerRef
         self.scopes : list[scopeContainer] = []
+        self.builtinObjek : builtinClass = p_builtinClass
     
     # def cekGetVariabel
     
@@ -357,7 +361,8 @@ class semantikClass:
         totalNode : int = len(getTree)
         
         #register fungsi builtin
-        for fungsi in fungsi_builtin:
+        for fungsi in self.builtinObjek.fungsiBuiltinFOS:
+        # for fungsi in fungsi_builtin:
             rootScope.mappingFungsi.setdefault(fungsi.nama, fungsi)
         
         while counterMainLoop<2:

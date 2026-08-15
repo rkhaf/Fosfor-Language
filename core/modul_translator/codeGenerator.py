@@ -84,7 +84,7 @@ mappingOpsFlt : dict[str, str] = {
 }
 
 class codeGeneratorClass:
-    def __init__(self, p_errorHandlerRef : errorHandlerClass) -> None:
+    def __init__(self, p_errorHandlerRef : errorHandlerClass, p_builtinClass : builtinClass) -> None:
         self.modul : ir.Module = ir.Module(name="FOSFOR CODEGEN")
         self.simbolTable : scopeClass = scopeClass()
         self.errorHandlerObjek = p_errorHandlerRef
@@ -92,12 +92,14 @@ class codeGeneratorClass:
         self.builder : ir.IRBuilder | None = None
         self.fungsiExtern : dict[str, ir.Function] = {}
         self.modul.triple = "x86_64-pc-windows-gnu"
+        self.builtinClassObjek : builtinClass = p_builtinClass
 
         pass
     
     def setupBuiltin(self, p_namaFungsi : str, p_tipedata : list[ir.Type], p_node : node.nodeClass)->ir.Function:
         # if(not p_tipedata in fungsiBuiltin[p_namaFungsi].keys()):
-        __getterDetail : detailFungsi | None = builtinClass.getDetailByParams(p_tipedata, builtinClass.getFungsiAllVariant(p_namaFungsi))
+        
+        __getterDetail : detailFungsi | None = self.builtinClassObjek.getDetailByParams(p_tipedata, self.builtinClassObjek.getFungsiAllVariant(p_namaFungsi))
         
         if(__getterDetail is None): raise Exception("STOPPER")
         detailBuiltin : detailFungsi = __getterDetail
@@ -211,8 +213,8 @@ class codeGeneratorClass:
 
     def baca_nodePanggilFungsi(self, p_nodePanggilFungsi : node.nodePanggilFungsi, p_scope : scopeClass)->ir.Value:
         # if(p_nodePanggilFungsi.namaFungsi.nilai in fungsiBuiltin.keys()):
-        if(builtinClass.cekFungsi(p_nodePanggilFungsi.namaFungsi.nilai)):
-            getterFungsi : list[detailFungsi] | None = builtinClass.getFungsiAllVariant(p_nodePanggilFungsi.namaFungsi.nilai)
+        if(self.builtinClassObjek.cekFungsi(p_nodePanggilFungsi.namaFungsi.nilai)):
+            getterFungsi : list[detailFungsi] | None = self.builtinClassObjek.getFungsiAllVariant(p_nodePanggilFungsi.namaFungsi.nilai)
             getFungsi : list[detailFungsi]
             
             if(not getterFungsi is None):getFungsi = getterFungsi
