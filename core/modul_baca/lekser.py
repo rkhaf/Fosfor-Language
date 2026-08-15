@@ -103,6 +103,9 @@ class lekserClass:
                     
                 elif(self.currentChar in grammar.simbolList.keys() or self.currentChar in grammar.perbandinganList.keys() or self.currentChar in grammar.operatorList.keys()):
                     self.gantiState(states.simbol)
+                
+                elif(self.currentChar in grammar.punctuationList.keys()):
+                    self.gantiState(states.punctuatorBracket)
 
                 elif(self.currentChar==grammar.KEYWORD_DLMR):
                     self.konversiTempJikaBerisi()
@@ -260,7 +263,16 @@ class lekserClass:
                     self.gantiState(states.default)
                 
             elif(self.state==states.punctuatorBracket):
-                if(self.currentChar in grammar.kurungList.keys() or self.currentChar in grammar.punctuationList.keys()):
+                if(self.currentChar+self.forwardChar in grammar.punctuationList.keys()):
+                    self.konversiTempJikaBerisi()
+                    self.simpenCharKeTemp()
+                    self.maju()
+                    self.simpenCharKeTemp()
+                    self.maju()
+                    self.konversiDanPushKeToken()
+                    # self.maju()
+                    
+                elif(self.currentChar in grammar.kurungList.keys() or self.currentChar in grammar.punctuationList.keys()):
                     self.konversiTempJikaBerisi()
                     self.simpenCharKeTemp()
                     self.konversiDanPushKeToken()

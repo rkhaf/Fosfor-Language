@@ -198,6 +198,15 @@ class nodeAksesProperti(nodeEkspresi):
     def getDatas(self) -> dict[str, Any]:
         return {"tipe" : "aksesProperti", "properti" : self.properti.getDatas(), "objek" : self.objek.getDatas()}
 
+class nodeAksesScope(nodeEkspresi):
+    def __init__(self, p_baris: int, p_kolom: int, p_tipe: datatypes) -> None:
+        super().__init__(p_baris, p_kolom, p_tipe)
+        self.scope : nodeIdentifier | nodeAksesScope
+        self.member : nodeIdentifier
+    
+    def getDatas(self) -> dict[str, Any]:
+        return {"tipe" : "aksesProperti", "properti" : self.scope.getDatas(), "objek" : self.member.getDatas()}
+
 class nodePenugasan(nodeStatement):
     def __init__(self, p_baris: int, p_kolom: int) -> None:
         super().__init__(p_baris, p_kolom)
@@ -308,6 +317,11 @@ class nodeImpor(nodeStatement):
     
     def getDatas(self) -> dict[str, Any]:
         return {"tipe" : "deklarasiImpor", "nama" : self.nama.nilai, "apakahBuiltin" : self.apakahBuiltin}
+
+# class nodeScopeResolution(nodeStatement):
+#     def __init__(self, p_baris: int, p_kolom: int) -> None:
+#         super().__init__(p_baris, p_kolom)
+        
 
 class nodePerulanganSelama(nodeStatement):
     def __init__(self, p_baris: int, p_kolom: int) -> None:

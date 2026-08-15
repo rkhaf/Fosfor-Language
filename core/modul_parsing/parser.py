@@ -634,35 +634,75 @@ class parserClass:
                 pass
         return tempNode
 
-    def parseIdentifier(self)->node.nodePenugasan:
+    def parseIdentifier(self):
         parentIdentifier : node.nodeIdentifier = node.nodeIdentifier(self.tokenSkrg)
-
-        tempPenugasan : node.nodePenugasan = node.nodePenugasan(self.tokenSkrg.baris, self.tokenSkrg.kolom)
-        tempPenugasan.referensi = parentIdentifier
-        tempPenugasan.ekspresi = node.nodeEkspresi(-1, -1, TIPEDATA_NULL)
         
-        test : node.nodeAksesProperti | node.nodeIdentifier = parentIdentifier
+        test : node.nodeAksesProperti | node.nodeIdentifier | node.nodeAksesScope = parentIdentifier
         
-        while(self.tokenDepan.tipe in [Ttype.T_SYMBOL_TTIK]):
+        while(self.tokenDepan.tipe in [Ttype.T_SYMBOL_TTIK, Ttype.T_SRES]):
+            if(self.tokenDepan.tipe==Ttype.T_SYMBOL_TTIK):
+                self.maju(2)
+                tempNodeAkses = node.nodeAksesProperti(self.tokenSkrg.baris, self.tokenSkrg.kolom, TIPEDATA_NULL)
+                tempNodeAkses.properti = node.nodeIdentifier(self.tokenSkrg)
+                tempNodeAkses.objek = test
+                test = tempNodeAkses
+                # self.maju()
+                pass
+            else:
+                self.maju(2)
+                tempNodeAkses = node.nodeAksesScope(self.tokenSkrg.baris, self.tokenSkrg.kolom, TIPEDATA_NULL)
+                tempNodeAkses.member = node.nodeIdentifier(self.tokenSkrg)
+                tempNodeAkses.scope = test
+                test = tempNodeAkses
+                # self.maju()
+                pass
+        while(self.tokenDepan.tipe==Ttype.T_PRTS_KIRI):
             self.maju(2)
-            tempNodeAkses = node.nodeAksesProperti(self.tokenSkrg.baris, self.tokenSkrg.kolom, TIPEDATA_NULL)
-            tempNodeAkses.properti = node.nodeIdentifier(self.tokenSkrg)
-            tempNodeAkses.objek = test
-            test = tempNodeAkses
+            test = self.parsePanggilFungsi()
             
-        self.maju()
-        if(self.tokenSkrg.tipe==Ttype.T_SMDG):
-            self.maju(1)
-            tempPenugasan.referensi = test
-            getter : node.nodeEkspresi | None = self.parseEkspresi()
-            if(not getter is None):
-                tempPenugasan.ekspresi = getter
-        elif(self.tokenSkrg.tipe in [Ttype.T_ICRT, Ttype.T_DCRT]):
-            if(self.tokenSkrg.tipe==Ttype.T_ICRT):
-                tempPenugasan.ekspresi = node.nodeBiner(parentIdentifier, tokenClass(self.tokenSkrg.baris, self.tokenSkrg.kolom, Ttype.T_PLUS, "+"), node.nodeNomor(tokenClass(self.tokenSkrg.baris, self.tokenSkrg.kolom, Ttype.T_LITERAL_INT, "1"), TIPEDATA_INTEGER))
+        pass
+        return test
+
+    # def parseIdentifier(self)->node.nodePenugasan:
+    #     parentIdentifier : node.nodeIdentifier = node.nodeIdentifier(self.tokenSkrg)
+
+    #     tempPenugasan : node.nodePenugasan = node.nodePenugasan(self.tokenSkrg.baris, self.tokenSkrg.kolom)
+    #     tempPenugasan.referensi = parentIdentifier
+    #     tempPenugasan.ekspresi = node.nodeEkspresi(-1, -1, TIPEDATA_NULL)
+        
+    #     test : node.nodeAksesProperti | node.nodeIdentifier | node.nodeAksesScope = parentIdentifier
+        
+    #     while(self.tokenDepan.tipe in [Ttype.T_SYMBOL_TTIK, Ttype.T_SRES]):
+    #         if(self.tokenDepan.tipe==Ttype.T_SYMBOL_TTIK):
+    #             self.maju(2)
+    #             tempNodeAkses = node.nodeAksesProperti(self.tokenSkrg.baris, self.tokenSkrg.kolom, TIPEDATA_NULL)
+    #             tempNodeAkses.properti = node.nodeIdentifier(self.tokenSkrg)
+    #             tempNodeAkses.objek = test
+    #             test = tempNodeAkses
+    #             self.maju()
+    #             pass
+                
+    #         elif(self.tokenDepan.tipe==Ttype.T_SRES):
+    #             self.maju(2)
+    #             tempNodeAkses = node.nodeAksesScope(self.tokenSkrg.baris, self.tokenSkrg.kolom, TIPEDATA_NULL)
+    #             tempNodeAkses.member = node.nodeIdentifier(self.tokenSkrg)
+    #             tempNodeAkses.scope = test
+    #             test = tempNodeAkses
+    #             pass
             
-        self.maju(1)
-        return tempPenugasan
+    #     self.maju()
+    #     if(self.tokenSkrg.tipe==Ttype.T_SMDG):
+    #         self.maju(1)
+    #         tempPenugasan.referensi = test
+    #         getter : node.nodeEkspresi | None = self.parseEkspresi()
+    #         if(not getter is None):
+    #             tempPenugasan.ekspresi = getter
+    #     elif(self.tokenSkrg.tipe in [Ttype.T_ICRT, Ttype.T_DCRT]):
+    #         if(self.tokenSkrg.tipe==Ttype.T_ICRT):
+    #             tempPenugasan.ekspresi = node.nodeBiner(parentIdentifier, tokenClass(self.tokenSkrg.baris, self.tokenSkrg.kolom, Ttype.T_PLUS, "+"), node.nodeNomor(tokenClass(self.tokenSkrg.baris, self.tokenSkrg.kolom, Ttype.T_LITERAL_INT, "1"), TIPEDATA_INTEGER))
+            
+    #     self.maju(3)
+    #     return tempPenugasan
     
     def parseUnary(self)->node.nodeBiner:
         identifier : tokenClass = tokenClass(-1, -1, Ttype.T_EROR, "-1")

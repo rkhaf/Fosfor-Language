@@ -60,6 +60,7 @@ class tokenType(Enum):
     T_ICRT = auto()
     T_DCRT = auto()
     T_SMDG = auto()
+    T_SRES = auto()
 
     T_BKIN = auto()
     T_VRBL = auto()

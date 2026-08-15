@@ -1,10 +1,7 @@
 impor modul output;
-impor modul timer;
+// impor modul timer;
 
 fungsi main isinya
-    mulaiTimer();
-    bikin variabel tipenya integer namanya testing nilainya 1;
-    testing=5;
-    tampilin(testing);
-    stopTimer();
+    // output.tampilin(testing);
+    matematika::geometri::luas();
 akhir;

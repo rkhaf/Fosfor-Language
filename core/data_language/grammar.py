@@ -21,6 +21,7 @@ OPERATOR_MDLO : str = "%"
 OPERATOR_ICRT : str = "++"
 OPERATOR_DCRT : str = "--"
 OPERATOR_SMDG : str = "="
+SYMBOL_SRES : str = "::"
 
 CMPR_KCIL : str = "<"
 CMPR_BSAR : str = ">"
@@ -28,6 +29,7 @@ CMPR_SBSR : str = ">="
 CMPR_SKCL : str = "<="
 CMPR_SAMA : str = "=="
 CMPR_GSMA : str = "!="
+
 
 CMNT_SNGL : str = "//"
 CMNT_MLTI_OPEN : str = "/*"
@@ -87,6 +89,7 @@ KEYWORD_MSAL : str = "misal"
 KEYWORD_IMPR : str = "impor"
 KEYWORD_MDUL : str = "modul"
 KEYWORD_DLMR : str = ";"
+
 
 KEYWORD_ENTRY_POINT : str = "main"
 
@@ -158,7 +161,7 @@ operatorList : dict[str, tokenType] = {
     OPERATOR_PLUS : tokenType.T_PLUS,
     OPERATOR_ICRT : tokenType.T_ICRT,
     OPERATOR_DCRT : tokenType.T_DCRT,
-    OPERATOR_SMDG : tokenType.T_SMDG
+    OPERATOR_SMDG : tokenType.T_SMDG,
 }
 
 simbolList : dict[str, tokenType] = {
@@ -187,7 +190,8 @@ kurungList : dict[str, tokenType] = {
 punctuationList : dict[str, tokenType] = {
     SYMBOL_TKWA : tokenType.T_SYMBOL_TKWA,
     SYMBOL_KOMA : tokenType.T_SYMBOL_KOMA,
-    SYMBOL_TTIK : tokenType.T_SYMBOL_TTIK
+    SYMBOL_TTIK : tokenType.T_SYMBOL_TTIK,
+    SYMBOL_SRES : tokenType.T_SRES
 }
 
 perbandinganList : dict[str, tokenType] = {
@@ -197,4 +201,5 @@ perbandinganList : dict[str, tokenType] = {
     CMPR_SKCL : tokenType.T_CMPR_SKCL,
     CMPR_SAMA : tokenType.T_CMPR_SAMA,
     CMPR_GSMA : tokenType.T_CMPR_GSMA,
+    SYMBOL_SRES : tokenType.T_SRES
 }
