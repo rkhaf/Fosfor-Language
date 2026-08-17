@@ -205,7 +205,7 @@ class nodeAksesScope(nodeEkspresi):
         self.member : nodeIdentifier
     
     def getDatas(self) -> dict[str, Any]:
-        return {"tipe" : "aksesProperti", "properti" : self.scope.getDatas(), "objek" : self.member.getDatas()}
+        return {"tipe" : "aksesScope", "scope" : self.scope.getDatas(), "member" : self.member.getDatas()}
 
 class nodePenugasan(nodeStatement):
     def __init__(self, p_baris: int, p_kolom: int) -> None:
@@ -238,7 +238,7 @@ class nodePanggilFungsi(nodeEkspresi):
     """
     def __init__(self, p_baris: int, p_kolom: int, p_namaFungsi: tokenClass, p_parameterInput: list[nodeEkspresi] | None = None) -> None:
         super().__init__(p_baris, p_kolom, TIPEDATA_NULL)
-        self.namaFungsi : tokenClass = p_namaFungsi
+        self.namaFungsi : tokenClass | nodeAksesScope = p_namaFungsi
         if p_parameterInput is None:
             self.parameterInput = []
         else:
@@ -250,7 +250,9 @@ class nodePanggilFungsi(nodeEkspresi):
         temp1 : list[dict[str, Any]] = []
         for input in self.parameterInput:
             temp1.append(input.getDatas())
-        return {"tipe" : "panggilFungsi", "nama" : self.namaFungsi.nilai, "parameter" : temp1}
+        if(isinstance(self.namaFungsi, tokenClass)):
+            return {"tipe" : "panggilFungsi", "nama" : self.namaFungsi.nilai, "parameter" : temp1}
+        return {"tipe" : "panggilFungsi", "nama" : self.namaFungsi.getDatas(), "parameter" : temp1}
         # return {"panggil fungsi" : self.namaFungsi.nilai, "parameter input" : temp1}
     
     def __repr__(self) -> str:

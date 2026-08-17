@@ -1,6 +1,9 @@
 from llvmlite import ir
 
 from typing import TypedDict
+
+from collections import defaultdict
+
 from pohon import node
 
 from llvmFolder.konverter import TIPEDATA_LLVM_BOOLEAN
@@ -18,11 +21,24 @@ from metadata.datatypeClass import TIPEDATA_BOOLEAN
 from modul_semantik.simbolTableManager import varibelObjek
 from modul_semantik.simbolTableManager import fungsiObjek
 
-class detailFungsi(TypedDict):
-    namaDiCPP : str
-    parameter : list[ir.Type]
-    tipeReturn : ir.Type
+# class detailFungsi(TypedDict):
+#     namaDiCPP : str
+#     parameter : list[ir.Type]
+#     tipeReturn : ir.Type
+    
+    
 
+class detailFungsiLLVM:
+    __slots__ = ('kumpulanFungsi')
+    
+    def __init__(self) -> None:
+        self.kumpulanFungsi : dict[str, list[tuple[str, list[ir.Type], ir.Type]]] = defaultdict(list)
+        
+    def addFungsi(self,p_namaFungsi : str, p_namaDiCPP : str, p_parameter : list[ir.Type], p_tipeReturn : ir.Type)->None:
+        self.kumpulanFungsi[p_namaFungsi].append((p_namaDiCPP, p_parameter, p_tipeReturn))
+        pass
+# dict[str, dict[str, list[detailFungsi]]]
+# dict[namaModul, dict[namaFungsi, (detailFungsi)]]
 # fungsiBuiltinLLVM : dict[str, list[detailFungsi]] = {
 #     "tampilin":[
 #         {"namaDiCPP":"fosfor_tampilin_int", "tipeReturn":TIPEDATA_LLVM_VOID, "parameter":[TIPEDATA_LLVM_INTEGER]},
@@ -46,8 +62,8 @@ class detailFungsi(TypedDict):
 
 class builtinClass:
     def __init__(self) -> None:
-        self.fungsiBuiltinLLVM : dict[str, list[detailFungsi]] = {}
-        self.fungsiBuiltinFOS : list[fungsiObjek] = []
+        self.fungsiBuiltinLLVM : dict[str, detailFungsiLLVM] = {}
+        self.fungsiBuiltinFOS : dict[str, dict[str, fungsiObjek]] = {}
         # self.fungsiBuiltinLLVM : dict[str, list[detailFungsi]] = {
         #     "tampilin":[
         #         {"namaDiCPP":"fosfor_trampilin_int", "tipeReturn":ir.VoidType(), "parameter":[TIPEDATA_LLVM_INTEGER]},
@@ -63,27 +79,33 @@ class builtinClass:
         #     ]
         # }
     
-    def proses(self, p_dictFungsiBuiltinLLVM : dict[str, list[detailFungsi]], p_fungsiBuiltinFos : list[fungsiObjek])->None:
+    def proses(self, p_dictFungsiBuiltinLLVM : dict[str, detailFungsiLLVM], p_fungsiBuiltinFos : dict[str, dict[str, fungsiObjek]])->None:
         self.fungsiBuiltinLLVM = p_dictFungsiBuiltinLLVM
         self.fungsiBuiltinFOS = p_fungsiBuiltinFos
     
     # @staticmethod
-    def cekFungsi(self, p_namaFungsi:str)->bool:
-        if(p_namaFungsi in self.fungsiBuiltinLLVM.keys()):
-            return True
-        else:
-            return False
+    def cekFungsi(self, p_namaModul : str, p_namaFungsi:str)->bool:
+        if(p_namaModul in self.fungsiBuiltinLLVM.keys()):
+            getAsModul : detailFungsiLLVM | None = self.fungsiBuiltinLLVM.get(p_namaModul, None)
+            if(not getAsModul is None and p_namaFungsi in getAsModul.kumpulanFungsi.keys()):
+                return True
+            else:
+                return False
+        else:return False
     
     # @staticmethod
-    def getFungsiAllVariant(self, p_namaFungsi:str)->list[detailFungsi] | None:
-        if(p_namaFungsi in self.fungsiBuiltinLLVM.keys()):
-            return self.fungsiBuiltinLLVM.get(p_namaFungsi, None)
-        else:
-            return None
+    def getFungsiAllVariant(self, p_namaModul : str, p_namaFungsi:str)->list[tuple[str, list[ir.Type], ir.Type]] | None:
+        if(p_namaModul in self.fungsiBuiltinLLVM.keys()):
+            getAsModul : detailFungsiLLVM | None = self.fungsiBuiltinLLVM.get(p_namaModul, None)
+            if(not getAsModul is None and p_namaFungsi in getAsModul.kumpulanFungsi.keys()):
+                return getAsModul.kumpulanFungsi.get(p_namaFungsi, None)
+            else:
+                return None
+        else:return None
     
     # @staticmethod
-    def getDetailByParams(self, p_datatypeParams : list[ir.Type], p_fungsiVariantList:list[detailFungsi])->detailFungsi | None:
-        for fungsiVariant in p_fungsiVariantList:
-            if(p_datatypeParams==fungsiVariant["parameter"]):
-                return fungsiVariant
-        return None
+    # def getDetailByParams(self, p_datatypeParams : list[ir.Type], p_fungsiVariantList:list[tuple[str, list[ir.Type], ir.Type]])->tuple[str, list[ir.Type], ir.Type] | None:
+    #     for fungsiVariant in p_fungsiVariantList:
+    #         if(p_datatypeParams==fungsiVariant["parameter"]):
+    #             return fungsiVariant
+    #     return None

@@ -37,8 +37,8 @@ mappingStrKeDatatype : dict[str, datatypes] = {
 class importHandler:
     def __init__(self) -> None:
         self.runtimePathList : list[str] = []
-        self.mappingFungsiBuiltinFOS : list[fungsiObjek] = []
-        self.mappingFungsiBuiltinLLVM : dict[str, list[builtins.detailFungsi]] = defaultdict(list)
+        self.mappingFungsiBuiltinFOS : dict[str, dict[str, fungsiObjek]] = defaultdict(dict)
+        self.mappingFungsiBuiltinLLVM : dict[str, builtins.detailFungsiLLVM] = defaultdict()
         pass
     
     def getLoadedJsonModul(self, p_namaModul : str)->tuple[Path, dict[str, str]]:
@@ -66,6 +66,7 @@ class importHandler:
     def bacaDataJson(self, p_jsonDict : dict[Any, Any])->None:
         for fungsi in p_jsonDict['daftarFungsi']:
             namaFungsi : str = fungsi
+            namaModul : str = p_jsonDict['namaModul']
 
             getter_tipedataFungsi : datatypes | None = mappingStrKeDatatype.get(p_jsonDict['daftarFungsi'][namaFungsi]['tipeReturn'])
             getter_tipedataFungsiLLVM : Type | None = LLVM_PRIMITIVE_TYPES.get(p_jsonDict['daftarFungsi'][namaFungsi]['tipeReturn'])
@@ -99,28 +100,43 @@ class importHandler:
             
             # tempDetailFungsi : builtins.detailFungsi = 
             if(isinstance(p_jsonDict['daftarFungsi'][namaFungsi]['overloadCPP'], dict)):
+                detailFungsiLLVM : builtins.detailFungsiLLVM = builtins.detailFungsiLLVM()
                 for overloadFungsi in p_jsonDict['daftarFungsi'][namaFungsi]['overloadCPP']:
                     getter_tipeParam : Type | None =LLVM_PRIMITIVE_TYPES.get(overloadFungsi)
                     assert isinstance(getter_tipeParam, Type), "[importHandler] getter_tipeparam error"
-                    tempDetailFungsi : builtins.detailFungsi = {
-                        "namaDiCPP":p_jsonDict['daftarFungsi'][namaFungsi]['overloadCPP'][overloadFungsi],
-                        "parameter":[getter_tipeParam],
-                        "tipeReturn":tipedataFungsiLLVM
-                    }
-                    self.mappingFungsiBuiltinLLVM[namaFungsi].append(tempDetailFungsi)
+                    
+                    
+                    detailFungsiLLVM.addFungsi(
+                        namaFungsi,
+                        p_jsonDict['daftarFungsi'][namaFungsi]['overloadCPP'][overloadFungsi],
+                        [getter_tipeParam],
+                        tipedataFungsiLLVM
+                    )
+                    self.mappingFungsiBuiltinLLVM[namaModul] = detailFungsiLLVM
                 pass
             else:
                 getter_tipeReturn : Type | None = LLVM_PRIMITIVE_TYPES.get(TIPEDATA_VOID.namaPrimitive)
                 assert isinstance(getter_tipeReturn, Type), "[importHandler] getter_tipeReturn eror"
-                tempDetailFungsi : builtins.detailFungsi = {
-                    "namaDiCPP":p_jsonDict['daftarFungsi'][namaFungsi]['overloadCPP'],
-                    "parameter":[],
-                    "tipeReturn":getter_tipeReturn
-                }
-                self.mappingFungsiBuiltinLLVM[namaFungsi].append(tempDetailFungsi)
+                detailFungsiLLVM : builtins.detailFungsiLLVM = builtins.detailFungsiLLVM()
+                detailFungsiLLVM.addFungsi(
+                    namaFungsi,
+                    p_jsonDict['daftarFungsi'][namaFungsi]['overloadCPP'],
+                    [],
+                    tipedataFungsiLLVM
+                )
+                # tempDetailFungsi : builtins.detailFungsi = {
+                #     "namaDiCPP":p_jsonDict['daftarFungsi'][namaFungsi]['overloadCPP'],
+                #     "parameter":[],
+                #     "tipeReturn":getter_tipeReturn
+                # }
+                # self.mappingFungsiBuiltinLLVM[namaFungsi].append(tempDetailFungsi)
+                # self.mappingFungsiBuiltinLLVM[namaModul].setdefault(namaFungsi, []).append(tempDetailFungsi)
+                self.mappingFungsiBuiltinLLVM[namaModul] = detailFungsiLLVM
                 pass
             # tempFungsiObj : fungsiObjek = fungsiObjek(namaFungsi, tipedataFungsi, parameters, node.nodeClass(-1, -1))
-            self.mappingFungsiBuiltinFOS.append(fungsiObjek(namaFungsi, tipedataFungsi, parameters, node.nodeClass(-1, -1)))
+            # self.mappingFungsiBuiltinFOS.append(fungsiObjek(namaFungsi, tipedataFungsi, parameters, node.nodeClass(-1, -1)))
+            # self.mappingFungsiBuiltinFOS.setdefault(p_jsonDict['namaModul'], fungsiObjek(namaFungsi, tipedataFungsi, parameters, node.nodeClass(-1, -1)))
+            self.mappingFungsiBuiltinFOS.setdefault(p_jsonDict['namaModul'], {}).setdefault(namaFungsi, fungsiObjek(namaFungsi, tipedataFungsi, parameters, node.nodeClass(-1, -1)))
         pass
     
     def handleModul(self, p_nodeImpor : nodeImpor)->None:
@@ -136,8 +152,8 @@ class importHandler:
             if(node.apakahBuiltin):
                 self.handleModul(node)
 
-    def getFosBuiltinMapping(self)->list[fungsiObjek]:
+    def getFosBuiltinMapping(self)->dict[str, dict[str, fungsiObjek]]:
         return self.mappingFungsiBuiltinFOS
     
-    def getLLVMBuiltinMapping(self)->dict[str, list[builtins.detailFungsi]]:
+    def getLLVMBuiltinMapping(self)->dict[str, builtins.detailFungsiLLVM]:
         return self.mappingFungsiBuiltinLLVM

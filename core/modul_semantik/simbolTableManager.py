@@ -42,6 +42,7 @@ class scopeContainer:
         self.scopeParent : scopeContainer | None = None
         self.mappingVariabel : dict[str, varibelObjek] = {}
         self.mappingFungsi : dict[str, fungsiObjek] = {}
+        self.mappingBuiltin : dict[str, dict[str, fungsiObjek]] = {}
         self._dummyVariabel : varibelObjek = varibelObjek(True, "ERROR", TIPEDATA_NULL)
         self._dummyFungsi : fungsiObjek = fungsiObjek("ERROR", TIPEDATA_NULL, [], nodeClass(-1, -1))
     
@@ -78,6 +79,33 @@ class scopeContainer:
                 return True
             else:
                 return self.scopeParent.cekFungsi(p_namaFungsi)
+            
+    def cekModul(self, p_namaModul : str)->bool:
+        if(self.scopeParent is None):
+            return p_namaModul in self.mappingBuiltin.keys()
+        else:
+            percobaanCari : bool = p_namaModul in self.mappingBuiltin.keys()
+            if(percobaanCari):
+                return True
+            else:
+                return self.scopeParent.cekModul(p_namaModul)
+            
+    def cekFungsiBuiltin(self, p_namaModul : str , p_namaFungsi : str)->bool:
+        if(self.scopeParent is None):
+            if(p_namaModul in self.mappingBuiltin.keys()):
+                return p_namaFungsi in self.mappingBuiltin[p_namaModul].keys()
+            else:
+                return False
+        else:
+            if(p_namaModul in self.mappingBuiltin.keys()):
+                percobaanCari : bool = p_namaFungsi in self.mappingBuiltin[p_namaModul].keys()
+                if(percobaanCari):
+                    return True
+                else:
+                    return self.scopeParent.cekFungsiBuiltin(p_namaModul, p_namaFungsi)
+            else:
+                return self.scopeParent.cekFungsiBuiltin(p_namaModul, p_namaFungsi)
+                # return False
     
     def getFungsi(self, p_namaFungsi : str)->fungsiObjek:
         if(self.cekFungsi(p_namaFungsi)):
@@ -90,6 +118,21 @@ class scopeContainer:
                     return self.mappingFungsi.get(p_namaFungsi, self._dummyFungsi)
                 else:
                     return self.scopeParent.getFungsi(p_namaFungsi)
+        else:
+            raise Exception("ERROR")
+        
+    def getFungsiBuiltin(self, p_namaModul : str, p_namaFungsi : str)->fungsiObjek:
+        if(self.cekFungsiBuiltin(p_namaModul, p_namaFungsi)):
+            if(self.scopeParent is None):
+                # return self.mappingFungsi.get(p_namaFungsi, self._dummyFungsi)
+                return self.mappingBuiltin[p_namaModul].get(p_namaFungsi, self._dummyFungsi)
+            
+            else:
+                percobaanCari : bool = p_namaFungsi in self.mappingFungsi.keys()
+                if(percobaanCari):
+                    return self.mappingBuiltin[p_namaModul].get(p_namaFungsi, self._dummyFungsi)
+                else:
+                    return self.scopeParent.getFungsiBuiltin(p_namaModul, p_namaFungsi)
         else:
             raise Exception("ERROR")
     

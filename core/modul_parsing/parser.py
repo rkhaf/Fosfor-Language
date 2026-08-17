@@ -654,13 +654,31 @@ class parserClass:
                 tempNodeAkses.member = node.nodeIdentifier(self.tokenSkrg)
                 tempNodeAkses.scope = test
                 test = tempNodeAkses
+                # self.mundur()
                 # self.maju()
                 pass
-        while(self.tokenDepan.tipe==Ttype.T_PRTS_KIRI):
-            self.maju(2)
-            test = self.parsePanggilFungsi()
             
-        pass
+        while(self.tokenDepan.tipe==Ttype.T_PRTS_KIRI):
+            self.maju()
+            tempNodePanggilFungsi : node.nodePanggilFungsi = self.parsePanggilFungsi()
+            tempNodePanggilFungsi.namaFungsi = test
+            test = tempNodePanggilFungsi
+            # self.maju()
+            
+            pass
+        
+        while(self.tokenDepan.tipe==Ttype.T_SMDG):
+            self.maju(2)
+            tempNodePenugasan : node.nodePenugasan = node.nodePenugasan(self.tokenSkrg.baris, self.tokenSkrg.kolom)
+            tempNodePenugasan.referensi = test
+            # tempNodePenugasan.ekspresi = self.parseEkspresi()
+            tempNodePenugasan.ekspresi = self.parseIdentifier()
+            test=tempNodePenugasan
+            # self.maju()
+        
+        if(test==parentIdentifier):
+            self.maju()
+            
         return test
 
     # def parseIdentifier(self)->node.nodePenugasan:
@@ -938,7 +956,7 @@ class parserClass:
                         tempTokensGkDikenal.clear()
                     temp : node.nodePenugasan = self.parseIdentifier()
                     kumpulanNode.append(temp)
-                
+                    pass
                 case [Ttype.T_KLAU, Ttype.T_NGGK]:
                     tempStore : list[tokenClass] = []
                     while self.idxIterator<len(self.fullToken)-1 and not self.tokenSkrg.tipe in [Ttype.T_AKHR]:

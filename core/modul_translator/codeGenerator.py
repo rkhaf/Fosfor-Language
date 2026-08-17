@@ -11,7 +11,7 @@ from modul_parsing.AST import ASTClass
 from pohon import node
 
 from metadata.builtins import builtinClass
-from metadata.builtins import detailFungsi
+# from metadata.builtins import detailFungsi
 
 from llvmFolder.konverter import LLVMLITEConverterClass as konvertClass
 from llvmFolder.konverter import TIPEDATA_LLVM_BOOLEAN

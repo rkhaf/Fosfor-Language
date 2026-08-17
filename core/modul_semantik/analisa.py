@@ -1,6 +1,7 @@
 from errorHandler import errorHandlerClass
 from modul_parsing.AST import ASTClass
 from pohon import node
+from data_language.tokens import tokenClass
 
 from modul_semantik.simbolTableManager import scopeContainer
 from modul_semantik.simbolTableManager import varibelObjek
@@ -114,95 +115,76 @@ class semantikClass:
                 print(f"WARNING VALUE VARNYA {p_node.namaVariabel} MSH KOSONG")
 
     def check_nodePanggilFungsi(self, p_node: node.nodePanggilFungsi, p_scope: scopeContainer)->None:
-        if(p_scope.cekFungsi(p_node.namaFungsi.nilai)):
-            getFungsi : fungsiObjek = p_scope.getFungsi(p_node.namaFungsi.nilai)
+        # if(isinstance(p_node.namaFungsi, tokenClass) and p_scope.cekFungsi(p_node.namaFungsi.nilai)):
+            getFungsi : fungsiObjek | None
+            # getFungsi : fungsiObjek = p_scope.getFungsi(p_node.namaFungsi.nilai)
+            if(isinstance(p_node.namaFungsi, tokenClass)):
+                if(p_scope.cekFungsi(p_node.namaFungsi.nilai)):
+                    getFungsi = p_scope.getFungsi(p_node.namaFungsi.nilai)
+                else:
+                    self.errorHandlerObjek.tambahinError(__name__, 6, p_node.baris, -1, p_node.namaFungsi.nilai)
+                    return None
+            elif(isinstance(p_node.namaFungsi, node.nodeAksesScope)):getFungsi = self.visit(p_node.namaFungsi, p_scope)
+            else:raise Exception("UNEXPECTED ERROR")
             
-            tipedataParameterInput : datatypes | None = None
-            tipedataParameterFungsi : datatypes | None = None
-            
-            #mastiin klo input paramnya sesuai
-            if(len(p_node.parameterInput)<=len(getFungsi.parameters)):
-                for paramIndeks in range(0,len(getFungsi.parameters)):
-                    tipedataParameterFungsi = getFungsi.parameters[paramIndeks].type
-                    paramSkrg : node.nodeEkspresi | None = None
-                    if(paramIndeks<len(p_node.parameterInput)):
-                        paramSkrg = p_node.parameterInput[paramIndeks]
-                        
-                        # tipedataParameterInput = self.cekScope()
-                        #################################################################
-                        # BAGIAN INI PNGEN DIREVISI
-                        
-                        tipedataParameterInput=self.visit(paramSkrg, p_scope)
-                        
-                        # if(isinstance(paramSkrg, node.nodeIdentifier)):
-                        #     #ketemu parameter variabel
-                        #     if(p_scope.cekVariabel(paramSkrg.identifierToken)):
-                        #         #ketemu variabelnya
-                        #         tipedataParameterInput = p_scope.getVariabel(paramSkrg.identifierToken).type
-                                
-                        #     else:
-                        #         # print("GK KETEMU VARIABELNYA")
-                        #         self.errorHandlerObjek.tambahinError(__name__, 1, paramSkrg.baris, paramSkrg.kolom, paramSkrg.identifierToken)
-                        
-                        # elif(type(paramSkrg) in [node.nodeString, node.nodeNomor, node.nodeBoolean]):
-                        #     #ketemu parameter primitive
-                        #     tipedataParameterInput = paramSkrg.tipe
-                        
-                        # elif(isinstance(paramSkrg, node.nodePanggilFungsi)):
-                        #     # self.cekScope(paramSkrg, p_scope)
-                        #     # continue
-                        #     #ketemu panggilan fungsi
-                        #     if(p_scope.cekFungsi(paramSkrg.namaFungsi.nilai)):
-                        #         tipedataParameterInput = p_scope.getFungsi(paramSkrg.namaFungsi.nilai).type
-                        #         self.visit(paramSkrg, p_scope)
-                        #     else:
-                        #         self.errorHandlerObjek.tambahinError(__name__, 6, paramSkrg.baris, paramSkrg.kolom, paramSkrg.namaFungsi.nilai)
-                        #         # print("FUNGSI GA NEMU")
-                        #     pass
-                        
-                        # else:
-                        #     #ketemu parameter node lain
-                        #     self.visit(paramSkrg, p_scope)
-                        #     # raise Exception(f"ada input yg ga diinginkan : {paramSkrg}")
-                        # #################################################################
-                        # # BAGIAN INI PNGEN DIREVISI
-                        
-                    else:
-                        #kondisi parameter opsional yg blm diisi
-                        if(getFungsi.parameters[paramIndeks].bernilai):
-                            #ada kekosongan input di parameter opsional
-                            pass
+            if(not getFungsi is None):
+                tipedataParameterInput : datatypes | None = None
+                tipedataParameterFungsi : datatypes | None = None
+                
+                # if(len(getFungsi.parameters)>0):
+                #mastiin klo input paramnya sesuai
+                if(len(p_node.parameterInput)<=len(getFungsi.parameters)):
+                    for paramIndeks in range(0,len(getFungsi.parameters)):
+                        tipedataParameterFungsi = getFungsi.parameters[paramIndeks].type
+                        paramSkrg : node.nodeEkspresi | None = None
+                        if(paramIndeks<len(p_node.parameterInput)):
+                            paramSkrg = p_node.parameterInput[paramIndeks]
+
+                            tipedataParameterInput=self.visit(paramSkrg, p_scope)
+
                         else:
-                            #ada kekosongan input di parameter wajib
-                            self.errorHandlerObjek.tambahinError(__name__, 9, p_node.baris, p_node.kolom, p_bagian=p_node.namaFungsi.nilai)
-
-                    if(paramIndeks<len(p_node.parameterInput)):
-                        if(not tipedataParameterFungsi is None and not tipedataParameterInput is None):
-                            if(tipedataParameterInput!=tipedataParameterFungsi and not (tipedataParameterInput==TIPEDATA_ANY or tipedataParameterFungsi==TIPEDATA_ANY)):
-                                if(tipedataParameterInput==TIPEDATA_VOID):
-                                    self.errorHandlerObjek.tambahinError(__name__, 12, p_node.baris, -1, paramSkrg.namaFungsi.nilai)
-                                else:
-                                    if(isinstance(paramSkrg, node.nodeIdentifier)):
-                                        self.errorHandlerObjek.tambahinError(__name__, 5, p_node.baris, -1, f"{p_node.namaFungsi.nilai}({getFungsi.parameters[paramIndeks].nama} = {paramSkrg.identifierToken})")
-
-                                    elif(type(paramSkrg) in [node.nodeString, node.nodeNomor, node.nodeBoolean]):
-                                        self.errorHandlerObjek.tambahinError(__name__, 10, p_node.baris, -1, f"{p_node.namaFungsi.nilai}({getFungsi.parameters[paramIndeks].nama} = '{paramSkrg.nilai}')")
-                                        
-                                    elif(isinstance(paramSkrg, node.nodePanggilFungsi)):
-                                        self.errorHandlerObjek.tambahinError(__name__, 11, p_node.baris, -1, f"{p_node.namaFungsi.nilai}({getFungsi.parameters[paramIndeks].nama} = '{paramSkrg.namaFungsi.nilai}')")
-                                        
-                                    
-                            else:
-                                
+                            #kondisi parameter opsional yg blm diisi
+                            if(getFungsi.parameters[paramIndeks].bernilai):
+                                #ada kekosongan input di parameter opsional
                                 pass
-                        
-            else:
-                print("DEBUG3")
-                self.errorHandlerObjek.tambahinError(__name__, 4, p_node.baris, -1, p_node.namaFungsi.nilai)
-        else:
-            print("DEBUG4")
-            # print(p_node.namaFungsi,"gaada")
-            self.errorHandlerObjek.tambahinError(__name__, 6, p_node.baris, -1, p_node.namaFungsi.nilai)
+                            else:
+                                #ada kekosongan input di parameter wajib
+                                self.errorHandlerObjek.tambahinError(__name__, 9, p_node.baris, p_node.kolom, p_bagian=p_node.namaFungsi.nilai)
+
+                        if(paramIndeks<len(p_node.parameterInput)):
+                            if(not tipedataParameterFungsi is None and not tipedataParameterInput is None):
+                                if(tipedataParameterInput!=tipedataParameterFungsi and not (tipedataParameterInput==TIPEDATA_ANY or tipedataParameterFungsi==TIPEDATA_ANY)):
+                                    if(tipedataParameterInput==TIPEDATA_VOID):
+                                        self.errorHandlerObjek.tambahinError(__name__, 12, p_node.baris, -1, paramSkrg.namaFungsi.nilai)
+                                    else:
+                                        if(isinstance(paramSkrg, node.nodeIdentifier)):
+                                            self.errorHandlerObjek.tambahinError(__name__, 5, p_node.baris, -1, f"{p_node.namaFungsi.nilai}({getFungsi.parameters[paramIndeks].nama} = {paramSkrg.identifierToken})")
+
+                                        elif(type(paramSkrg) in [node.nodeString, node.nodeNomor, node.nodeBoolean]):
+                                            self.errorHandlerObjek.tambahinError(__name__, 10, p_node.baris, -1, f"{p_node.namaFungsi.nilai}({getFungsi.parameters[paramIndeks].nama} = '{paramSkrg.nilai}')")
+                                            
+                                        elif(isinstance(paramSkrg, node.nodePanggilFungsi)):
+                                            self.errorHandlerObjek.tambahinError(__name__, 11, p_node.baris, -1, f"{p_node.namaFungsi.nilai}({getFungsi.parameters[paramIndeks].nama} = '{paramSkrg.namaFungsi.nilai}')")
+                                            
+                                        
+                                else:
+                                    
+                                    pass
+                            
+                else:
+                    print("DEBUG3")
+                    if(isinstance(p_node.namaFungsi, tokenClass)):
+                        self.errorHandlerObjek.tambahinError(__name__, 4, p_node.baris, -1, p_node.namaFungsi.nilai)
+                    else:
+                        self.errorHandlerObjek.tambahinError(__name__, 4, p_node.baris, -1, p_node.namaFungsi.member.identifierToken)
+            # elif(isinstance(p_node.namaFungsi, node.nodeAksesScope)):
+            #     test = self.visit(p_node.namaFungsi, p_scope)
+            #     pass
+            # else:
+            #     print("DEBUG4")
+            #     # print(p_node.namaFungsi,"gaada")
+            #     # self.errorHandlerObjek.tambahinError(__name__, 6, p_node.baris, -1, p_node.namaFungsi.nilai)
+            #     self.errorHandlerObjek.tambahinError(__name__, 6, p_node.baris, -1, p_node.namaFungsi.member.identifierToken)
 
     def check_nodeBalikin(self, p_node: node.nodeBalikin, p_scope: scopeContainer)->datatypes:
         # return p_node.returnEkspresi.tipe
@@ -212,6 +194,43 @@ class semantikClass:
                 return getData
             else:raise Exception("unexpected error")
         else:raise Exception("unexpected error")
+
+    def check_nodeAksesScope(self, p_node: node.nodeAksesScope, p_scope: scopeContainer)->fungsiObjek | None:
+        namaModul : node.nodeIdentifier | node.nodeAksesScope = p_node.scope
+        if(isinstance(namaModul, node.nodeIdentifier)):
+            if(p_scope.cekModul(namaModul.identifierToken)):
+                namaMember : node.nodeIdentifier = p_node.member
+                if(p_scope.cekFungsiBuiltin(namaModul.identifierToken, namaMember.identifierToken)):
+                    return p_scope.getFungsiBuiltin(namaModul.identifierToken, namaMember.identifierToken)
+                else:
+                    self.errorHandlerObjek.tambahinError(__name__, 21, namaMember.baris, p_bagian=namaMember.identifierToken)
+                    # return fungsiObjek("ERROR", TIPEDATA_EROR, [], node.nodeClass(-1, -1))
+                    # raise Exception("member gk ketemu")
+                    return None
+            else:
+                self.errorHandlerObjek.tambahinError(__name__, 22, namaModul.baris, p_bagian=namaModul.identifierToken)
+                # return fungsiObjek("ERROR", TIPEDATA_EROR, [], node.nodeClass(-1, -1))
+                # raise Exception("module ga ketemu")
+                return None
+        else:
+            self.errorHandlerObjek.tambahinError(__name__, 23, namaModul.baris, p_bagian=namaModul.member.identifierToken)
+            # return fungsiObjek("ERROR", TIPEDATA_EROR, [], node.nodeClass(-1, -1))
+            return None
+            # raise Exception("blm support nested scope")
+
+        # namaModul : node.nodeIdentifier | node.nodeAksesScope = p_node.scope
+        # while(isinstance(namaModul, node.nodeAksesScope)):
+        #     namaModul = namaModul.scope
+        # if(isinstance(namaModul.identifierToken, node.nodeIdentifier)):
+        #     if(p_scope.cekModul(namaModul.identifierToken)):
+        #         pass
+        #     else:
+        #         raise Exception("blm support nested module")
+        #         # pass
+        #     pass
+        #     #WIP ngebaca modul & member yg dipanggilnya
+        # else:
+        #     raise Exception("module ga ketemu")
 
     def check_nodeBiner(self, p_node: node.nodeBiner, p_scope: scopeContainer)->datatypes:
         getKiri : None | datatypes | node.nodeClass = self.visit(p_node.operand1, p_scope)
@@ -361,9 +380,10 @@ class semantikClass:
         totalNode : int = len(getTree)
         
         #register fungsi builtin
-        for fungsi in self.builtinObjek.fungsiBuiltinFOS:
-        # for fungsi in fungsi_builtin:
-            rootScope.mappingFungsi.setdefault(fungsi.nama, fungsi)
+        for modul in self.builtinObjek.fungsiBuiltinFOS:
+            for namafungsi, objFungsi in self.builtinObjek.fungsiBuiltinFOS[modul].items():
+                rootScope.mappingBuiltin.setdefault(modul, {namafungsi : objFungsi})
+            # rootScope.mappingFungsi.setdefault(fungsi.nama, fungsi)
         
         while counterMainLoop<2:
             
