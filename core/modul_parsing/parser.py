@@ -124,27 +124,29 @@ class parserClass:
             if(self.tokenSkrg.tipe==Ttype.T_PRTS_KIRI):
                 self.maju()
                 nodee = self.parseEkspresi()
-                if(self.tokenSkrg.tipe==Ttype.T_PRTS_KNAN): #type: ignore
-                    # if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
-                    if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys()):
-                        self.maju()
-                    return nodee
-                elif(self.tokenSkrg.tipe==Ttype.T_SYMBOL_KOMA): #type: ignore
-                    if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
-                        self.maju()
-                    return nodee
-                else:
-                    if(self.parseEkspresiInvalidFlag):
-                        return node.nodeInvalidEkspresi(self.tokenSkrg, datatypesFactory.konversi(self.tokenSkrg.tipe))
-                        # return node.nodeInvalidEkspresi(self.tokenSkrg)
+                self.maju()
+                return nodee
+                # if(self.tokenSkrg.tipe==Ttype.T_PRTS_KNAN): #type: ignore
+                #     if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys()):
+                #         self.maju()
+                #     return nodee
+                # elif(self.tokenSkrg.tipe==Ttype.T_SYMBOL_KOMA): #type: ignore
+                #     if(self.tokenDepan.tipe in grammar.operatorList.values() or self.tokenDepan.tipe in grammar.literalList.keys() or self.tokenDepan.tipe in [Ttype.T_PRTS_KIRI, Ttype.T_PRTS_KNAN]):
+                #         self.maju()
+                #     return nodee
+                # else:
+                #     if(self.parseEkspresiInvalidFlag):
+                #         return node.nodeInvalidEkspresi(self.tokenSkrg, datatypesFactory.konversi(self.tokenSkrg.tipe))
+                #         # return node.nodeInvalidEkspresi(self.tokenSkrg)
                     
-                    else:
-                        if(not self.parseEkspresiInvalidFlag):
-                            self.parseEkspresiInvalidFlag=True
-                            self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=13, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenDepan.nilai)
-                            raise Exception("STOPPER1")
-                        else:
-                            raise Exception("INVALID")
+                #     else:
+                #         if(not self.parseEkspresiInvalidFlag):
+                #             self.parseEkspresiInvalidFlag=True
+                #             self.errorHandlerObjek.tambahinError(p_kelas=__name__, p_kodeError=13, p_baris=self.tokenSkrg.baris, p_kolom=self.tokenSkrg.kolom, p_bagian=self.tokenDepan.nilai)
+                #             raise Exception("STOPPER1")
+                #         else:
+                #             raise Exception("INVALID")
+                        
             elif(self.tokenSkrg.tipe==Ttype.T_PRTS_KNAN):
                 return None
                 # return node.nodeEkspresi(self.tokenSkrg.baris,self.tokenSkrg.kolom,TIPEDATA_NULL)
@@ -152,7 +154,7 @@ class parserClass:
             else:
                 return node.nodeIdentifier(self.tokenSkrg)
                 # return node.nodeIdentifier(self.tokenSkrg)
-            
+    
     def parseTerm(self)->node.nodeEkspresi | None:
         """fungsi ini buat ngeparse bentuk ekspresi dgn prioritas tinggi (kali, bagi)
         dgn cara ngoper token ke fungsi parseFaktor() & juga nangkap operasi kali bagi
@@ -221,8 +223,8 @@ class parserClass:
             case [Ttype.T_IDTF, Ttype.T_PRTS_KIRI]:
                 return self.parsePanggilFungsi()
             
-            case [Ttype.T_IDTF, _]:
-                return self.parseIdentifier()
+            # case [Ttype.T_IDTF, _]:
+            #     return self.parseIdentifier()
             
             case _:
                 return self.parsePerbandingan()
