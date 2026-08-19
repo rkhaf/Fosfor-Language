@@ -10,4 +10,5 @@ extern "C" {
     void fosfor_tampilin_str(const char* s){ ngeprint(s); }
     void fosfor_tampilin_flt(float f)     { ngeprint(f); }
     void fosfor_tampilin_bool(bool b)      { ngeprint(b ? "benar" : "salah"); }
+    int fosfor_sixseven(){return 67;}
 }

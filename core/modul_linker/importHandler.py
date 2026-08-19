@@ -106,7 +106,7 @@ class importHandler:
                     assert isinstance(getter_tipeParam, Type), "[importHandler] getter_tipeparam error"
                     
                     
-                    detailFungsiLLVM.addFungsi(
+                    detailFungsiLLVM.addSubFungsi(
                         namaFungsi,
                         p_jsonDict['daftarFungsi'][namaFungsi]['overloadCPP'][overloadFungsi],
                         [getter_tipeParam],
@@ -117,21 +117,23 @@ class importHandler:
             else:
                 getter_tipeReturn : Type | None = LLVM_PRIMITIVE_TYPES.get(TIPEDATA_VOID.namaPrimitive)
                 assert isinstance(getter_tipeReturn, Type), "[importHandler] getter_tipeReturn eror"
-                detailFungsiLLVM : builtins.detailFungsiLLVM = builtins.detailFungsiLLVM()
-                detailFungsiLLVM.addFungsi(
-                    namaFungsi,
-                    p_jsonDict['daftarFungsi'][namaFungsi]['overloadCPP'],
-                    [],
-                    tipedataFungsiLLVM
-                )
-                # tempDetailFungsi : builtins.detailFungsi = {
-                #     "namaDiCPP":p_jsonDict['daftarFungsi'][namaFungsi]['overloadCPP'],
-                #     "parameter":[],
-                #     "tipeReturn":getter_tipeReturn
-                # }
-                # self.mappingFungsiBuiltinLLVM[namaFungsi].append(tempDetailFungsi)
-                # self.mappingFungsiBuiltinLLVM[namaModul].setdefault(namaFungsi, []).append(tempDetailFungsi)
-                self.mappingFungsiBuiltinLLVM[namaModul] = detailFungsiLLVM
+
+                # for fungsiOvvrd in p_jsonDict['daftarFungsi'][fungsi]['overloadCPP']:
+                    # for overriderFungsi in p_jsonDict['daftarFungsi'][fungsi]:
+                    #     pass
+                    # detailFungsiLLVM : builtins.detailFungsiLLVM = builtins.detailFungsiLLVM()
+                    # detailFungsiLLVM.addSubFungsi(
+                    #     fungsi,
+                    #     p_jsonDict['daftarFungsi'][fungsi]['overloadCPP'],
+                    #     [],
+                    #     tipedataFungsiLLVM
+                    # )
+                self.mappingFungsiBuiltinLLVM.setdefault(namaModul, builtins.detailFungsiLLVM()).addFungsi(fungsi, p_jsonDict['daftarFungsi'][fungsi]['overloadCPP'], [], tipedataFungsiLLVM)
+                # print(p_jsonDict['daftarFungsi'][fungsi]['overloadCPP'])
+                # self.mappingFungsiBuiltinLLVM.setdefault(namaModul, detailFungsiLLVM)
+                # self.mappingFungsiBuiltinLLVM[namaModul].addSubFungsi(namaFungsi, namaFungsiCPP, p_jsonDict['daftarFungsi'][fungsi]['overloadCPP'], tipedataFungsiLLVM)
+                # self.mappingFungsiBuiltinLLVM[namaModul] = detailFungsiLLVM
+                # self.mappingFungsiBuiltinLLVM[namaModul].addFungsi(namaFungsi, namaFungsiCPP, p_jsonDict['daftarFungsi'][fungsi]['overloadCPP'], tipedataFungsiLLVM)
                 pass
             # tempFungsiObj : fungsiObjek = fungsiObjek(namaFungsi, tipedataFungsi, parameters, node.nodeClass(-1, -1))
             # self.mappingFungsiBuiltinFOS.append(fungsiObjek(namaFungsi, tipedataFungsi, parameters, node.nodeClass(-1, -1)))
@@ -151,7 +153,8 @@ class importHandler:
             assert isinstance(node, nodeImpor), f"[importHandler] hrusnya nodenya nodeImpor, bukan {type(node)}"
             if(node.apakahBuiltin):
                 self.handleModul(node)
-
+        pass
+    
     def getFosBuiltinMapping(self)->dict[str, dict[str, fungsiObjek]]:
         return self.mappingFungsiBuiltinFOS
     

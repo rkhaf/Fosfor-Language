@@ -382,7 +382,9 @@ class semantikClass:
         #register fungsi builtin
         for modul in self.builtinObjek.fungsiBuiltinFOS:
             for namafungsi, objFungsi in self.builtinObjek.fungsiBuiltinFOS[modul].items():
-                rootScope.mappingBuiltin.setdefault(modul, {namafungsi : objFungsi})
+                rootScope.mappingBuiltin.setdefault(modul, {})
+                rootScope.mappingBuiltin[modul].setdefault(namafungsi, objFungsi)
+                # rootScope.mappingBuiltin.setdefault(modul, {namafungsi : objFungsi})
             # rootScope.mappingFungsi.setdefault(fungsi.nama, fungsi)
         
         while counterMainLoop<2:

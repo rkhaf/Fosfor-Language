@@ -14,6 +14,11 @@
                 "boolean": "fosfor_tampilin_bool",
                 "float": "fosfor_tampilin_flt"
             }
+        },
+        "sixseven":{
+            "tipeReturn":"integer",
+            "parameter":[],
+            "overloadCPP":"fosfor_sixseven"
         }
     }
 }

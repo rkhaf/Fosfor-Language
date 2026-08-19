@@ -10,6 +10,8 @@ from errorHandler import errorHandlerClass
 from modul_parsing.AST import ASTClass
 from pohon import node
 
+from data_language.tokens import tokenClass
+
 from metadata.builtins import builtinClass
 # from metadata.builtins import detailFungsi
 
@@ -25,6 +27,7 @@ from metadata.datatypeClass import TIPEDATA_INTEGER
 from metadata.datatypeClass import TIPEDATA_STRING
 from metadata.datatypeClass import TIPEDATA_FLOAT
 from metadata.datatypeClass import TIPEDATA_NULL
+from metadata.datatypeClass import TIPEDATA_VOID
 
 class varObj(TypedDict):
     llvm_aloka : ir.AllocaInstr
@@ -96,21 +99,22 @@ class codeGeneratorClass:
 
         pass
     
-    def setupBuiltin(self, p_namaFungsi : str, p_tipedata : list[ir.Type], p_node : node.nodeClass)->ir.Function:
+    def setupBuiltin(self, p_namaModul : str, p_namaFungsi : str, p_tipedata : list[ir.Type], p_node : node.nodeClass)->ir.Function:
         # if(not p_tipedata in fungsiBuiltin[p_namaFungsi].keys()):
+        # self.builtinClassObjek.getFungsiAllVariant
+        test = self.builtinClassObjek.getFungsiAllVariant(p_namaModul, p_namaFungsi)
+        getterDetail : tuple[str, list[ir.Type], ir.Type] | None = self.builtinClassObjek.getDetailByParams(p_namaModul, p_tipedata, test)
         
-        __getterDetail : detailFungsi | None = self.builtinClassObjek.getDetailByParams(p_tipedata, self.builtinClassObjek.getFungsiAllVariant(p_namaFungsi))
-        
-        if(__getterDetail is None): raise Exception("STOPPER")
-        detailBuiltin : detailFungsi = __getterDetail
-        namaBuiltin : str = detailBuiltin["namaDiCPP"]
+        if(getterDetail is None): raise Exception("STOPPER")
+        detailBuiltin : tuple[str, list[ir.Type], ir.Type] = getterDetail
+        namaBuiltin : str = detailBuiltin[0]
         
         if(namaBuiltin in self.fungsiExtern.keys()):
             return self.modul.globals[namaBuiltin]
         
         if(not p_namaFungsi in self.fungsiExtern.keys()):
-            parameterBuiltin : list[ir.Type] = detailBuiltin["parameter"]
-            tipeReturnBuiltin : ir.Type = detailBuiltin["tipeReturn"]
+            parameterBuiltin : list[ir.Type] = detailBuiltin[1]
+            tipeReturnBuiltin : ir.Type = detailBuiltin[2]
             
             llvm_tipeFungsi : ir.FunctionType = ir.FunctionType(tipeReturnBuiltin, parameterBuiltin)
             llvm_fungsi : ir.Function = ir.Function(self.modul, llvm_tipeFungsi, namaBuiltin)
@@ -185,37 +189,51 @@ class codeGeneratorClass:
             
             # zeroExitCode : ir.Constant = ir.Constant(ir.IntType(32), 0)
             
-            returnanFungsi : ir.Instruction
-            
-            #ngisiin nama utk paramnya
-            for paramIdx in range(0, len(p_nodeBikinFungsi.parameterFungsi)):
-                namaParam : str = p_nodeBikinFungsi.parameterFungsi[paramIdx].nama
-                llvm_fungsiBaru.args[paramIdx].name = namaParam
+            if(p_nodeBikinFungsi.tipedataFungsi!=TIPEDATA_VOID):
+                returnanFungsi : ir.Instruction
                 
-                llvm_atomikParamDefaultValue : ir.Value | None = self.visit(p_nodeBikinFungsi.parameterFungsi[paramIdx].nilaiDefault, p_scope)
-                if(not llvm_atomikParamDefaultValue is None):
-                    assert isinstance(llvm_atomikParamDefaultValue, ir.Value), "[baca_nodeBikinFungsi] datatype llvm_atomikParamDefaultValue ga sesuai"
-                
-                llvm_atomikParam : ir.AllocaInstr = self.builder.alloca(llvm_fungsiBaru.args[paramIdx].type, name=namaParam)
-                assert isinstance(llvm_atomikParam, ir.AllocaInstr), "[baca_nodeBikinFungsi] datatype llvm_atomikParam ga sesuai"
+                #ngisiin nama utk paramnya
+                for paramIdx in range(0, len(p_nodeBikinFungsi.parameterFungsi)):
+                    namaParam : str = p_nodeBikinFungsi.parameterFungsi[paramIdx].nama
+                    llvm_fungsiBaru.args[paramIdx].name = namaParam
+                    
+                    llvm_atomikParamDefaultValue : ir.Value | None = self.visit(p_nodeBikinFungsi.parameterFungsi[paramIdx].nilaiDefault, p_scope)
+                    if(not llvm_atomikParamDefaultValue is None):
+                        assert isinstance(llvm_atomikParamDefaultValue, ir.Value), "[baca_nodeBikinFungsi] datatype llvm_atomikParamDefaultValue ga sesuai"
+                    
+                    llvm_atomikParam : ir.AllocaInstr = self.builder.alloca(llvm_fungsiBaru.args[paramIdx].type, name=namaParam)
+                    assert isinstance(llvm_atomikParam, ir.AllocaInstr), "[baca_nodeBikinFungsi] datatype llvm_atomikParam ga sesuai"
 
-                self.builder.store(llvm_fungsiBaru.args[paramIdx], llvm_atomikParam)
-                p_scope.addVariabel(namaParam, llvm_atomikParam, llvm_atomikParamDefaultValue)
-                pass
-            for nodeKode in p_nodeBikinFungsi.isiFungsi:
-                if(isinstance(nodeKode, node.nodeBalikin)):
-                    returnanFungsi = self.visit(nodeKode, newScope)
-                else:
-                    self.visit(nodeKode, newScope)
-                pass
-            # pass
-            self.builder.ret(returnanFungsi) #type:ignore
+                    self.builder.store(llvm_fungsiBaru.args[paramIdx], llvm_atomikParam)
+                    p_scope.addVariabel(namaParam, llvm_atomikParam, llvm_atomikParamDefaultValue)
+                    pass
+                for nodeKode in p_nodeBikinFungsi.isiFungsi:
+                    if(isinstance(nodeKode, node.nodeBalikin)):
+                        returnanFungsi = self.visit(nodeKode, newScope)
+                    else:
+                        self.visit(nodeKode, newScope)
+                    pass
+                # pass
+                self.builder.ret(returnanFungsi) #type:ignore
+            else:
+                self.builder.ret_void()
 
     def baca_nodePanggilFungsi(self, p_nodePanggilFungsi : node.nodePanggilFungsi, p_scope : scopeClass)->ir.Value:
         # if(p_nodePanggilFungsi.namaFungsi.nilai in fungsiBuiltin.keys()):
-        if(self.builtinClassObjek.cekFungsi(p_nodePanggilFungsi.namaFungsi.nilai)):
-            getterFungsi : list[detailFungsi] | None = self.builtinClassObjek.getFungsiAllVariant(p_nodePanggilFungsi.namaFungsi.nilai)
-            getFungsi : list[detailFungsi]
+        namaFungsi : str
+        namaModul : str | None = None
+        if(isinstance(p_nodePanggilFungsi.namaFungsi, tokenClass)):
+            namaFungsi = p_nodePanggilFungsi.namaFungsi.nilai
+            pass
+        elif(isinstance(p_nodePanggilFungsi.namaFungsi, node.nodeAksesScope)):
+            namaFungsi = p_nodePanggilFungsi.namaFungsi.member.identifierToken
+            namaModul = p_nodePanggilFungsi.namaFungsi.scope.identifierToken
+            pass
+        
+        if(not namaModul is None and self.builtinClassObjek.cekFungsi(namaModul, namaFungsi)):
+        # if(self.builtinClassObjek.cekFungsi(namaFungsi)):
+            getterFungsi : list[tuple[str, list[ir.Type], ir.Type]] | None = self.builtinClassObjek.getFungsiAllVariant(namaModul, namaFungsi)
+            getFungsi : list[tuple[str, list[ir.Type], ir.Type]]
             
             if(not getterFungsi is None):getFungsi = getterFungsi
             else:raise Exception("builtin gk ketemu, safeguard jebol")
@@ -229,7 +247,7 @@ class codeGeneratorClass:
                 llvm_parameterInput.append(tempVisit)
                 pass
             
-            llvm_fungsi : ir.Function = self.setupBuiltin(p_nodePanggilFungsi.namaFungsi.nilai, llvm_tipedataParameterInput, p_nodePanggilFungsi)
+            llvm_fungsi : ir.Function = self.setupBuiltin(namaModul, namaFungsi, llvm_tipedataParameterInput, p_nodePanggilFungsi)
             return self.builder.call(llvm_fungsi, llvm_parameterInput)
             # getVariabel : ir.Value | None = self.visit(p_nodePanggilFungsi.parameterInput[0], p_scope)
             # if(getVariabel is None):raise Exception("VARIABEL GAK KETEMU, SAFEGUARD JEBOL")

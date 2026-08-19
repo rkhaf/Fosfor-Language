@@ -22,3 +22,4 @@ fungsi main isinya
     tampilin("Hasil total:");
     tampilin(total);
 akhir;
+

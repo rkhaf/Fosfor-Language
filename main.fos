@@ -1,13 +1,12 @@
 impor modul output;
-// impor modul timer;
+impor modul timer;
 
 bikin fungsi namanya testing;
 
 fungsi main isinya
-    cessna();
-    outputse::testing();
-    output::tampilin("test");
-    output::tampilinne(456);
-    output::write::testing(123);
+    timer::mulaiTimer();
+    output::tampilin(output::sixseven());
+    // tampilin("test");
+    timer::stopTimer();
 akhir;
 
