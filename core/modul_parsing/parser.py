@@ -221,6 +221,9 @@ class parserClass:
             case [Ttype.T_IDTF, Ttype.T_PRTS_KIRI]:
                 return self.parsePanggilFungsi()
             
+            case [Ttype.T_IDTF, _]:
+                return self.parseIdentifier()
+            
             case _:
                 return self.parsePerbandingan()
 

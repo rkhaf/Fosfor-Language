@@ -36,7 +36,7 @@ mappingStrKeDatatype : dict[str, datatypes] = {
 
 class importHandler:
     def __init__(self) -> None:
-        self.runtimePathList : list[str] = []
+        self.runtimePathList : set[Path] = set()
         self.mappingFungsiBuiltinFOS : dict[str, dict[str, fungsiObjek]] = defaultdict(dict)
         self.mappingFungsiBuiltinLLVM : dict[str, builtins.detailFungsiLLVM] = defaultdict()
         pass
@@ -47,6 +47,7 @@ class importHandler:
         fileObject : Path = pathModul / f"{p_namaModul}.o"
         
         loadedJson : dict[str, str] = {}
+        # self.runtimePathList.add(fileObject)
         
         if(not pathModul.is_dir()):
             raise Exception("modul gk ketemu")
@@ -139,11 +140,13 @@ class importHandler:
             # self.mappingFungsiBuiltinFOS.append(fungsiObjek(namaFungsi, tipedataFungsi, parameters, node.nodeClass(-1, -1)))
             # self.mappingFungsiBuiltinFOS.setdefault(p_jsonDict['namaModul'], fungsiObjek(namaFungsi, tipedataFungsi, parameters, node.nodeClass(-1, -1)))
             self.mappingFungsiBuiltinFOS.setdefault(p_jsonDict['namaModul'], {}).setdefault(namaFungsi, fungsiObjek(namaFungsi, tipedataFungsi, parameters, node.nodeClass(-1, -1)))
+        
         pass
     
     def handleModul(self, p_nodeImpor : nodeImpor)->None:
         jsonDict = self.getLoadedJsonModul(p_nodeImpor.nama.nilai)
-        self.runtimePathList.append(str(jsonDict[0]))
+        # self.runtimePathList.append(str(jsonDict[0]))
+        self.runtimePathList.add(jsonDict[0])
         self.bacaDataJson(jsonDict[1])
         pass
     
@@ -160,3 +163,6 @@ class importHandler:
     
     def getLLVMBuiltinMapping(self)->dict[str, builtins.detailFungsiLLVM]:
         return self.mappingFungsiBuiltinLLVM
+    
+    def getRuntimePathList(self)->set[Path]:
+        return self.runtimePathList

@@ -22,6 +22,7 @@ class LLVMMergerClass:
         namaFile : str,
         ir_str: ir.Module,
         output_exe_path: str,
+        path_runtimes : set[Path] = set(),
         compiler: str = "g++",
     ) -> None:
         
@@ -60,16 +61,26 @@ class LLVMMergerClass:
             # 1. Pastikan target_exe berupa Absolute Path & ber-ekstensi .exe
             target_exe = (targetPathEXE / f"{namaFile}.exe").resolve()
 
-            cmd = [
-                compiler,
-                temp_obj_path,
-                str(config.path_runtimeCPP),
-                "-o",
-                str(target_exe), # Kirim FULL ABSOLUTE PATH ke G++
-                "-fno-pic",
-                "-fno-pie",
-                "-Wl,--gc-sections"
-            ]
+            combinedRuntimePath : set[str] = set()
+            for pathe in path_runtimes:
+                combinedRuntimePath.add(str(pathe))
+            
+            cmd = [compiler, temp_obj_path]
+            
+            cmd.extend(combinedRuntimePath)
+            
+            cmd.extend(['-o', 'main.exe', '-fno-pic', '-fno-pie', '-Wl,--gc-sections'])
+            
+            # cmd = [
+            #     compiler,
+            #     temp_obj_path,
+            #     combinedRuntimePath,
+            #     "-o",
+            #     str(target_exe), # Kirim FULL ABSOLUTE PATH ke G++
+            #     "-fno-pic",
+            #     "-fno-pie",
+            #     "-Wl,--gc-sections"
+            # ]
 
             result = subprocess.run(cmd, capture_output=True, text=True)
 

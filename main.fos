@@ -5,7 +5,7 @@ bikin fungsi namanya testing;
 
 fungsi main isinya
     timer::mulaiTimer();
-    output::tampilin(output::sixseven());
+    output::tampilin(output::sixseven()*2);
     // tampilin("test");
     timer::stopTimer();
 akhir;
