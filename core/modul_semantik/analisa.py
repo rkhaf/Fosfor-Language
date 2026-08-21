@@ -114,7 +114,7 @@ class semantikClass:
             else:
                 print(f"WARNING VALUE VARNYA {p_node.namaVariabel} MSH KOSONG")
 
-    def check_nodePanggilFungsi(self, p_node: node.nodePanggilFungsi, p_scope: scopeContainer)->None:
+    def check_nodePanggilFungsi(self, p_node: node.nodePanggilFungsi, p_scope: scopeContainer)->datatypes|None:
         # if(isinstance(p_node.namaFungsi, tokenClass) and p_scope.cekFungsi(p_node.namaFungsi.nilai)):
             getFungsi : fungsiObjek | None
             # getFungsi : fungsiObjek = p_scope.getFungsi(p_node.namaFungsi.nilai)
@@ -124,7 +124,10 @@ class semantikClass:
                 else:
                     self.errorHandlerObjek.tambahinError(__name__, 6, p_node.baris, -1, p_node.namaFungsi.nilai)
                     return None
-            elif(isinstance(p_node.namaFungsi, node.nodeAksesScope)):getFungsi = self.visit(p_node.namaFungsi, p_scope)
+            elif(isinstance(p_node.namaFungsi, node.nodeAksesScope)):
+                getFungsi = self.visit(p_node.namaFungsi, p_scope)
+                # test =p_scope.cekFungsiBuiltin()
+                pass
             else:raise Exception("UNEXPECTED ERROR")
             
             if(not getFungsi is None):
@@ -185,7 +188,8 @@ class semantikClass:
             #     # print(p_node.namaFungsi,"gaada")
             #     # self.errorHandlerObjek.tambahinError(__name__, 6, p_node.baris, -1, p_node.namaFungsi.nilai)
             #     self.errorHandlerObjek.tambahinError(__name__, 6, p_node.baris, -1, p_node.namaFungsi.member.identifierToken)
-
+            return getFungsi.type
+    
     def check_nodeBalikin(self, p_node: node.nodeBalikin, p_scope: scopeContainer)->datatypes:
         # return p_node.returnEkspresi.tipe
         getData : None | datatypes | node.nodeClass = self.visit(p_node.returnEkspresi, p_scope)
@@ -201,7 +205,9 @@ class semantikClass:
             if(p_scope.cekModul(namaModul.identifierToken)):
                 namaMember : node.nodeIdentifier = p_node.member
                 if(p_scope.cekFungsiBuiltin(namaModul.identifierToken, namaMember.identifierToken)):
-                    return p_scope.getFungsiBuiltin(namaModul.identifierToken, namaMember.identifierToken)
+                    getterFungsiObjek = p_scope.getFungsiBuiltin(namaModul.identifierToken, namaMember.identifierToken)
+
+                    return getterFungsiObjek
                 else:
                     self.errorHandlerObjek.tambahinError(__name__, 21, namaMember.baris, p_bagian=namaMember.identifierToken)
                     # return fungsiObjek("ERROR", TIPEDATA_EROR, [], node.nodeClass(-1, -1))

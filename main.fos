@@ -1,3 +1,17 @@
+impor modul output;
 fungsi main isinya
-    tampilin((123+456)*(789+fulgrim)*output::sixseven());
+    // bikin variabel namanya augustgrad tipenya integer nilainya 100;
+    // output::tampilin(output::sixseven()>2);
+    // output::tampilin(output::sixseven()*2);
+    // output::tampilin(123);
+    // output::tampilin(output::sixseven());
+    // output::tampilin(augustgrad);
+    // output::tampilin(output::sixseven()+2);
+    // bikin variabel namanya test tipenya integer nilainya 0;
+    bikin variabel namanya test1 tipenya integer nilainya output::sixseven();
+    // test = output::sixseven();
+    output::tampilin(test);
+    // output::tampilin(test1);
+    // output::tampilin("test");
 akhir;
+
