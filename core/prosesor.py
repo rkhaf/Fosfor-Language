@@ -35,20 +35,20 @@ def run(fileOriginal : str, p_namaFile : str) -> None:
     if(errorHandlerObjek.adaError()):
         errorHandlerObjek.displayError()
     else:
-        # parserObjek.getTree().printTree()
-        importHandlerObjek.proses(parserObjek.getTree())
-        builtinObjek.proses(importHandlerObjek.getLLVMBuiltinMapping(), importHandlerObjek.getFosBuiltinMapping())
-        semantikObjek.proses(parserObjek.getTree())
-    #     # # semantikObjek.printScopes()
-        if(errorHandlerObjek.adaError()):
-            errorHandlerObjek.displayError()
-        else:
-            codegenObjek.proses(parserObjek.getTree())
-            if(errorHandlerObjek.adaError()):
-                errorHandlerObjek.displayError()
-            else:
-                # print(str(codegenObjek.modul))
-                # print(importHandlerObjek.getRuntimePathList(), "done")
-                konverterObjek.proses(True,p_namaFile, codegenObjek.getModul(), "", importHandlerObjek.getRuntimePathList())
+        parserObjek.getTree().printTree()
+    #     importHandlerObjek.proses(parserObjek.getTree())
+    #     builtinObjek.proses(importHandlerObjek.getLLVMBuiltinMapping(), importHandlerObjek.getFosBuiltinMapping())
+    #     semantikObjek.proses(parserObjek.getTree())
+    # #     # # semantikObjek.printScopes()
+    #     if(errorHandlerObjek.adaError()):
+    #         errorHandlerObjek.displayError()
+    #     else:
+    #         codegenObjek.proses(parserObjek.getTree())
+    #         if(errorHandlerObjek.adaError()):
+    #             errorHandlerObjek.displayError()
+    #         else:
+    #             # print(str(codegenObjek.modul))
+    #             # print(importHandlerObjek.getRuntimePathList(), "done")
+    #             konverterObjek.proses(True,p_namaFile, codegenObjek.getModul(), "", importHandlerObjek.getRuntimePathList())
     #             # subprocess.run(["./"+str()])
         pass

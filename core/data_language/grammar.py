@@ -201,5 +201,4 @@ perbandinganList : dict[str, tokenType] = {
     CMPR_SKCL : tokenType.T_CMPR_SKCL,
     CMPR_SAMA : tokenType.T_CMPR_SAMA,
     CMPR_GSMA : tokenType.T_CMPR_GSMA,
-    SYMBOL_SRES : tokenType.T_SRES
 }

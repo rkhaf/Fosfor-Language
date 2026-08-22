@@ -91,10 +91,17 @@ class semantikClass:
         else:
             newVariabelObj : varibelObjek
             
-            tipedataValue : datatypes | None = None
+            tipedataValue : datatypes | None = TIPEDATA_NULL
             tipedataVariabel : datatypes = TIPEDATA_VOID
+            # tipedataNilaiVariabel : datatypes = TIPEDATA_NULL
             
-            if(p_node.nilaiVariabel.tipe!=TIPEDATA_NULL):
+            # if(type(p_node.nilaiVariabel)!=node.nodeEkspresi):
+            #     tipedataNilaiVariabel = self.visit(p_node.nilaiVariabel, p_scope)
+            #     pass
+            
+            tipedataValue = self.visit(p_node.nilaiVariabel, p_scope)
+            
+            if(tipedataValue!=TIPEDATA_NULL):
                 newVariabelObj = varibelObjek(True, p_node.namaVariabel, p_node.tipedataVariabel, p_node.baris)
             else:
                 newVariabelObj = varibelObjek(False, p_node.namaVariabel, p_node.tipedataVariabel, p_node.baris)
@@ -105,7 +112,7 @@ class semantikClass:
             else:
                 tipedataVariabel = p_node.tipedataVariabel
                 
-            tipedataValue = self.visit(p_node.nilaiVariabel, p_scope)
+            
 
             if(not tipedataValue is None):
                 if(tipedataVariabel!=tipedataValue):
@@ -113,6 +120,7 @@ class semantikClass:
                 p_scope.mappingVariabel.setdefault(p_node.namaVariabel, newVariabelObj)
             else:
                 print(f"WARNING VALUE VARNYA {p_node.namaVariabel} MSH KOSONG")
+        pass
 
     def check_nodePanggilFungsi(self, p_node: node.nodePanggilFungsi, p_scope: scopeContainer)->datatypes|None:
         # if(isinstance(p_node.namaFungsi, tokenClass) and p_scope.cekFungsi(p_node.namaFungsi.nilai)):

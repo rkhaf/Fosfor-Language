@@ -8,10 +8,12 @@ fungsi main isinya
     // output::tampilin(augustgrad);
     // output::tampilin(output::sixseven()+2);
     // bikin variabel namanya test tipenya integer nilainya 0;
-    bikin variabel namanya test1 tipenya integer nilainya output::sixseven();
+    // bikin variabel namanya test1 tipenya integer nilainya output::sixseven();
+    test1 = output::sixseven()+2;
     // test = output::sixseven();
-    output::tampilin(test);
-    // output::tampilin(test1);
+    // test = output::sixseven()*output::sixseven();
+    // output::tampilin(test1*2);
+    // output::tampilin(test);
     // output::tampilin("test");
 akhir;
 
